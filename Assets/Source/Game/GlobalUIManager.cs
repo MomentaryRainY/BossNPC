@@ -8,6 +8,8 @@ public class GlobalUIManager : MonoBehaviour
 
     [SerializeField] private CanvasGroup PausePanel;
 
+    [SerializeField] private ChoiceView ChoicePanel;
+
     private bool paused;
 
     private void Awake()
@@ -21,6 +23,7 @@ public class GlobalUIManager : MonoBehaviour
         Instance = this;
 
         HidePause();
+        HideChoicePanel();
     }
 
     private void Update()
@@ -43,6 +46,21 @@ public class GlobalUIManager : MonoBehaviour
         {
             HidePause();
         }
+    }
+
+    public void ShowChoicePanel()
+    {
+        ChoicePanel.SetShown();
+    }
+
+    public void HideChoicePanel()
+    {
+        ChoicePanel.SetHidden();
+    }
+
+    public void SetChoicesText(string key1, string key2, string key3)
+    {
+        ChoicePanel.SetChoices(key1, key2, key3);
     }
 
     private void ShowPause()

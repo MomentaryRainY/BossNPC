@@ -15,6 +15,7 @@ public static class UIEvents
 {
     public const string DRAW_CARD = "Draw_Card";
     public const string STAMINA_CHANGE = "Stamina_Change";
+    public const string MADE_CHOICE = "Made_Choice";
 }
 
 public static class TurnEvents

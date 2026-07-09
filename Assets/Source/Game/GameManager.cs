@@ -79,6 +79,19 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        if(CurrentSceneNum < BattleNames.Length - 1)
+        {
+            GlobalUIManager.Instance.ShowChoicePanel();
+
+            Time.timeScale = 0f;
+            return;
+        }
+
+        ContinueAfterBattle();
+    }
+
+    private void ContinueAfterBattle()
+    {
         BattleConfig config = BattleConfigs[CurrentSceneNum];
 
         bool isLastBattle = CurrentSceneNum >= BattleNames.Length - 1;
@@ -301,11 +314,19 @@ public class GameManager : MonoBehaviour
         // not necessary right now
     }
 
+    private void OnBattleChoiceSelected(int choiceIndex)
+    {
+        Time.timeScale = 1f;
+        GlobalUIManager.Instance.HideChoicePanel();
+        ContinueAfterBattle();
+    }
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
         EventsHandler.RegisterEvent(SceneEvents.NEXT_SCENE, OnLoadingNextScene);
         EventsHandler.RegisterEvent<BattleEndData>(BattleEvents.END_BATTLE, OnBattleEnd);
+        EventsHandler.RegisterEvent<int>(UIEvents.MADE_CHOICE, OnBattleChoiceSelected);
         //EventsHandler.RegisterEvent(SceneEvents.TRY_AGAIN, OnPlayAgain);
     }
 
@@ -314,6 +335,7 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
         EventsHandler.UnregisterEvent(SceneEvents.NEXT_SCENE, OnLoadingNextScene);
         EventsHandler.UnregisterEvent<BattleEndData>(BattleEvents.END_BATTLE, OnBattleEnd);
+        EventsHandler.UnregisterEvent<int>(UIEvents.MADE_CHOICE, OnBattleChoiceSelected);
         //EventsHandler.UnregisterEvent(SceneEvents.TRY_AGAIN, OnPlayAgain);
     }
 }
