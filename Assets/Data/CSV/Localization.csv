@@ -1,0 +1,47 @@
+﻿Key,zh,en
+,,
+ui.start,开始游戏,Start Game
+ui.setting,设置,Setting
+ui.exit,退出游戏,Exit Game
+ui.title,抵达冰峰,Reaching The IcePeak
+ui.next,下一关,Next Level
+ui.newcard,获得新卡牌！,Get a new card!
+ui.press,按下任意按键以继续…,Press Any key to continue…
+ui.tryagain,再试一次,Try Again
+ui.levelup,升级！,Level Up！
+ui.thanks,感谢游玩！,Thanks for Playing!
+,,
+ui.audio,音频控制,Volume Control
+ui.language,语言选择,Language Selection
+ui.onehit,一击必杀开关,One Hit Switch
+ui.back,ESC键后退,ESC to back
+ui.yourturn,你的回合！,Your Turn!
+ui.enemyturn,敌人回合,Enemy Turn
+ui.edit,编辑你的牌库,Edit your Carddeck
+ui.confirm,确认,Confirm
+ui.stamina,耐力,Stamina
+ui.health,生命值,Health
+ui.quit,退出游戏,Exit Game
+,,
+card.melee.name,近战攻击,Melee Attack
+card.melee.desc,"范围{range}, 造成{damage}点伤害。","Range {range}, deal {damage} damage."
+card.heavy.name,重击,Heavy Strike
+card.heavy.desc,"范围{range}, 造成{damage}点伤害。","Range {range}, deal {damage} damage."
+card.puncture.name,穿刺攻击,Puncture Attack
+card.puncture.desc,"直线范围{range}, 对范围内所有人造成{damage}点伤害。","Linear range {range}, deal {damage} damage to all enemies in range."
+card.javelin.name,标枪,javelin
+card.javelin.desc,"间隔{range}, 造成{damage}点伤害。","Interval {range}, deal {damage} damage."
+card.hammer.name,重锤,Hammer
+card.hammer.desc,"前方矩形范围, 对范围内所有人造成{damage}点伤害。","Rectangle range ahead {range}, deal {damage} damage to all enemies in range."
+card.magic.name,魔法,Magic
+card.magic.desc,"间隔{range}, 方形范围，对范围内所有人造成{damage}点伤害。","Interval {range}, Square range 1, deal {damage} damage to all enemies in range."
+,,
+tutorial.esc,您可以随时按下 ESC 键打开设置面板，其中包含背景音乐音量调节滑块、中英文语言切换按钮以及一击必杀开关（可让您一击必杀）。当您觉得游戏太难时，不妨试试这个功能 :),"You can press ESC to invoke setting panel at any moment, where contains BGM volumn slider, Language switch from chinese and english, and a One hit toggle allow you kill in One-hit. Trigger this when you find the game too difficult :)"
+tutorial.space,按下空格键以切换教程页,Press the spacebar to switch tutorial pages.
+tutorial.move,每场战斗都有一个棋盘，您在每回合都有一次移动的机会，可移动范围用黄色显示，移动结束后，可以用鼠标右键/退格键来撤销移动，也可选择不移动,"Each battle features a chessboard. You have one move opportunity per turn, indicated by a yellow movement area. After making a move, you can undo it using the right mouse button or the backspace key, or choose not to move."
+tutorial.playcard,每回合会抽取两张牌，您可以在您的回合鼠标点击卡牌拖动到目标身上以释放。每张卡牌有自身的释放位置限制，当您拖动卡牌后，卡牌会使用红色标记支持释放的棋盘格子。尝试用每张牌的红色格子覆盖您想要打到的敌人吧！,"Each turn, you draw two cards. You can click and drag the cards to your target to release them. Each card has its own release position restriction; after you drag a card, it will be marked with red squares on the board that it can be released on. Try covering the enemy you want to attack with the red squares of each card!"
+tutorial.carddamage,每回合可释放卡牌受耐力条限制，每张牌消耗耐力见卡牌名称下方数字。卡牌实际造成伤害会受到您的耐力条进行修正，比如每回合第一张牌造成的伤害会是本身的1.2倍！每回合最后一张牌有可能只能造成0.8倍的伤害。具体伤害数值可以拖动卡牌到目标身上见卡牌伤害数字描述的变动！,"The number of cards you can play each turn is limited by your stamina bar. The stamina cost of each card is shown below the card name. The actual damage dealt by a card will be adjusted based on your stamina bar. For example, the first card of each turn will deal 1.2 times its normal damage! The last card of each turn may only deal 0.8 times its normal damage. You can see the changes in the card's damage numbers by dragging the card onto the target!"
+tutorial.carddeck,您初始只有三种牌，每张携带了两张。教学关卡内总共六张牌，手牌上限为6张。当抽牌堆6张牌被抽取完毕后，会将您打出的所有牌全部重新洗牌放入抽牌堆。这意味着您想打出同一张牌更多次就必须要打出牌库所有牌！请在教学关卡内摸清基础三种牌的特性吧！,"You start with only three types of cards, carrying two copies of each. There are a total of six cards in the tutorial level, with a hand limit of six cards. Once all six cards in the draw pile are drawn, all the cards you've played will be shuffled and added back to the draw pile. This means that if you want to play the same card more times, you must play the entire deck! Try to understand the characteristics of the three basic card types in the tutorial level!"
+tutorial.transition,在每场战斗结束后，您会获得数值提升以及新的卡牌！并且您可以编辑您的牌库！没有卡牌总数上限限制，每种卡牌限制最多携带两张。设计您的牌库进行挑战吧！,"After each battle, you'll receive stat boosts and new cards! You can also edit your deck! There's no limit to the total number of cards you can carry, but you can only bring a maximum of two copies of each type. Design your deck and take on the challenge!"
+tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
+tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>

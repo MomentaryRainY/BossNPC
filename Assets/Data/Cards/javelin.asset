@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5918c600a0b10d4f8f68ad260b11196, type: 3}
+  m_Name: javelin
+  m_EditorClassIdentifier: 
+  CardId: javelin
+  CardNameKey: card.javelin.name
+  BaseCost: 1
+  DescriptionKey: card.javelin.desc
+  ContentPrefab: {fileID: 6659601394455217638, guid: 0ada70c511aefca4ebe57ac3b503a26a, type: 3}
+  TargetingRule: {fileID: 11400000, guid: e3343d453f691a1479d1d4f7d622027e, type: 2}
+  Effects:
+  - {fileID: 11400000, guid: e6b46b81a30536b40852a2fb552b7f23, type: 2}
+  Conditions:
+  - {fileID: 11400000, guid: 814ced348a36a3443ad548633bece0bd, type: 2}

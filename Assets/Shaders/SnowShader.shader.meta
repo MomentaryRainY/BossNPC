@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: e94fa3cb9fb16134b9de9526c5f9ae4d
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _SnowTex: {instanceID: 0}
+  - _SnowNormalTex: {instanceID: 0}
+  - _SnowHeightTex: {instanceID: 0}
+  - _SnowMetallicTex: {instanceID: 0}
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

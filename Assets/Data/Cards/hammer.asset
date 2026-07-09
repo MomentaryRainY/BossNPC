@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5918c600a0b10d4f8f68ad260b11196, type: 3}
+  m_Name: hammer
+  m_EditorClassIdentifier: 
+  CardId: hammer
+  CardNameKey: card.hammer.name
+  BaseCost: 2
+  DescriptionKey: card.hammer.desc
+  ContentPrefab: {fileID: 1459689668687645485, guid: 4b6c81c7a36cc4640802142f10ce00f5, type: 3}
+  TargetingRule: {fileID: 11400000, guid: da28a6d65ccaecb4ab70aa28d99c775f, type: 2}
+  Effects:
+  - {fileID: 11400000, guid: 9822e789cb7c4dd4990e067789e5c2bb, type: 2}
+  Conditions:
+  - {fileID: 11400000, guid: 814ced348a36a3443ad548633bece0bd, type: 2}

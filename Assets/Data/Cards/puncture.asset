@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5918c600a0b10d4f8f68ad260b11196, type: 3}
+  m_Name: puncture
+  m_EditorClassIdentifier: 
+  CardId: puncture
+  CardNameKey: card.puncture.name
+  BaseCost: 2
+  DescriptionKey: card.puncture.desc
+  ContentPrefab: {fileID: 6659601394455217638, guid: 0ada70c511aefca4ebe57ac3b503a26a, type: 3}
+  TargetingRule: {fileID: 11400000, guid: e593fd99de27aea4b8346a215a61e321, type: 2}
+  Effects:
+  - {fileID: 11400000, guid: b86fd412e5a6b1a4c8b67f89f5908be8, type: 2}
+  Conditions:
+  - {fileID: 11400000, guid: 814ced348a36a3443ad548633bece0bd, type: 2}

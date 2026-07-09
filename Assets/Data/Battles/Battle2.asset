@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e25a24ee6dfed564ba669993c0095608, type: 3}
+  m_Name: Battle2
+  m_EditorClassIdentifier: 
+  PlayerPrefab: {fileID: 6109471106817678834, guid: 83bc9632b54cdd14f90022ece32c9942, type: 3}
+  PlayerStartPos: {x: 1, y: 4}
+  PlayerMaxHealth: 120
+  PlayerMoveRange: 3
+  MaxStamina: 5
+  MaxHandCount: 6
+  Enemies:
+  - Config: {fileID: 11400000, guid: b3f837bc7a6d5bc47a9910b6be4562db, type: 2}
+    GridPos: {x: 7, y: 4}
+  - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
+    GridPos: {x: 7, y: 2}
+  - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
+    GridPos: {x: 7, y: 6}
+  PlayerDeck: {fileID: 11400000, guid: f3b1de5c03b6b7044aea4e4315d95ea4, type: 2}
+  UseTransitionAfterBattle: 1
+  ShowLevelUpPage: 1
+  ShowRewardCardPage: 1
+  RewardCard: {fileID: 11400000, guid: cc183d6d9d974f64a8b588c76d04f839, type: 2}

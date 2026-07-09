@@ -1,0 +1,7 @@
+﻿Id,NameKey,Cost,DescriptionKey,Effects,TargetingRule,Conditions,CardPrefab
+melee,card.melee.name,1,,Damage:30,Range:2,EnemyTarget,sword
+heavy,card.heavy.name,2,,Damage:50,Range:1,EnemyTarget,sword
+puncture,card.puncture.name,2,,LinearDamage:25,LinearRange:3,EnemyTarget,spear
+hammer,card.hammer.name,2,,RectangleDamage:25,Range:1,EnemyTarget,hammer
+javelin,card.javelin.name,1,,Damage:40,IntervalRange:2,EnemyTarget,spear
+magic,card.magic.name,2,,SquareDamage:30,IntervalRange:2,EnemyTarget,book
