@@ -16,6 +16,7 @@ MonoBehaviour:
   PlayerStartPos: {x: 1, y: 4}
   PlayerMaxHealth: 120
   PlayerMoveRange: 3
+  PlayerMoveSpeed: 2
   MaxStamina: 5
   MaxHandCount: 6
   Enemies:
@@ -25,8 +26,13 @@ MonoBehaviour:
     GridPos: {x: 7, y: 2}
   - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
     GridPos: {x: 7, y: 6}
-  PlayerDeck: {fileID: 11400000, guid: f3b1de5c03b6b7044aea4e4315d95ea4, type: 2}
   UseTransitionAfterBattle: 1
   ShowLevelUpPage: 1
   ShowRewardCardPage: 1
   RewardCard: {fileID: 11400000, guid: cc183d6d9d974f64a8b588c76d04f839, type: 2}
+  ChoiceConfig:
+    ShowAfterBattle: 1
+    Options:
+    - {fileID: 11400000, guid: 738e044520c948745b018328ea1085c7, type: 2}
+    - {fileID: 11400000, guid: aa82eb4f0f185244a8c480d7f1c91045, type: 2}
+    - {fileID: 11400000, guid: 8027b581b427e224fb69d8a9f2ae5e14, type: 2}

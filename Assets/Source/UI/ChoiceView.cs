@@ -18,6 +18,11 @@ public class ChoiceView : MonoBehaviour
         BTN1.onClick.AddListener(OnChoice1Clicked);
         BTN2.onClick.AddListener(OnChoice2Clicked);
         BTN3.onClick.AddListener(OnChoice3Clicked);
+        
+    }
+
+    private void Start()
+    {
         LocalizationManager.Instance.LanguageChanged += SetTexts;
     }
 
@@ -72,6 +77,10 @@ public class ChoiceView : MonoBehaviour
         BTN1.onClick.RemoveListener(OnChoice1Clicked);
         BTN2.onClick.RemoveListener(OnChoice2Clicked);
         BTN3.onClick.RemoveListener(OnChoice3Clicked);
+    }
+
+    private void OnDestroy()
+    {
         LocalizationManager.Instance.LanguageChanged -= SetTexts;
     }
 }

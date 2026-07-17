@@ -1,9 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using static UnityEngine.GraphicsBuffer;
 
 public class BattleManager : MonoBehaviour
 {
@@ -581,6 +580,8 @@ public class BattleManager : MonoBehaviour
             return false;
         }
 
+        if (!Board.IsWalkable(targetCell)) return false;
+
         PreviousPlayerCell = CurrentPlayer.CurrentPos;
         LastMovedCell = targetCell;
 
@@ -596,10 +597,13 @@ public class BattleManager : MonoBehaviour
 
     private bool IsValidMoveCell(Vector2Int target)
     {
+        /*
         if(target.x < 0 || target.y < 0 || target.x >= Board.BoardWidth || target.y >= Board.BoardHeight)
         {
             return false;
-        }
+        }*/
+
+        if (!Board.IsWalkable(target)) return false;
 
         if (target == CurrentPlayer.CurrentPos) return false;
 

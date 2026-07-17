@@ -45,3 +45,14 @@ tutorial.carddeck,您初始只有三种牌，每张携带了两张。教学关�
 tutorial.transition,在每场战斗结束后，您会获得数值提升以及新的卡牌！并且您可以编辑您的牌库！没有卡牌总数上限限制，每种卡牌限制最多携带两张。设计您的牌库进行挑战吧！,"After each battle, you'll receive stat boosts and new cards! You can also edit your deck! There's no limit to the total number of cards you can carry, but you can only bring a maximum of two copies of each type. Design your deck and take on the challenge!"
 tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
 tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>
+,,
+choice.1_1,释放他,Spare him
+choice.1_2,解决他,Execute him
+choice.1_3,审问他,Interrogate him
+choice.1_4,嘲讽BOSS,Mock the boss through the subordinate
+choice.1_5,放走他,Show respect to the fallen enemy
+choice.1_6,审问他,Search for information
+choice.1_7,解救他被绑架的亲人,Help to rescue the captive
+choice.1_8,用正义道德劝诫,Righteousness persuasion
+choice.1_9,忽视他并继续前进,Ignore the captive
+choice.thisone,选择这个,This One

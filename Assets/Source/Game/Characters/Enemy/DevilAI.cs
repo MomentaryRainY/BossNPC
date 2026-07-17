@@ -122,6 +122,8 @@ public class DevilAI : EnemyAI
             return true;
         }
 
+        if (!board.IsWalkable(cell)) return false;
+
         if (reservedCells.Contains(cell))
         {
             return false;

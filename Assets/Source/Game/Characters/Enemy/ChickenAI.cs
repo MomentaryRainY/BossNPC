@@ -9,6 +9,7 @@ public class ChickenAI : EnemyAI
     {
         // scared chicken run randomly
         Vector2Int target = new Vector2Int(Random.Range(0, board.BoardWidth), Random.Range(0, board.BoardHeight));
+
         while(board.IsOccupied(target))
         {
             target = new Vector2Int(Random.Range(0, board.BoardWidth), Random.Range(0, board.BoardHeight));

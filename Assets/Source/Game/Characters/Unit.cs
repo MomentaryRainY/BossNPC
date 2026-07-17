@@ -108,22 +108,28 @@ public abstract class Unit : MonoBehaviour
         Vector2Int from = board.WorldToGrid(start);
 
         Vector3 target = board.GridToWorld(targetCell);
-        target.y = transform.position.y;
+        //target.y = transform.position.y;
 
         float moveSpeed = Mathf.Max(0.1f, runtime.Config.MoveSpeed);
 
         while (Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
             new Vector2(target.x, target.z)) > 0.05f) {
-            transform.position = Vector3.MoveTowards(
+
+            Vector3 next = Vector3.MoveTowards(
                 transform.position,
                 target,
                 moveSpeed * Time.deltaTime
             );
+
+            next = board.ApplyGroundHeight(next);
+            transform.position = next;
+
             TryStampSnow();
             yield return null;
         }
-        
-        transform.position = new Vector3(target.x, transform.position.y, target.z);
+
+        //transform.position = new Vector3(target.x, transform.position.y, target.z);
+        transform.position = board.GridToWorld(targetCell);
 
         GridPos = targetCell;
         board.MoveUnit(this, from, targetCell);

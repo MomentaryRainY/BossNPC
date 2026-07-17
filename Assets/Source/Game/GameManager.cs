@@ -79,21 +79,25 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if(CurrentSceneNum < BattleNames.Length - 1)
+        BattleConfig config = BattleConfigs[CurrentSceneNum];
+
+        if(config.ChoiceConfig.ShowAfterBattle)
         {
+            GlobalUIManager.Instance.SetChoicesText(config.ChoiceConfig.Options[0].ChoiceTextKey,
+                config.ChoiceConfig.Options[1].ChoiceTextKey,
+                config.ChoiceConfig.Options[2].ChoiceTextKey);
+
             GlobalUIManager.Instance.ShowChoicePanel();
 
             Time.timeScale = 0f;
             return;
         }
 
-        ContinueAfterBattle();
+        ContinueAfterBattle(config);
     }
 
-    private void ContinueAfterBattle()
+    private void ContinueAfterBattle(BattleConfig config)
     {
-        BattleConfig config = BattleConfigs[CurrentSceneNum];
-
         bool isLastBattle = CurrentSceneNum >= BattleNames.Length - 1;
 
         if (isLastBattle)
@@ -318,7 +322,8 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         GlobalUIManager.Instance.HideChoicePanel();
-        ContinueAfterBattle();
+        BattleConfig config = BattleConfigs[CurrentSceneNum];
+        ContinueAfterBattle(config);
     }
 
     private void OnEnable()

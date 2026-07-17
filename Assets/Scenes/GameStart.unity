@@ -952,7 +952,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PausePanel: {fileID: 1502975781}
-  ChoicePanel: {fileID: 0}
+  ChoicePanel: {fileID: 1193743807}
 --- !u!224 &391824864 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 22407258, guid: 4abb88e9aa99e429b8dbded4e9743a56, type: 3}
@@ -1779,14 +1779,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2dd3b28063d71c942b818b24996084d0, type: 2}
   - {fileID: 11400000, guid: 0e85a3049a035b049924b045374f9d25, type: 2}
   - {fileID: 11400000, guid: ecaedafa0ef503447a4f9ce9937232bc, type: 2}
---- !u!4 &790968154
-Transform:
+--- !u!224 &790968154
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 790968152}
-  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -1795,12 +1794,17 @@ Transform:
   - {fileID: 1768339410}
   - {fileID: 356791539}
   - {fileID: 318578752}
+  - {fileID: 539842857}
   - {fileID: 612840250}
   - {fileID: 1193743802}
   - {fileID: 1502975783}
-  - {fileID: 539842857}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &819035404
 GameObject:
   m_ObjectHideFlags: 0
@@ -2703,6 +2707,7 @@ GameObject:
   - component: {fileID: 1193743805}
   - component: {fileID: 1193743804}
   - component: {fileID: 1193743803}
+  - component: {fileID: 1193743809}
   m_Layer: 0
   m_Name: Choice
   m_TagString: Untagged
@@ -2776,7 +2781,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 9000
   m_TargetDisplay: 0
 --- !u!114 &1193743805
 MonoBehaviour:
@@ -2792,7 +2797,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.39607844}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2845,8 +2850,25 @@ CanvasGroup:
   m_Enabled: 1
   m_Alpha: 0
   m_Interactable: 1
-  m_BlocksRaycasts: 0
+  m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1193743809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193743801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1204062541
 GameObject:
   m_ObjectHideFlags: 0
@@ -4542,7 +4564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 1789411316}
-  Key: btn.thisone
+  Key: choice.thisone
 --- !u!114 &1789411316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4557,7 +4579,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4825,7 +4847,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 1814737915}
-  Key: btn.thisone
+  Key: choice.thisone
 --- !u!114 &1814737915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4840,7 +4862,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -4974,7 +4996,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 1815638518}
-  Key: btn.thisone
+  Key: choice.thisone
 --- !u!114 &1815638518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4989,7 +5011,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -5424,7 +5446,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 168898203}
-  - {fileID: 790968154}
   - {fileID: 203135103}
   - {fileID: 1408287189}
   - {fileID: 425010327}
+  - {fileID: 790968154}

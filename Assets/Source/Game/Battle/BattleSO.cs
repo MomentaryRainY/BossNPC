@@ -19,6 +19,8 @@ public class BattleConfig : ScriptableObject
     public bool ShowLevelUpPage;
     public bool ShowRewardCardPage;
     public CardData RewardCard;
+
+    public BattleChoiceConfig ChoiceConfig;
 }
 
 [System.Serializable]

@@ -11,6 +11,13 @@ public class Board : MonoBehaviour
     [SerializeField] private int Height;
     [SerializeField] private float LineWidth;
 
+    [SerializeField] private List<Vector2Int> BlockedCells = new();
+
+    [SerializeField] private bool UseGroundSampling = false;
+    [SerializeField] private LayerMask GroundMask;
+    [SerializeField] private float RaycastHeight = 50f;
+    [SerializeField] private float GroundOffset = 0f;
+
     public int BoardWidth => Width;
     public int BoardHeight => Height;
 
@@ -66,6 +73,13 @@ public class Board : MonoBehaviour
                 Tiles[x, y] = new TileData { Coord = new Vector2Int(x, y) };
             }
         }
+        foreach (Vector2Int cell in BlockedCells)
+        {
+            if (IsInside(cell))
+            {
+                Tiles[cell.x, cell.y].Walkable = false;
+            }
+        }
     }
 
     public Vector3 GridToWorld(Vector2Int cell)
@@ -74,7 +88,37 @@ public class Board : MonoBehaviour
 
         float z = BoardBounds.min.z + (cell.y + 0.5f) * CellHeight;
 
-        return new Vector3(x, transform.position.y, z);
+        float y = transform.position.y;
+
+        if (UseGroundSampling)
+        {
+            y = SampleGroundY(x, z);
+        }
+
+        return new Vector3(x, y, z);
+    }
+
+    private float SampleGroundY(float x, float z)
+    {
+        Vector3 origin = new Vector3(x, transform.position.y + RaycastHeight, z);
+
+        if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, RaycastHeight * 2f, GroundMask))
+        {
+            return hit.point.y + GroundOffset;
+        }
+
+        return transform.position.y;
+    }
+
+    public Vector3 ApplyGroundHeight(Vector3 pos)
+    {
+        if (!UseGroundSampling)
+        {
+            return pos;
+        }
+
+        pos.y = SampleGroundY(pos.x, pos.z);
+        return pos;
     }
 
     public Vector2Int WorldToGrid(Vector3 pos)
@@ -187,6 +231,11 @@ public class Board : MonoBehaviour
             }
         }
     }
+
+    public bool IsWalkable(Vector2Int cell)
+    {
+        return Tiles[cell.x, cell.y].Walkable;
+    }
 }
 public enum BoardHighlightMode
 {
@@ -198,5 +247,7 @@ public class TileData
     public Vector2Int Coord;
 
     public Unit Occupant;
+
+    public bool Walkable = true;
 }
 
