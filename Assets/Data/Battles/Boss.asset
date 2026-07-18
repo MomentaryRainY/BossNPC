@@ -16,7 +16,7 @@ MonoBehaviour:
   PlayerStartPos: {x: 2, y: 5}
   PlayerMaxHealth: 100
   PlayerMoveRange: 2
-  PlayerMoveSpeed: 2
+  PlayerMoveSpeed: 5
   MaxStamina: 3
   MaxHandCount: 5
   Enemies:

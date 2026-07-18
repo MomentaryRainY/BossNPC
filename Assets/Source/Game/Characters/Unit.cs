@@ -95,8 +95,13 @@ public abstract class Unit : MonoBehaviour
         lastSnowStampPos = transform.position;
     }
 
-    public IEnumerator MoveTo(Board board, Vector2Int targetCell)
+    public IEnumerator MoveTo(Board board, List<Vector2Int> path)
     {
+        if (path == null || path.Count == 0)
+        {
+            yield break;
+        }
+
         State = UnitState.Moving;
         
         if (Animator != null)
@@ -104,35 +109,37 @@ public abstract class Unit : MonoBehaviour
             Animator.SetBool("IsMoving", true);
         }
 
+        float moveSpeed = Mathf.Max(0.1f, runtime.Config.MoveSpeed);
+
         Vector3 start = transform.position;
         Vector2Int from = board.WorldToGrid(start);
 
-        Vector3 target = board.GridToWorld(targetCell);
-        //target.y = transform.position.y;
+        for(int i = path.Count - 1; i >= 0; i--)
+        {
+            Vector3 target = board.GridToWorld(path[i]);
 
-        float moveSpeed = Mathf.Max(0.1f, runtime.Config.MoveSpeed);
+            while (Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
+                new Vector2(target.x, target.z)) > 0.05f)
+            {
 
-        while (Vector2.Distance(new Vector2(transform.position.x, transform.position.z),
-            new Vector2(target.x, target.z)) > 0.05f) {
+                Vector3 next = Vector3.MoveTowards(
+                    transform.position,
+                    target,
+                    moveSpeed * Time.deltaTime
+                );
 
-            Vector3 next = Vector3.MoveTowards(
-                transform.position,
-                target,
-                moveSpeed * Time.deltaTime
-            );
+                next = board.ApplyGroundHeight(next);
+                transform.position = next;
 
-            next = board.ApplyGroundHeight(next);
-            transform.position = next;
+                TryStampSnow();
+                yield return null;
+            }
 
-            TryStampSnow();
-            yield return null;
+            transform.position = board.GridToWorld(path[i]);
         }
 
-        //transform.position = new Vector3(target.x, transform.position.y, target.z);
-        transform.position = board.GridToWorld(targetCell);
-
-        GridPos = targetCell;
-        board.MoveUnit(this, from, targetCell);
+        GridPos = path[0];
+        board.MoveUnit(this, from, path[0]);
 
         if (Animator != null)
         {

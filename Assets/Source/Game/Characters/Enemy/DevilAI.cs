@@ -21,18 +21,20 @@ public class DevilAI : EnemyAI
             return;
         }
 
-        Vector2Int bestCell = FindBestCell(enemy, player, board, reservedCells);
+        List<Vector2Int> bestpath = FindBestPath(enemy, player, board, reservedCells);
 
-        if (bestCell != enemy.CurrentPos)
+        Vector2Int finalCell = bestpath.Count > 0 ? bestpath[0] : enemy.CurrentPos;
+
+        if (finalCell != enemy.CurrentPos)
         {
             reservedCells.Remove(enemy.CurrentPos);
-            reservedCells.Add(bestCell);
+            reservedCells.Add(finalCell);
 
-            queue.Enqueue(new MoveAction(board, enemy, bestCell));
+            queue.Enqueue(new MoveAction(board, enemy, bestpath));
             queue.Enqueue(new FaceTargetAction(enemy, player.CurrentPos));
         }
 
-        if (CanAttack(bestCell, player.CurrentPos))
+        if (CanAttack(finalCell, player.CurrentPos))
         {
             EnqueueAttack(enemy, player, queue);
         }
@@ -56,58 +58,60 @@ public class DevilAI : EnemyAI
         return sameLine && distance == PreferredDistance;
     }
 
-    private Vector2Int FindBestCell(Enemy enemy, Unit player, Board board, HashSet<Vector2Int> reservedCells)
+    private List<Vector2Int> FindBestPath(Enemy enemy, Unit player, Board board, HashSet<Vector2Int> reservedCells)
     {
         Vector2Int bestCell = enemy.CurrentPos;
         int bestScore = int.MinValue;
 
-        Vector2Int origin = enemy.CurrentPos;
-        int moveRange = enemy.MoveRange;
+        PathSearchResult res = GetReachableDistances(board, enemy.CurrentPos, enemy.MoveRange);
 
-        for (int x = 0; x < board.BoardWidth; x++)
+        foreach (var pair in res.Distance)
         {
-            for (int y = 0; y < board.BoardHeight; y++)
+            Vector2Int cell = pair.Key;
+            int moveCost = pair.Value;
+
+            if (cell == enemy.CurrentPos)
             {
-                Vector2Int cell = new Vector2Int(x, y);
+                continue;
+            }
 
-                if (!CanStandOn(cell, enemy, board, reservedCells))
-                {
-                    continue;
-                }
+            if (!CanStandOn(cell, enemy, board, reservedCells))
+            {
+                continue;
+            }
 
-                int moveDistance = Mathf.Abs(cell.x - origin.x)
-                                 + Mathf.Abs(cell.y - origin.y);
+            int distanceToPlayer =
+                Mathf.Abs(cell.x - player.CurrentPos.x) +
+                Mathf.Abs(cell.y - player.CurrentPos.y);
 
-                if (moveDistance > moveRange)
-                {
-                    continue;
-                }
+            int score = 0;
 
-                int distanceToPlayer = Mathf.Abs(cell.x - player.CurrentPos.x)
-                                     + Mathf.Abs(cell.y - player.CurrentPos.y);
+            bool canAttackFromCell = CanAttack(cell, player.CurrentPos);
 
-                bool canAttackFromCell = CanAttack(cell, player.CurrentPos);
+            if (canAttackFromCell)
+            {
+                score += 1000;
+            }
 
-                int score = 0;
+            score -= Mathf.Abs(distanceToPlayer - PreferredDistance) * 30;
+            score -= moveCost;
 
-                score -= Mathf.Abs(distanceToPlayer - PreferredDistance) * 20;
-
-                if (canAttackFromCell)
-                {
-                    score += 100;
-                }
-
-                score -= moveDistance;
-
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestCell = cell;
-                }
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestCell = cell;
             }
         }
 
-        return bestCell;
+        List<Vector2Int> path = new();
+        Vector2Int t = new Vector2Int(bestCell.x, bestCell.y);
+        while (!(t.x == enemy.CurrentPos.x && t.y == enemy.CurrentPos.y))
+        {
+            path.Add(t);
+            t = res.Previous[t];
+        }
+
+        return path;
     }
 
     private bool CanStandOn(Vector2Int cell, Enemy enemy, Board board, HashSet<Vector2Int> reservedCells)

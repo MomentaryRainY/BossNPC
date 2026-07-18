@@ -30,19 +30,19 @@ public class BattleActionQueue
 public class MoveAction : BattleAction
 {
     private Unit Unit;
-    private Vector2Int TargetCell;
+    private List<Vector2Int> Path;
     private Board Board;
 
-    public MoveAction(Board board, Unit unit, Vector2Int targetCell)
+    public MoveAction(Board board, Unit unit, List<Vector2Int> path)
     {
         this.Unit = unit;
-        this.TargetCell = targetCell;
+        this.Path = path;
         this.Board = board;
     }
 
     public override IEnumerator Execute()
     {
-        yield return Unit.MoveTo(Board, TargetCell);
+        yield return Unit.MoveTo(Board, Path);
     }
 }
 

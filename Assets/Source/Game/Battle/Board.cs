@@ -172,6 +172,64 @@ public class Board : MonoBehaviour
         HighlightTexture.SetPixels32(HighlightPixels);
         HighlightTexture.Apply(false);
     }
+
+    public List<Vector2Int> FindPath(Vector2Int start, Vector2Int target, int range)
+    {
+        Vector2Int[] dirs = {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
+
+        int[,] dis = new int[BoardWidth, BoardHeight];
+        Vector2Int[,] prev = new Vector2Int[BoardWidth, BoardHeight];
+
+        for (int x = 0; x < BoardWidth; x++)
+        {
+            for (int y = 0; y < BoardHeight; y++)
+            {
+                dis[x, y] = -1;
+            }
+        }
+
+        Queue<Vector2Int> queue = new();
+        queue.Enqueue(start);
+        dis[start.x, start.y] = 0;
+
+        while (queue.Count > 0) {
+            Vector2Int current = queue.Dequeue();
+            if (dis[current.x, current.y] >= range) continue;
+
+            foreach (Vector2Int dir in dirs)
+            {
+                Vector2Int next = current + dir;
+                if (!IsInside(next)) continue;
+                if (dis[next.x, next.y] != -1) continue;
+                if (!IsWalkable(next)) continue;
+                if (IsOccupied(next)) continue;
+
+                dis[next.x, next.y] = dis[current.x, current.y] + 1;
+                prev[next.x, next.y] = current;
+                queue.Enqueue(next);
+            }
+        }
+
+        if (dis[target.x, target.y] == -1)
+        {
+            return new List<Vector2Int>();
+        }
+
+        List<Vector2Int> path = new();
+        Vector2Int t = new Vector2Int(target.x, target.y);
+        while(!(t.x == start.x && t.y == start.y))
+        {
+            path.Add(t);
+            t = prev[t.x, t.y];
+        }
+        return path;
+    }
+
     public bool IsInside(Vector2Int cell)
     {
         return cell.x >= 0 && cell.x < Width
@@ -195,7 +253,7 @@ public class Board : MonoBehaviour
 
     public bool TryPlaceUnit(Unit unit, Vector2Int cell)
     {
-        if (!IsInside(cell) || IsOccupied(cell))
+        if (!IsInside(cell) || IsOccupied(cell) || !IsWalkable(cell))
         {
             return false;
         }
@@ -234,7 +292,7 @@ public class Board : MonoBehaviour
 
     public bool IsWalkable(Vector2Int cell)
     {
-        return Tiles[cell.x, cell.y].Walkable;
+        return IsInside(cell) && Tiles[cell.x, cell.y].Walkable;
     }
 }
 public enum BoardHighlightMode

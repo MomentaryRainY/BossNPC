@@ -11887,7 +11887,7 @@ MonoBehaviour:
   ArrowLine: {fileID: 1099847737}
   RootCanvas: {fileID: 594304464}
   HandCanvasGroup: {fileID: 2021543813}
-  WorldCamera: {fileID: 0}
+  WorldCamera: {fileID: 641401464}
 --- !u!1001 &808646130
 PrefabInstance:
   m_ObjectHideFlags: 0

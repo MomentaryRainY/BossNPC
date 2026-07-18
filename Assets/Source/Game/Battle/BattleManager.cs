@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class BattleManager : MonoBehaviour
 {
@@ -32,6 +30,8 @@ public class BattleManager : MonoBehaviour
     private Vector2Int LastMovedCell; // not used 
 
     private BoardPreviewMode CurrentPreviewMode;
+
+    private List<Vector2Int> CurrentReachableCells;
 
     private enum BoardPreviewMode
     {
@@ -429,9 +429,9 @@ public class BattleManager : MonoBehaviour
 
     private void ShowMovePreview()
     {
-        List<Vector2Int> cells = GetMovePreviewCells();
+        CurrentReachableCells = GetMovePreviewCells();
 
-        Board.SetHighlightCells(cells, BoardHighlightMode.Move);
+        Board.SetHighlightCells(CurrentReachableCells, BoardHighlightMode.Move);
         CurrentPreviewMode = BoardPreviewMode.Move;
     }
 
@@ -441,18 +441,47 @@ public class BattleManager : MonoBehaviour
         Vector2Int origin = CurrentPlayer.CurrentPos;
         int range = CurrentPlayer.MoveRange;
 
+        Vector2Int[] dirs = {
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
+        };
+
+        int[,] dis = new int[Board.BoardWidth, Board.BoardHeight];
+
         for (int x = 0; x < Board.BoardWidth; x++)
         {
             for (int y = 0; y < Board.BoardHeight; y++)
             {
-                Vector2Int cell = new Vector2Int(x, y);
+                dis[x, y] = -1;
+            }
+        }
 
-                if (!IsValidMoveCell(cell))
-                {
-                    continue;
-                }
+        Queue<Vector2Int> queue = new();
+        queue.Enqueue(origin);
+        dis[origin.x, origin.y] = 0;
 
-                cells.Add(cell);
+        while (queue.Count > 0) {
+            Vector2Int current = queue.Dequeue();
+
+            if (dis[current.x, current.y] >= range)
+            {
+                continue;
+            }
+
+            foreach (Vector2Int dir in dirs)
+            {
+                Vector2Int next = current + dir;
+
+                if (!Board.IsInside(next)) continue;
+                if (dis[next.x, next.y] != -1) continue;
+                if (!Board.IsWalkable(next)) continue;
+                if (Board.IsOccupied(next)) continue;
+
+                dis[next.x, next.y] = dis[current.x, current.y] + 1;
+                queue.Enqueue(next);
+                cells.Add(next);
             }
         }
 
@@ -589,7 +618,8 @@ public class BattleManager : MonoBehaviour
         CanUndoMove = true;
 
         Queue.Enqueue(new FaceTargetAction(CurrentPlayer, targetCell));
-        Queue.Enqueue(new MoveAction(Board, CurrentPlayer, targetCell));
+        List<Vector2Int> path = Board.FindPath(CurrentPlayer.CurrentPos, targetCell, CurrentPlayer.MoveRange);
+        Queue.Enqueue(new MoveAction(Board, CurrentPlayer, path));
         ChangeState(BattleState.PlayerTakingActions);
 
         return true;
@@ -597,12 +627,6 @@ public class BattleManager : MonoBehaviour
 
     private bool IsValidMoveCell(Vector2Int target)
     {
-        /*
-        if(target.x < 0 || target.y < 0 || target.x >= Board.BoardWidth || target.y >= Board.BoardHeight)
-        {
-            return false;
-        }*/
-
         if (!Board.IsWalkable(target)) return false;
 
         if (target == CurrentPlayer.CurrentPos) return false;
@@ -611,10 +635,12 @@ public class BattleManager : MonoBehaviour
 
         if (Board.IsOccupied(target)) return false;
 
-        int distance = Mathf.Abs(CurrentPlayer.CurrentPos.x - target.x)
-                     + Mathf.Abs(CurrentPlayer.CurrentPos.y - target.y);
+        List<Vector2Int> path = Board.FindPath(CurrentPlayer.CurrentPos, target, CurrentPlayer.MoveRange);
+        if (path.Count == 0) return false;
 
-        return distance <= CurrentPlayer.MoveRange;
+        if (CurrentReachableCells == null || !CurrentReachableCells.Contains(target)) return false;
+
+        return true;
     }
 
     public bool TryUndoMove()
