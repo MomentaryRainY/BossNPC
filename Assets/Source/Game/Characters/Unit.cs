@@ -122,6 +122,8 @@ public abstract class Unit : MonoBehaviour
                 new Vector2(target.x, target.z)) > 0.05f)
             {
 
+                FaceMoveDirection(target);
+
                 Vector3 next = Vector3.MoveTowards(
                     transform.position,
                     target,
@@ -149,6 +151,25 @@ public abstract class Unit : MonoBehaviour
         State = UnitState.Idle;
     }
 
+    private void FaceMoveDirection(Vector3 target)
+    {
+        Vector3 dir = target - transform.position;
+        dir.y = 0f;
+
+        if (dir.sqrMagnitude <= 0.001f)
+        {
+            return;
+        }
+
+        Quaternion targetRotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+        targetRotation *= Quaternion.Euler(0f, FacingYawOffset, 0f);
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            TurnSpeed * Time.deltaTime
+        );
+    }
     public IEnumerator PlayAttackAnimation()
     {
         if (Animator == null)

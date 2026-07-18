@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DialogueBubbleManager : MonoBehaviour
@@ -28,22 +29,34 @@ public class DialogueBubbleManager : MonoBehaviour
         }
 
         view.SetText(content);
+        view.show();
         UpdatePosition(unit, view);
 
-        StartCoroutine(HideAfter(unit, duration));
+        StartCoroutine(ShowPagedBubble(unit, view, duration));
     }
 
-    private IEnumerator HideAfter(Unit unit, float duration)
+    private IEnumerator ShowPagedBubble(Unit unit, DialogueBubbleView view, float pageDuration)
     {
-        yield return new WaitForSeconds(duration);
+        while (true)
+        {
+            yield return new WaitForSeconds(pageDuration);
 
-        SetHidden(unit);
+            if (!view.HasNextPage())
+            {
+                SetHidden(unit);
+                yield break;
+            }
+
+            view.ShowNextPage();
+        }
     }
 
     private void SetHidden(Unit unit)
     {
-        dic.TryGetValue(unit, out DialogueBubbleView view);
-        view.hide();
+        if (dic.TryGetValue(unit, out DialogueBubbleView view))
+        {
+            view.hide();
+        }
     }
 
     public void GenerateInstance(Unit unit)
@@ -55,7 +68,9 @@ public class DialogueBubbleManager : MonoBehaviour
 
     private void UpdatePosition(Unit unit, DialogueBubbleView view)
     {
-        Vector2 pos = Camera.main.WorldToScreenPoint(unit.transform.position + Vector3.up * 2f);
+        Vector2 screenPos = Camera.main.WorldToScreenPoint(unit.transform.position);
+
+        Vector2 pos = new Vector2(screenPos.x, screenPos.y) + new Vector2(0f, 180f);
 
         float halfW = view.rect.sizeDelta.x * 0.5f;
         float halfH = view.rect.sizeDelta.y * 0.5f;

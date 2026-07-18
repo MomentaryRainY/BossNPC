@@ -89,6 +89,8 @@ public class BattleManager : MonoBehaviour
     public void GameStart()
     {
         ChangeState(BattleState.PlayerTurnStart);
+        // bubble test
+        //DialogueBubbleManager.Instance.ShowBubble(CurrentPlayer, "test1111111111111111111111111111111111111111111111111111111111111111111111111", 1.5f);
     }
 
     private IEnumerator StartPlayerTurnCoroutine()
