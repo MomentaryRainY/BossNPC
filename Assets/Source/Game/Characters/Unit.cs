@@ -82,7 +82,7 @@ public abstract class Unit : MonoBehaviour
     {
         if (snowPainter == null)
         {
-            Debug.Log("Empty snowpainter");
+            //Debug.Log("Empty snowpainter");
             return;
         }
 

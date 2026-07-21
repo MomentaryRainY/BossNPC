@@ -71,6 +71,17 @@ public class LocalizationManager : MonoBehaviour
         return key;
     }
 
+    public string GetENText(string key)
+    {
+        if (texts.TryGetValue(key, out var entries)
+            && entries.TryGetValue(Language.En, out string value))
+        {
+            return value;
+        }
+
+        return key;
+    }
+
     public void SetLanguage(Language language)
     {
         if (CurrentLanguage == language)

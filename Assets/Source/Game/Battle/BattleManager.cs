@@ -89,8 +89,13 @@ public class BattleManager : MonoBehaviour
     public void GameStart()
     {
         ChangeState(BattleState.PlayerTurnStart);
-        // bubble test
-        //DialogueBubbleManager.Instance.ShowBubble(CurrentPlayer, "test1111111111111111111111111111111111111111111111111111111111111111111111111", 1.5f);
+        if(CurrentBattleState.isBossFight)
+        {
+            if (CurrentEnemies.Count > 0 && CurrentEnemies[0].TryGetComponent(out DialogueController bossDialogue))
+            {
+                bossDialogue.SpeakFromMemory("boss_intro");
+            }
+        }
     }
 
     private IEnumerator StartPlayerTurnCoroutine()
@@ -287,6 +292,11 @@ public class BattleManager : MonoBehaviour
             if (enemy.State != UnitState.Dead)
             {
                 continue;
+            }
+
+            if (DialogueBubbleManager.Instance != null)
+            {
+                DialogueBubbleManager.Instance.RemoveBubble(enemy);
             }
 
             CurrentEnemies.RemoveAt(i);

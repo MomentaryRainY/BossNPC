@@ -34,3 +34,8 @@ public static class SceneEvents
     public const string NEXT_SCENE = "Next_Scene";
     public const string TRY_AGAIN = "Try_Again";
 }
+
+public static class MemoryEvents
+{
+    public const string MEMORY_EVENT = "Memory_Event";
+}

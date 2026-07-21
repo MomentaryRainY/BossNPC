@@ -89,7 +89,21 @@ public class DialogueBubbleManager : MonoBehaviour
     public void LateUpdate()
     {
         foreach (KeyValuePair<Unit, DialogueBubbleView> item in dic) {
-            UpdatePosition(item.Key, item.Value);
+            if(item.Key != null)
+            {
+                UpdatePosition(item.Key, item.Value);
+            }
         }
+    }
+
+    public void RemoveBubble(Unit unit)
+    {
+        if (!dic.TryGetValue(unit, out DialogueBubbleView view))
+        {
+            return;
+        }
+
+        Destroy(view.gameObject);
+        dic.Remove(unit);
     }
 }

@@ -43,6 +43,7 @@ public class DialogueBubbleView : MonoBehaviour
         text.ForceMeshUpdate();
 
         pageCount = text.textInfo.pageCount;
+        currentPage = 1;
     }
 
     public bool HasNextPage()

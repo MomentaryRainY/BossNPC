@@ -21,6 +21,7 @@ public class BattleConfig : ScriptableObject
     public CardData RewardCard;
 
     public BattleChoiceConfig ChoiceConfig;
+    public bool IsBossFight;
 }
 
 [System.Serializable]

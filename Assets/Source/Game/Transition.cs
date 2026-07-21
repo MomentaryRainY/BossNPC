@@ -162,7 +162,7 @@ public class Transition : MonoBehaviour
             return;
         }
 
-        GameManager.Instance.ConfirmDeck();
+        //GameManager.Instance.ConfirmDeck();
         ShowNextPage();
     }
 

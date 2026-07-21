@@ -201,7 +201,8 @@ public class GameManager : MonoBehaviour
             MaxStamina = CurrentRun.MaxStamina,
             CurrentStamina = CurrentRun.MaxStamina,
             MaxHandCount = config.MaxHandCount,
-            CurrentCardDeck = BuildBattleDeck()
+            CurrentCardDeck = BuildBattleDeck(),
+            isBossFight = config.IsBossFight
         };
 
         foreach (EnemySpawnConfig enemy in config.Enemies)
@@ -312,17 +313,22 @@ public class GameManager : MonoBehaviour
         return result;
     }
 
-    public void ConfirmDeck()
-    {
-        // to do, open a temproal card deck
-        // not necessary right now
-    }
-
     private void OnBattleChoiceSelected(int choiceIndex)
     {
         Time.timeScale = 1f;
         GlobalUIManager.Instance.HideChoicePanel();
         BattleConfig config = BattleConfigs[CurrentSceneNum];
+        BattleChoiceOption option = config.ChoiceConfig.Options[choiceIndex - 1];
+        EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, new ChoiceMemoryData
+        {
+            BattleId = config.name,
+            ChoiceIndex = choiceIndex,
+            EventType = option.EventType,
+            RelatedCharacter = option.RelatedCharacter,
+            RelationToBoss = option.RelationToBoss,
+            MemoryTextKey = option.MemoryTextKey,
+            Importance = option.Importance
+        });
         ContinueAfterBattle(config);
     }
 
@@ -368,6 +374,7 @@ public class RuntimeBattleState
     public int MaxHandCount;
 
     public List<CardData> CurrentCardDeck;
+    public bool isBossFight;
 }
 
 [System.Serializable]

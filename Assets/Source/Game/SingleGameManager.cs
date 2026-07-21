@@ -124,7 +124,8 @@ public class SingleGameManager : MonoBehaviour
             MaxStamina = CurrentRun.MaxStamina,
             CurrentStamina = CurrentRun.MaxStamina,
             MaxHandCount = config.MaxHandCount,
-            CurrentCardDeck = BuildBattleDeck()
+            CurrentCardDeck = BuildBattleDeck(),
+            isBossFight = config.IsBossFight
         };
 
         if (config.Enemies == null)
@@ -216,6 +217,18 @@ public class SingleGameManager : MonoBehaviour
         {
             GlobalUIManager.Instance.HideChoicePanel();
         }
+
+        BattleChoiceOption option = BattleConfig.ChoiceConfig.Options[choiceIndex - 1];
+        EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, new ChoiceMemoryData
+        {
+            BattleId = BattleConfig.name,
+            ChoiceIndex = choiceIndex,
+            EventType = option.EventType,
+            RelatedCharacter = option.RelatedCharacter,
+            RelationToBoss = option.RelationToBoss,
+            MemoryTextKey = option.MemoryTextKey,
+            Importance = option.Importance
+        });
 
         Debug.Log($"Single battle choice selected: {choiceIndex}");
     }

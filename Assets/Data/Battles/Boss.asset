@@ -29,3 +29,4 @@ MonoBehaviour:
   ChoiceConfig:
     ShowAfterBattle: 0
     Options: []
+  IsBossFight: 1

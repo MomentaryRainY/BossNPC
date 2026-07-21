@@ -2985,50 +2985,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6673511963340942637, guid: a20edace4876dd9448c30e11f9ae5fd9, type: 3}
   m_PrefabInstance: {fileID: 221240120}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &230908829
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 230908831}
-  - component: {fileID: 230908830}
-  m_Layer: 0
-  m_Name: Decal Projector
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &230908830
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 230908829}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f19d9143a39eb3b46bc4563e9889cfbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &230908831
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 230908829}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.09897545, y: 0.7592926, z: -0.056116402, w: 0.64072585}
-  m_LocalPosition: {x: 23.54, y: 35.05, z: 12.09}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1316281718}
-  m_LocalEulerAnglesHint: {x: 182.385, y: -80.04999, z: -192.85}
 --- !u!4 &252375020 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 47308453636307172, guid: 5b73a772d3e84db43a3f2850443fe2e4, type: 3}
@@ -3258,7 +3214,6 @@ GameObject:
   m_Component:
   - component: {fileID: 278552207}
   - component: {fileID: 278552206}
-  - component: {fileID: 278552208}
   - component: {fileID: 278552209}
   - component: {fileID: 278552210}
   m_Layer: 0
@@ -3345,18 +3300,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1695787826}
   m_LocalEulerAnglesHint: {x: 66.105, y: 26.865, z: 20.413}
---- !u!114 &278552208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 278552205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &278552209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4197,7 +4140,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &328702047
 MonoBehaviour:
-  m_ObjectHideFlags: 19
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -10641,7 +10584,6 @@ GameObject:
   m_Component:
   - component: {fileID: 731177113}
   - component: {fileID: 731177115}
-  - component: {fileID: 731177114}
   m_Layer: 0
   m_Name: Reflection Probe
   m_TagString: Untagged
@@ -10664,18 +10606,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 648400538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &731177114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 731177112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ef8dc2c2eabfa4e8cb77be57a837c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!215 &731177115
 ReflectionProbe:
   m_ObjectHideFlags: 0
@@ -11478,7 +11408,6 @@ GameObject:
   m_Component:
   - component: {fileID: 774884683}
   - component: {fileID: 774884682}
-  - component: {fileID: 774884681}
   - component: {fileID: 774884684}
   m_Layer: 0
   m_Name: Spot Light Fog
@@ -11487,18 +11416,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &774884681
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 774884680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!108 &774884682
 Light:
   m_ObjectHideFlags: 0
@@ -11699,7 +11616,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 805209506}
-  - component: {fileID: 805209505}
   m_Layer: 0
   m_Name: Density Volume 1
   m_TagString: Untagged
@@ -11707,18 +11623,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &805209505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 805209504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1fbb15bf92b84f40a1eb030765b5afe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &805209506
 Transform:
   m_ObjectHideFlags: 0
@@ -17991,50 +17895,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 47308453636307172, guid: 5b73a772d3e84db43a3f2850443fe2e4, type: 3}
   m_PrefabInstance: {fileID: 1244442451}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1262469791
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1262469792}
-  - component: {fileID: 1262469793}
-  m_Layer: 0
-  m_Name: Decal Projector
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1262469792
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262469791}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.17540404, y: 0.9565012, z: -0.18988, w: -0.13522018}
-  m_LocalPosition: {x: 1.75, y: 34.61, z: 15.13}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1316281718}
-  m_LocalEulerAnglesHint: {x: 161.591, y: 20.050003, z: -155.935}
---- !u!114 &1262469793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262469791}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f19d9143a39eb3b46bc4563e9889cfbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1266114661
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18936,9 +18796,7 @@ Transform:
   m_Children:
   - {fileID: 1373412499}
   - {fileID: 1985642454}
-  - {fileID: 230908831}
   - {fileID: 1012932022}
-  - {fileID: 1262469792}
   m_Father: {fileID: 1457058886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1332650369
@@ -19458,7 +19316,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1344255032}
   - component: {fileID: 1344255034}
-  - component: {fileID: 1344255033}
   m_Layer: 0
   m_Name: Reflection Probe
   m_TagString: Untagged
@@ -19481,18 +19338,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 648400538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1344255033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1344255031}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ef8dc2c2eabfa4e8cb77be57a837c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!215 &1344255034
 ReflectionProbe:
   m_ObjectHideFlags: 0
@@ -26707,7 +26552,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1505466777}
-  - component: {fileID: 1505466776}
   m_Layer: 0
   m_Name: Density Volume 2
   m_TagString: Untagged
@@ -26715,18 +26559,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1505466776
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1505466775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1fbb15bf92b84f40a1eb030765b5afe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1505466777
 Transform:
   m_ObjectHideFlags: 0
@@ -27395,7 +27227,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1549305984}
   - component: {fileID: 1549305983}
-  - component: {fileID: 1549305982}
   m_Layer: 0
   m_Name: Reflection Probe
   m_TagString: Untagged
@@ -27403,18 +27234,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1549305982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1549305981}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ef8dc2c2eabfa4e8cb77be57a837c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!215 &1549305983
 ReflectionProbe:
   m_ObjectHideFlags: 0
@@ -29956,6 +29775,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1731389273}
   - component: {fileID: 1731389274}
+  - component: {fileID: 1731389275}
   m_Layer: 0
   m_Name: --Game--
   m_TagString: Untagged
@@ -29995,6 +29815,19 @@ MonoBehaviour:
   CopiesPerCard: 2
   StartAutomatically: 1
   DisableIfGameManagerExists: 1
+--- !u!114 &1731389275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731389271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26611cf883d4cd441a87931fcb821fa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  strategy: 0
 --- !u!1001 &1733275348
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -32281,7 +32114,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1921647295}
   - component: {fileID: 1921647294}
-  - component: {fileID: 1921647293}
   - component: {fileID: 1921647296}
   m_Layer: 0
   m_Name: Spot Light Fog
@@ -32290,18 +32122,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1921647293
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1921647292}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!108 &1921647294
 Light:
   m_ObjectHideFlags: 0
@@ -35728,7 +35548,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2125037868}
   - component: {fileID: 2125037870}
-  - component: {fileID: 2125037869}
   m_Layer: 0
   m_Name: Reflection Probe
   m_TagString: Untagged
@@ -35751,18 +35570,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 648400538}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2125037869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2125037867}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0ef8dc2c2eabfa4e8cb77be57a837c0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!215 &2125037870
 ReflectionProbe:
   m_ObjectHideFlags: 0
