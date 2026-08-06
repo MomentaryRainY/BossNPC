@@ -23,6 +23,10 @@ public class BattleManager : MonoBehaviour
     private RuntimeBattleState CurrentBattleState;
     private BattleActionQueue Queue; // animation sequence
     private DamageResolver DMGResolver;
+    private Unit CurrentBoss;
+    private BossDialogueDirector CurrentBossDialogueDirector;
+    private BattleActionResult PendingActionResult;
+    private float PlayerTurnBossDamage;
 
     private bool HasMovedThisTurn;
     private bool CanUndoMove;
@@ -83,6 +87,20 @@ public class BattleManager : MonoBehaviour
             HPBarView hpBarE = CurrentUIManager.CreateHPBar(enemyUnit);
             enemyUnit.BindHealthBar(hpBarE);
             CurrentEnemies.Add(enemyUnit);
+
+            if (CurrentBattleState.isBossFight && CurrentBossDialogueDirector == null)
+            {
+                BossDialogueDirector director =
+                    enemyUnit.GetComponentInChildren<BossDialogueDirector>(true);
+
+                if (director != null)
+                {
+                    CurrentBoss = enemyUnit;
+                    CurrentBossDialogueDirector = director;
+                    CurrentBossDialogueDirector.Configure(
+                        CurrentBattleState.DialogueCondition);
+                }
+            }
         }
     }
 
@@ -91,9 +109,9 @@ public class BattleManager : MonoBehaviour
         ChangeState(BattleState.PlayerTurnStart);
         if(CurrentBattleState.isBossFight)
         {
-            if (CurrentEnemies.Count > 0 && CurrentEnemies[0].TryGetComponent(out DialogueController bossDialogue))
+            if (CurrentBossDialogueDirector != null)
             {
-                bossDialogue.SpeakFromMemory("boss_intro");
+                CurrentBossDialogueDirector.OnBossEncounterStart(CurrentBoss, CurrentBattleState);
             }
         }
     }
@@ -105,6 +123,7 @@ public class BattleManager : MonoBehaviour
 
         HasMovedThisTurn = false;
         CanUndoMove = false;
+        PlayerTurnBossDamage = 0f;
         CurrentBattleState.CurrentStamina = CurrentBattleState.MaxStamina;
         EventsHandler.TriggerEvent(UIEvents.STAMINA_CHANGE, 
             new StaminaChangedData{
@@ -129,14 +148,34 @@ public class BattleManager : MonoBehaviour
 
     private IEnumerator ExecuteActions()
     {
-        yield return Queue.Execute();
+        BattleActionResult actionResult = PendingActionResult;
+        PendingActionResult = null;
 
-        if (CheckBattleEnd(out BattleResult result))
+        yield return Queue.Execute(actionResult);
+
+        SubmitPlayerActionResult(actionResult);
+
+        if (CurrentBossDialogueDirector != null)
         {
+            CurrentBossDialogueDirector.CheckPlayerHpThreshold(CurrentPlayer);
+        }
+
+        if (TryGetBattleResult(out BattleResult result))
+        {
+            if (CurrentBossDialogueDirector != null)
+            {
+                yield return CurrentBossDialogueDirector.PlayBattleEndDialogue(result);
+            }
+
+            RemoveDeadEnemies();
             ChangeState(BattleState.BattleEnd);
             EndBattle(result);
+            yield break;
+        }
 
-        } else if(CurrentBattleState.State == BattleState.EnemyTakingActions)
+        RemoveDeadEnemies();
+
+        if(CurrentBattleState.State == BattleState.EnemyTakingActions)
         {
             ChangeState(BattleState.EnemyTurnEnd);
         }
@@ -157,6 +196,13 @@ public class BattleManager : MonoBehaviour
 
     private void EndPlayerTurn()
     {
+        if (CurrentBossDialogueDirector != null && CurrentBoss != null)
+        {
+            CurrentBossDialogueDirector.OnPlayerTurnEnd(
+                PlayerTurnBossDamage,
+                CurrentBoss,
+                CurrentCardManager.HandCardCount == 0);
+        }
 
         // settle dots on player or something
         ChangeState(BattleState.EnemyTurnStart);
@@ -166,6 +212,15 @@ public class BattleManager : MonoBehaviour
     {
         yield return CurrentUIManager.ShowTurnBanner(
             LocalizationManager.Instance.GetText("ui.enemyturn"), .7f);
+
+        if (CurrentBossDialogueDirector != null && CurrentBoss != null)
+        {
+            CurrentBossDialogueDirector.CheckBossHpThreshold(CurrentBoss);
+            CurrentBossDialogueDirector.OnBossTurnStart(
+                CurrentBoss,
+                CurrentPlayer,
+                CurrentBattleState);
+        }
 
         HashSet<Vector2Int> reservedCells = new();
 
@@ -240,11 +295,21 @@ public class BattleManager : MonoBehaviour
 
         CurrentCardManager.PlayCard(card);
 
+        PendingActionResult = new BattleActionResult(
+            CurrentPlayer,
+            target,
+            card,
+            isPlayerAction: true);
+
         BuildCardActions(context);
 
         if (Queue.HasActions)
         {
             ChangeState(BattleState.PlayerTakingActions);
+        }
+        else
+        {
+            PendingActionResult = null;
         }
 
         return true;
@@ -277,7 +342,22 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private bool CheckBattleEnd(out BattleResult result)
+    private void SubmitPlayerActionResult(BattleActionResult result)
+    {
+        if (result == null || !result.IsPlayerAction || CurrentBoss == null)
+        {
+            return;
+        }
+
+        PlayerTurnBossDamage += result.GetDamageDealtTo(CurrentBoss);
+
+        if (CurrentBossDialogueDirector != null)
+        {
+            CurrentBossDialogueDirector.CheckBossHpThreshold(CurrentBoss);
+        }
+    }
+
+    private bool TryGetBattleResult(out BattleResult result)
     {
         if (CurrentPlayer.State == UnitState.Dead)
         {
@@ -285,14 +365,25 @@ public class BattleManager : MonoBehaviour
             return true;
         }
 
+        foreach (Unit enemy in CurrentEnemies)
+        {
+            if (enemy.State != UnitState.Dead)
+            {
+                result = BattleResult.Victory;
+                return false;
+            }
+        }
+
+        result = BattleResult.Victory;
+        return true;
+    }
+
+    private void RemoveDeadEnemies()
+    {
         for (int i = CurrentEnemies.Count - 1; i >= 0; i--)
         {
             Unit enemy = CurrentEnemies[i];
-
-            if (enemy.State != UnitState.Dead)
-            {
-                continue;
-            }
+            if (enemy.State != UnitState.Dead) continue;
 
             if (DialogueBubbleManager.Instance != null)
             {
@@ -302,15 +393,6 @@ public class BattleManager : MonoBehaviour
             CurrentEnemies.RemoveAt(i);
             Destroy(enemy.gameObject);
         }
-
-        if (CurrentEnemies.Count <= 0)
-        {
-            result = BattleResult.Victory;
-            return true;
-        }
-
-        result = BattleResult.Victory;
-        return false;
     }
 
     private void ChangeState(BattleState nextState)

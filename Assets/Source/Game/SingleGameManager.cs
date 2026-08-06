@@ -125,7 +125,8 @@ public class SingleGameManager : MonoBehaviour
             CurrentStamina = CurrentRun.MaxStamina,
             MaxHandCount = config.MaxHandCount,
             CurrentCardDeck = BuildBattleDeck(),
-            isBossFight = config.IsBossFight
+            isBossFight = config.IsBossFight,
+            DialogueCondition = config.DialogueCondition
         };
 
         if (config.Enemies == null)

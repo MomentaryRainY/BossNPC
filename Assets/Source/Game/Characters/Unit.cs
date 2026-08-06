@@ -40,6 +40,10 @@ public abstract class Unit : MonoBehaviour
 
     public Vector2Int CurrentPos => GridPos;
 
+    public float CurrentHP => runtime.CurrentHP;
+    public float MaxHP => runtime.Config.MaxHealth;
+    public float HPPercent => MaxHP <= 0 ? 0f : CurrentHP / MaxHP;
+
     private HPBarView HPBar;
 
     private Animator Animator;

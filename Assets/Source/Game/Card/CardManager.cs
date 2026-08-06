@@ -14,6 +14,8 @@ public class CardManager : MonoBehaviour
 
     private int HandCardsCountLimit;
 
+    public int HandCardCount => HandCards.Count;
+
     void Awake()
     {
         instances = new();

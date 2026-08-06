@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class BattleAction
 {
-    public abstract IEnumerator Execute();
+    public abstract IEnumerator Execute(BattleActionResult result = null);
 }
 
 public class BattleActionQueue
@@ -18,11 +18,11 @@ public class BattleActionQueue
         Actions.Enqueue(action);
     }
 
-    public IEnumerator Execute()
+    public IEnumerator Execute(BattleActionResult result = null)
     {
         while (Actions.Count > 0)
         {
-            yield return Actions.Dequeue().Execute();
+            yield return Actions.Dequeue().Execute(result);
         }
     }
 }
@@ -40,7 +40,7 @@ public class MoveAction : BattleAction
         this.Board = board;
     }
 
-    public override IEnumerator Execute()
+    public override IEnumerator Execute(BattleActionResult result = null)
     {
         yield return Unit.MoveTo(Board, Path);
     }
@@ -59,7 +59,7 @@ public class DamageAction : BattleAction
         this.damage = damage;
     }
 
-    public override IEnumerator Execute()
+    public override IEnumerator Execute(BattleActionResult result = null)
     {
         if (target == null)
         {
@@ -71,7 +71,9 @@ public class DamageAction : BattleAction
             yield return target.FaceCell(source.CurrentPos);
         }
 
+        float hpBefore = target.CurrentHP;
         yield return target.TakeDamage(damage);
+        result?.RecordDamage(target, hpBefore, target.CurrentHP);
     }
 }
 
@@ -86,7 +88,7 @@ public class PlayAnimationAction : BattleAction
         this.animationType = animationType;
     }
 
-    public override IEnumerator Execute()
+    public override IEnumerator Execute(BattleActionResult result = null)
     {
         switch (animationType)
         {
@@ -106,7 +108,7 @@ public class WaitAnimationEndAction : BattleAction
         this.unit = unit;
     }
 
-    public override IEnumerator Execute()
+    public override IEnumerator Execute(BattleActionResult result = null)
     {
         yield return unit.WaitAttackEnd();
     }
@@ -123,7 +125,7 @@ public class FaceTargetAction : BattleAction
         this.target = targetCell;
     }
 
-    public override IEnumerator Execute()
+    public override IEnumerator Execute(BattleActionResult result = null)
     {
         if (unit == null)
         {

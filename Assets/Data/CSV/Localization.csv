@@ -46,6 +46,18 @@ tutorial.transition,在每场战斗结束后，您会获得数值提升以及新
 tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
 tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>
 ,,
+boss.dialogue.boss_intro,你终于来了。,So you finally came.
+boss.dialogue.boss_turn_start,让我看看你还能坚持多久。,Let me see how long you can endure.
+boss.dialogue.player_turn_high_damage,这一击比我预想的更有力。,That strike was stronger than I expected.
+boss.dialogue.player_turn_hand_empty,你已经无牌可出了。,You have exhausted your hand.
+boss.dialogue.player_turn_high_damage_and_hand_empty,孤注一掷？有点意思。,An all-out gamble? Interesting.
+boss.dialogue.boss_hp_below_75,你确实伤到了我。,You have actually wounded me.
+boss.dialogue.boss_hp_below_25,我不会倒在这里。,I will not fall here.
+boss.dialogue.player_hp_below_50,你开始动摇了。,You are beginning to falter.
+boss.dialogue.player_hp_below_25,死亡已经站在你身后。,Death is already standing behind you.
+boss.dialogue.boss_defeat,这还没有结束。,This is not over.
+boss.dialogue.player_defeat,你的旅程到此为止。,Your journey ends here.
+,,
 choice.1_1,释放他,Spare him
 choice.1_2,解决他,Execute him
 choice.1_3,审问他,Interrogate him

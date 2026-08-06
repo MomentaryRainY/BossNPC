@@ -30,3 +30,4 @@ MonoBehaviour:
     ShowAfterBattle: 0
     Options: []
   IsBossFight: 1
+  DialogueCondition: 0

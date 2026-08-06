@@ -202,7 +202,8 @@ public class GameManager : MonoBehaviour
             CurrentStamina = CurrentRun.MaxStamina,
             MaxHandCount = config.MaxHandCount,
             CurrentCardDeck = BuildBattleDeck(),
-            isBossFight = config.IsBossFight
+            isBossFight = config.IsBossFight,
+            DialogueCondition = config.DialogueCondition
         };
 
         foreach (EnemySpawnConfig enemy in config.Enemies)
@@ -375,6 +376,7 @@ public class RuntimeBattleState
 
     public List<CardData> CurrentCardDeck;
     public bool isBossFight;
+    public BossDialogueCondition DialogueCondition;
 }
 
 [System.Serializable]

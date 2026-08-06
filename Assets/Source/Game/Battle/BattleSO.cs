@@ -22,6 +22,9 @@ public class BattleConfig : ScriptableObject
 
     public BattleChoiceConfig ChoiceConfig;
     public bool IsBossFight;
+
+    [Header("Boss Dialogue")]
+    public BossDialogueCondition DialogueCondition = BossDialogueCondition.SimilarityOnly;
 }
 
 [System.Serializable]
