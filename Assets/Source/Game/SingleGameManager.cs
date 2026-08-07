@@ -125,6 +125,8 @@ public class SingleGameManager : MonoBehaviour
             CurrentStamina = CurrentRun.MaxStamina,
             MaxHandCount = config.MaxHandCount,
             CurrentCardDeck = BuildBattleDeck(),
+            BattleId = config.name,
+            CollectGameplayMemories = config.CollectGameplayMemories,
             isBossFight = config.IsBossFight,
             DialogueCondition = config.DialogueCondition
         };
@@ -220,16 +222,16 @@ public class SingleGameManager : MonoBehaviour
         }
 
         BattleChoiceOption option = BattleConfig.ChoiceConfig.Options[choiceIndex - 1];
-        EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, new ChoiceMemoryData
+
+        if (BattleConfig.CollectGameplayMemories)
         {
-            BattleId = BattleConfig.name,
-            ChoiceIndex = choiceIndex,
-            EventType = option.EventType,
-            RelatedCharacter = option.RelatedCharacter,
-            RelationToBoss = option.RelationToBoss,
-            MemoryTextKey = option.MemoryTextKey,
-            Importance = option.Importance
-        });
+            MemoryEventData memoryEvent = MemoryEventFactory.CreateChoice(
+                BattleConfig.name,
+                choiceIndex,
+                option);
+
+            EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, memoryEvent);
+        }
 
         Debug.Log($"Single battle choice selected: {choiceIndex}");
     }

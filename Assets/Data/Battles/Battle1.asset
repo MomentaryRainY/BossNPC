@@ -32,3 +32,4 @@ MonoBehaviour:
     - {fileID: 11400000, guid: fb818d008fec1b04da05327c9991601f, type: 2}
     - {fileID: 11400000, guid: d556e7ffc2973d749ab38c862afebc28, type: 2}
     - {fileID: 11400000, guid: 01e2d773e78987b4990f545728a73dd0, type: 2}
+  CollectGameplayMemories: 1

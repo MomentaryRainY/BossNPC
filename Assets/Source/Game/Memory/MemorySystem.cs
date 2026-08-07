@@ -5,7 +5,9 @@ public class MemorySystem : MonoBehaviour
 {
     public static MemorySystem Instance;
 
-    List<MemoryRecord> Memories;
+    private List<MemoryRecord> Memories;
+
+    public IReadOnlyList<MemoryRecord> MemoryPool => Memories;
 
     [SerializeField] private RetrievalStrategy strategy;
 
@@ -62,33 +64,57 @@ public class MemorySystem : MonoBehaviour
         return retriever.Retrieve(Memories, query, topK);
     }
 
-    private void OnMadeChoice(ChoiceMemoryData data)
+    private void OnMemoryEvent(MemoryEventData data)
     {
+        if (data == null || string.IsNullOrWhiteSpace(data.Text))
+        {
+            Debug.LogWarning("Ignored an invalid memory event.");
+            return;
+        }
+
         MemoryRecord record = new MemoryRecord
         {
            Id = $"Memory_{uid++}",
            BattleId = data.BattleId,
-           EventType = data.EventType,
-           Actor = "Player",
-           Target = "",
-           RelatedCharacter = data.RelatedCharacter,
-           RelationToBoss = data.RelationToBoss,
-           Text = LocalizationManager.Instance.GetENText(data.MemoryTextKey),
-           Importance = data.Importance,
-           Recency = 3f
+           Category = data.Category,
+           Text = data.Text,
+           Recency = 3f,
+           Metrics = data.Metrics?.Clone() ?? new MemoryEventMetrics()
         };
         Memories.Add(record);
-        Debug.Log($"Memory recorded: {record.Text}");
+        Debug.Log(
+            $"Memory recorded: id={record.Id}, category={record.Category}, " +
+            $"text={record.Text}");
+    }
+
+    [ContextMenu("Debug/Dump Memory Pool")]
+    public void DumpMemoryPool()
+    {
+        Debug.Log($"MemoryPool count: {MemoryPool.Count}");
+
+        foreach (MemoryRecord memory in MemoryPool)
+        {
+            Debug.Log(
+                $"[{memory.Id}] " +
+                $"battle={memory.BattleId}, " +
+                $"category={memory.Category}, " +
+                $"text={memory.Text}, " +
+                $"turns={memory.Metrics.TurnCount}, " +
+                $"health={memory.Metrics.RemainingHealthPercent:P0}, " +
+                $"emptyHand={memory.Metrics.EmptyHandTurnCount}, " +
+                $"highestDamage={memory.Metrics.HighestTurnDamage}, " +
+                $"highestDamagePercent={memory.Metrics.HighestTurnDamagePercent:P0}");
+        }
     }
 
     private void OnEnable()
     {
-        EventsHandler.RegisterEvent<ChoiceMemoryData>(MemoryEvents.MEMORY_EVENT, OnMadeChoice);
+        EventsHandler.RegisterEvent<MemoryEventData>(MemoryEvents.MEMORY_EVENT, OnMemoryEvent);
     }
 
     private void OnDisable()
     {
-        EventsHandler.UnregisterEvent<ChoiceMemoryData>(MemoryEvents.MEMORY_EVENT, OnMadeChoice);
+        EventsHandler.UnregisterEvent<MemoryEventData>(MemoryEvents.MEMORY_EVENT, OnMemoryEvent);
     }
 }
 
@@ -96,14 +122,10 @@ public class MemoryRecord
 {
     public string Id;
     public string BattleId;
-    public string EventType;
-    public string Actor;
-    public string Target;
-    public string RelatedCharacter;
-    public string RelationToBoss;
+    public MemoryCategory Category;
     public string Text;
-    public int Importance;
     public float Recency;
+    public MemoryEventMetrics Metrics;
 }
 
 public interface IMemoryRetriever
@@ -129,15 +151,4 @@ public enum RetrievalStrategy
     SimilarityOnly,
     RuleBasedImportance,
     ModelAssistedImportance
-}
-
-public class ChoiceMemoryData
-{
-    public string BattleId;
-    public int ChoiceIndex;
-    public string EventType;
-    public string RelatedCharacter;
-    public string RelationToBoss;
-    public string MemoryTextKey;
-    public int Importance;
 }

@@ -12,9 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0c0af14c48c58d4895e6d9eba6c14db, type: 3}
   m_Name: Choice2_2
   m_EditorClassIdentifier: 
-  ChoiceTextKey: chocie.2_2
-  MemoryTextKey: 
-  EventType: 
-  RelatedCharacter: 
-  RelationToBoss: 
-  Importance: 0
+  ChoiceTextKey: choice.2_2

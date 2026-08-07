@@ -27,6 +27,7 @@ public class BattleManager : MonoBehaviour
     private BossDialogueDirector CurrentBossDialogueDirector;
     private BattleActionResult PendingActionResult;
     private float PlayerTurnBossDamage;
+    private BattleMemoryTracker MemoryTracker;
 
     private bool HasMovedThisTurn;
     private bool CanUndoMove;
@@ -69,6 +70,9 @@ public class BattleManager : MonoBehaviour
         CurrentBattleState = rtbs;
         CurrentUIManager = uiManager;
         CurrentCardManager = cardManager;
+        MemoryTracker = rtbs.CollectGameplayMemories
+            ? new BattleMemoryTracker(rtbs)
+            : null;
 
         // chess board
         Board.Init();
@@ -124,6 +128,7 @@ public class BattleManager : MonoBehaviour
         HasMovedThisTurn = false;
         CanUndoMove = false;
         PlayerTurnBossDamage = 0f;
+        MemoryTracker?.StartPlayerTurn();
         CurrentBattleState.CurrentStamina = CurrentBattleState.MaxStamina;
         EventsHandler.TriggerEvent(UIEvents.STAMINA_CHANGE, 
             new StaminaChangedData{
@@ -196,12 +201,15 @@ public class BattleManager : MonoBehaviour
 
     private void EndPlayerTurn()
     {
+        bool handIsEmpty = CurrentCardManager.HandCardCount == 0;
+        MemoryTracker?.CompletePlayerTurn(handIsEmpty);
+
         if (CurrentBossDialogueDirector != null && CurrentBoss != null)
         {
             CurrentBossDialogueDirector.OnPlayerTurnEnd(
                 PlayerTurnBossDamage,
                 CurrentBoss,
-                CurrentCardManager.HandCardCount == 0);
+                handIsEmpty);
         }
 
         // settle dots on player or something
@@ -253,6 +261,20 @@ public class BattleManager : MonoBehaviour
 
     private void EndBattle(BattleResult result)
     {
+        if (result == BattleResult.Victory && MemoryTracker != null)
+        {
+            MemoryTracker.CompletePlayerTurn(CurrentCardManager.HandCardCount == 0);
+
+            List<MemoryEventData> memoryEvents = MemoryTracker.BuildVictoryMemories(
+                CurrentBattleState.CurrentTurn,
+                CurrentPlayer.HPPercent);
+
+            foreach (MemoryEventData memoryEvent in memoryEvents)
+            {
+                EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, memoryEvent);
+            }
+        }
+
         EventsHandler.TriggerEvent(BattleEvents.END_BATTLE, new BattleEndData { Result = result });
     }
 
@@ -344,7 +366,14 @@ public class BattleManager : MonoBehaviour
 
     private void SubmitPlayerActionResult(BattleActionResult result)
     {
-        if (result == null || !result.IsPlayerAction || CurrentBoss == null)
+        if (result == null || !result.IsPlayerAction)
+        {
+            return;
+        }
+
+        MemoryTracker?.RecordPlayerAction(result);
+
+        if (CurrentBoss == null)
         {
             return;
         }
@@ -455,7 +484,7 @@ public class BattleManager : MonoBehaviour
 
     private void DebugInfo(string msg)
     {
-        Debug.Log(msg);
+        //Debug.Log(msg);
     }
 
 

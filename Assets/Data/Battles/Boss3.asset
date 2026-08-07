@@ -33,4 +33,4 @@ MonoBehaviour:
   DialogueCondition: 2
   PreBattleSequence: {fileID: 0}
   PostBattleSurveySequence: {fileID: 11400000, guid: 1cdfbceec091fe144a79d36555247347, type: 2}
-  CollectPostBattleSurvey: 1
+  OpenSurveyAfterBattle: 0

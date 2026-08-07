@@ -23,13 +23,16 @@ public class BattleConfig : ScriptableObject
     public BattleChoiceConfig ChoiceConfig;
     public bool IsBossFight;
 
+    [Header("Memory Collection")]
+    public bool CollectGameplayMemories;
+
     [Header("Boss Dialogue")]
     public BossDialogueCondition DialogueCondition = BossDialogueCondition.SimilarityOnly;
 
     [Header("Experiment")]
     public TutorialSequence PreBattleSequence;
     public TutorialSequence PostBattleSurveySequence;
-    public bool CollectPostBattleSurvey;
+    public bool OpenSurveyAfterBattle;
 }
 
 [System.Serializable]

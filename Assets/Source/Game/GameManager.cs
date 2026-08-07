@@ -116,7 +116,7 @@ public class GameManager : MonoBehaviour
 
     private void OpenPostBattleSurvey(BattleConfig config)
     {
-        if (!config.IsBossFight || !config.CollectPostBattleSurvey)
+        if (!config.IsBossFight || !config.OpenSurveyAfterBattle)
         {
             return;
         }
@@ -282,6 +282,8 @@ public class GameManager : MonoBehaviour
             CurrentStamina = CurrentRun.MaxStamina,
             MaxHandCount = config.MaxHandCount,
             CurrentCardDeck = BuildBattleDeck(),
+            BattleId = config.name,
+            CollectGameplayMemories = config.CollectGameplayMemories,
             isBossFight = config.IsBossFight,
             DialogueCondition = ResolveDialogueCondition(config)
         };
@@ -453,16 +455,17 @@ public class GameManager : MonoBehaviour
         GlobalUIManager.Instance.HideChoicePanel();
         BattleConfig config = BattleConfigs[CurrentSceneNum];
         BattleChoiceOption option = config.ChoiceConfig.Options[choiceIndex - 1];
-        EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, new ChoiceMemoryData
+
+        if (config.CollectGameplayMemories)
         {
-            BattleId = config.name,
-            ChoiceIndex = choiceIndex,
-            EventType = option.EventType,
-            RelatedCharacter = option.RelatedCharacter,
-            RelationToBoss = option.RelationToBoss,
-            MemoryTextKey = option.MemoryTextKey,
-            Importance = option.Importance
-        });
+            MemoryEventData memoryEvent = MemoryEventFactory.CreateChoice(
+                config.name,
+                choiceIndex,
+                option);
+
+            EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, memoryEvent);
+        }
+
         ContinueAfterBattle(config);
     }
 
@@ -508,6 +511,8 @@ public class RuntimeBattleState
     public int MaxHandCount;
 
     public List<CardData> CurrentCardDeck;
+    public string BattleId;
+    public bool CollectGameplayMemories;
     public bool isBossFight;
     public BossDialogueCondition DialogueCondition;
 }

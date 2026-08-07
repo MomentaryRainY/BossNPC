@@ -13,8 +13,3 @@ MonoBehaviour:
   m_Name: Choice3_3
   m_EditorClassIdentifier: 
   ChoiceTextKey: choice.3_3
-  MemoryTextKey: 
-  EventType: 
-  RelatedCharacter: 
-  RelationToBoss: 
-  Importance: 0

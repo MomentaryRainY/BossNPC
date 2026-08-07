@@ -148,7 +148,7 @@ public class HandView : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, 1 << 7)) // 7 = target layer
         {
-            Debug.Log($"aimed {hit.collider.name}");
+            //Debug.Log($"aimed {hit.collider.name}");
             return hit.collider.GetComponentInParent<Unit>();
         }
 
