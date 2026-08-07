@@ -21,6 +21,18 @@ EditorBuildSettings:
     path: Assets/Scenes/BattleScene3.unity
     guid: 7f272247523c9464680ff1f5a57bcb42
   - enabled: 1
+    path: Assets/Scenes/Boss.unity
+    guid: 19dd0f67442b55642be0f64a29f71f66
+  - enabled: 1
+    path: Assets/Scenes/Boss1.unity
+    guid: 9d69867a143d264488f838d084bcb157
+  - enabled: 1
+    path: Assets/Scenes/Boss2.unity
+    guid: 372993c5c3b91424b8da072bc34d7b28
+  - enabled: 1
+    path: Assets/Scenes/Boss3.unity
+    guid: 05f2490ee686be04c8244bf6093ebe05
+  - enabled: 1
     path: Assets/Scenes/Transition.unity
     guid: f0db08068c818354aaab76b821ff31f2
   - enabled: 1

@@ -14,12 +14,22 @@ public class GameManager : MonoBehaviour
 
     public RunState CurrentRun { get; private set; }
 
-    private string[] BattleNames = { "TeachingScene", "BattleScene1", "BattleScene2", "BattleScene3" };
+    [SerializeField] private string[] BattleNames;
+
+    [Header("Experiment")]
+    [SerializeField] private bool RandomizeExperimentMode = true;
+    [SerializeField] private ExperimentMode ConfiguredExperimentMode = ExperimentMode.ModeA;
+    [SerializeField] private string PostBattleSurveyUrl;
 
     private int CurrentSceneNum;
 
     private RuntimeBattleState RTBS;
+    private readonly ExperimentSession experimentSession = new();
+    private readonly HashSet<int> shownPreBattleSequences = new();
     public TransitionContext CurrentTransitionContext { get; private set; }
+
+    public string ExperimentSessionCode => experimentSession.SessionCode;
+    public ExperimentMode CurrentExperimentMode => experimentSession.Mode;
 
     void Awake()
     {
@@ -63,8 +73,9 @@ public class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "TeachingScene" || scene.name == "BattleScene1" ||
-            scene.name == "BattleScene2" || scene.name == "BattleScene3")
+        if (System.Array.Exists(
+            BattleNames,
+            battleName => battleName == scene.name))
         {
             StartBattle();
         }
@@ -75,20 +86,66 @@ public class GameManager : MonoBehaviour
         if (data.Result == BattleResult.Defeat)
         {
             CurrentTransitionContext = null;
-            SceneManager.LoadScene("GameStart");
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(BattleNames[CurrentSceneNum]);
             return;
         }
 
         BattleConfig config = BattleConfigs[CurrentSceneNum];
+        OpenPostBattleSurvey(config);
+        PlayPostBattleSurveySequence(config);
+    }
 
-        if(config.ChoiceConfig.ShowAfterBattle)
+    private void PlayPostBattleSurveySequence(BattleConfig config)
+    {
+        TutorialSequence sequence = config.PostBattleSurveySequence;
+
+        if (sequence == null || TutorialManager.Instance == null)
         {
-            GlobalUIManager.Instance.SetChoicesText(config.ChoiceConfig.Options[0].ChoiceTextKey,
+            ContinueAfterBattleResult(config);
+            return;
+        }
+
+        Time.timeScale = 0f;
+        TutorialManager.Instance.Play(sequence, () =>
+        {
+            Time.timeScale = 1f;
+            ContinueAfterBattleResult(config);
+        });
+    }
+
+    private void OpenPostBattleSurvey(BattleConfig config)
+    {
+        if (!config.IsBossFight || !config.CollectPostBattleSurvey)
+        {
+            return;
+        }
+
+        int encounterNumber = GetBossEncounterIndex(CurrentSceneNum) + 1;
+        string url = experimentSession.BuildSurveyUrl(PostBattleSurveyUrl, encounterNumber);
+
+        if (string.IsNullOrEmpty(url))
+        {
+            Debug.Log(
+                $"Post-battle survey placeholder: session={experimentSession.SessionCode}, " +
+                $"mode={experimentSession.Mode}, encounter={encounterNumber}.");
+            return;
+        }
+
+        Application.OpenURL(url);
+    }
+
+    private void ContinueAfterBattleResult(BattleConfig config)
+    {
+        if (config.ChoiceConfig != null &&
+            config.ChoiceConfig.ShowAfterBattle)
+        {
+            GlobalUIManager.Instance.SetChoicesText(
+                config.ChoiceConfig.Options[0].ChoiceTextKey,
                 config.ChoiceConfig.Options[1].ChoiceTextKey,
                 config.ChoiceConfig.Options[2].ChoiceTextKey);
 
             GlobalUIManager.Instance.ShowChoicePanel();
-
             Time.timeScale = 0f;
             return;
         }
@@ -102,6 +159,7 @@ public class GameManager : MonoBehaviour
 
         if (isLastBattle)
         {
+            experimentSession.Complete();
             SceneManager.LoadScene("GameEnd");
             return;
         }
@@ -173,7 +231,29 @@ public class GameManager : MonoBehaviour
         CurrentBattleInputController.Init(CurrentBattleManager);
 
         Debug.Log("6 GameStart");
-        CurrentBattleManager.GameStart();
+        TutorialSequence preBattleSequence = BattleConfigs[CurrentSceneNum].PreBattleSequence;
+
+        if (preBattleSequence == null || shownPreBattleSequences.Contains(CurrentSceneNum))
+        {
+            CurrentBattleManager.GameStart();
+            return;
+        }
+
+        PlaySequenceOrContinue(preBattleSequence, () =>
+        {
+            shownPreBattleSequences.Add(CurrentSceneNum);
+            CurrentBattleManager.GameStart();
+        });
+    }
+    private void PlaySequenceOrContinue(TutorialSequence sequence, System.Action onComplete)
+    {
+        if (sequence != null && TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.Play(sequence, onComplete);
+            return;
+        }
+
+        onComplete?.Invoke();
     }
 
     public RuntimeBattleState CreateRuntimeState(BattleConfig config)
@@ -203,7 +283,7 @@ public class GameManager : MonoBehaviour
             MaxHandCount = config.MaxHandCount,
             CurrentCardDeck = BuildBattleDeck(),
             isBossFight = config.IsBossFight,
-            DialogueCondition = config.DialogueCondition
+            DialogueCondition = ResolveDialogueCondition(config)
         };
 
         foreach (EnemySpawnConfig enemy in config.Enemies)
@@ -229,6 +309,26 @@ public class GameManager : MonoBehaviour
     {
         CurrentSceneNum = 0;
         CurrentRun = new RunState();
+        shownPreBattleSequences.Clear();
+
+        ExperimentMode mode = RandomizeExperimentMode
+            ? (Random.value > 0.5f ? ExperimentMode.ModeA : ExperimentMode.ModeB)
+            : ConfiguredExperimentMode;
+
+        experimentSession.Begin(mode);
+
+        if (!string.IsNullOrEmpty(experimentSession.PreviousIncompleteSessionCode))
+        {
+            Debug.LogWarning(
+                $"Discarding incomplete experiment session " +
+                $"{experimentSession.PreviousIncompleteSessionCode} and starting a new run.");
+        }
+
+        Debug.Log(
+            $"Experiment started: session={experimentSession.SessionCode}, " +
+            $"mode={experimentSession.Mode}.");
+
+        MemorySystem.Instance.ClearMemories();
 
         BattleConfig firstConfig = BattleConfigs[CurrentSceneNum];
         CurrentRun.MaxStamina = firstConfig.MaxStamina;
@@ -245,6 +345,39 @@ public class GameManager : MonoBehaviour
         }
 
         SceneManager.LoadScene(BattleNames[CurrentSceneNum]);
+    }
+
+    public void SetExperimentMode(ExperimentMode mode)
+    {
+        RandomizeExperimentMode = false;
+        ConfiguredExperimentMode = mode;
+    }
+
+    private BossDialogueCondition ResolveDialogueCondition(BattleConfig config)
+    {
+        if (!config.IsBossFight)
+        {
+            return config.DialogueCondition;
+        }
+
+        int encounterIndex = GetBossEncounterIndex(CurrentSceneNum);
+        return experimentSession.ResolveCondition(encounterIndex, config.DialogueCondition);
+    }
+
+    private int GetBossEncounterIndex(int sceneIndex)
+    {
+        int bossEncounterIndex = -1;
+        int lastIndex = Mathf.Min(sceneIndex, BattleConfigs.Length - 1);
+
+        for (int i = 0; i <= lastIndex; i++)
+        {
+            if (BattleConfigs[i] != null && BattleConfigs[i].IsBossFight)
+            {
+                bossEncounterIndex++;
+            }
+        }
+
+        return bossEncounterIndex;
     }
 
     public void AddOwnedCard(CardData card)

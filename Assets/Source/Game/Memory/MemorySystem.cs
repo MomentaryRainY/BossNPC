@@ -26,6 +26,12 @@ public class MemorySystem : MonoBehaviour
         SetRetrievalStrategy(strategy);
     }
 
+    public void ClearMemories()
+    {
+        Memories.Clear();
+        uid = 0;
+    }
+
     public void SetRetrievalStrategy(RetrievalStrategy nextStrategy)
     {
         strategy = nextStrategy;
