@@ -8749,7 +8749,6 @@ GameObject:
   m_Component:
   - component: {fileID: 641401465}
   - component: {fileID: 641401464}
-  - component: {fileID: 641401463}
   - component: {fileID: 641401466}
   m_Layer: 0
   m_Name: Camera
@@ -8758,14 +8757,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &641401463
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 641401462}
-  m_Enabled: 1
 --- !u!20 &641401464
 Camera:
   m_ObjectHideFlags: 0
@@ -29815,6 +29806,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   strategy: 0
+  embeddingProxyUrl: http://127.0.0.1:3000/embed
 --- !u!1001 &1733275348
 PrefabInstance:
   m_ObjectHideFlags: 0

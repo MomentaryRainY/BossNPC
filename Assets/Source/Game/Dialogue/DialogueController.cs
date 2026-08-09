@@ -61,7 +61,7 @@ public class DialogueController : MonoBehaviour
         if (MemorySystem.Instance == null)
         {
             Debug.LogError("Cannot retrieve memories because MemorySystem is missing.");
-            Speak("So, you finally reached me.", displayDuration);
+            Speak("So, you finally reached me. (MS missing)", displayDuration);
             yield break;
         }
 
@@ -77,7 +77,7 @@ public class DialogueController : MonoBehaviour
         if (!string.IsNullOrEmpty(retrievalError))
         {
             Debug.LogError(retrievalError);
-            Speak("So, you finally reached me.", displayDuration);
+            Speak("So, you finally reached me. (retrieval error)", displayDuration);
             yield break;
         }
 
@@ -99,12 +99,13 @@ public class DialogueController : MonoBehaviour
             error =>
             {
                 Debug.LogError(error);
-                Speak("So, you finally reached me.", displayDuration);
+                Speak("So, you finally reached me. (LLM error)", displayDuration);
             });
     }
 
     private static string BuildRetrievalQuery(string intent)
     {
+        // natural language to build similarity vector
         switch (intent)
         {
             case "boss_intro":

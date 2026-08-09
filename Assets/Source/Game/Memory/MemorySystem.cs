@@ -83,6 +83,8 @@ public class MemorySystem : MonoBehaviour
             yield break;
         }
 
+        float retrievalStartedAt = Time.realtimeSinceStartup;
+
         List<MemoryRecord> memoriesWithoutVectors = Memories
             .Where(memory => memory.Vector == null || memory.Vector.Length == 0)
             .ToList();
@@ -119,15 +121,24 @@ public class MemorySystem : MonoBehaviour
             memoriesWithoutVectors[i].Vector = vectors[i + 1];
         }
 
+        List<MemoryRecord> retrievedMemories;
         try
         {
-            onSuccess?.Invoke(retriever.Retrieve(Memories, query, topK));
+            retrievedMemories = retriever.Retrieve(Memories, query, topK);
         }
         catch (Exception exception)
         {
             onError?.Invoke(
                 $"{strategy} retrieval failed: {exception.Message}");
+            yield break;
         }
+
+        float elapsedMilliseconds = (Time.realtimeSinceStartup - retrievalStartedAt) * 1000f;
+        Debug.Log($"Memory retrieval completed: strategy={strategy}, " +
+            $"pool={Memories.Count}, embeddedMemories={memoriesWithoutVectors.Count}, " +
+            $"returned={retrievedMemories.Count}, elapsed={elapsedMilliseconds:F1} ms");
+
+        onSuccess?.Invoke(retrievedMemories);
     }
 
     private void OnMemoryEvent(MemoryEventData data)

@@ -14,10 +14,7 @@ public sealed class EmbeddingClient
         this.proxyUrl = proxyUrl;
     }
 
-    public IEnumerator Embed(
-        IReadOnlyList<string> texts,
-        Action<List<float[]>> onSuccess,
-        Action<string> onError)
+    public IEnumerator Embed(IReadOnlyList<string> texts, Action<List<float[]>> onSuccess, Action<string> onError)
     {
         if (string.IsNullOrWhiteSpace(proxyUrl))
         {
@@ -47,6 +44,8 @@ public sealed class EmbeddingClient
         {
             texts = requestTexts
         });
+
+        float requestStartedAt = Time.realtimeSinceStartup;
 
         using UnityWebRequest request = new UnityWebRequest(proxyUrl, "POST");
         request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
@@ -110,6 +109,10 @@ public sealed class EmbeddingClient
 
             result.Add(values);
         }
+
+        float elapsedMilliseconds = (Time.realtimeSinceStartup - requestStartedAt) * 1000f;
+        Debug.Log($"Embedding request completed: texts={requestTexts.Length}, " +
+            $"dimensions={response.dimensions}, elapsed={elapsedMilliseconds:F1} ms");
 
         onSuccess?.Invoke(result);
     }
