@@ -58,9 +58,9 @@ public class GlobalUIManager : MonoBehaviour
         ChoicePanel.SetHidden();
     }
 
-    public void SetChoicesText(string key1, string key2, string key3)
+    public void SetChoicesText(string key1, string key2, string key3, string key4)
     {
-        ChoicePanel.SetChoices(key1, key2, key3);
+        ChoicePanel.SetChoices(key1, key2, key3, key4);
     }
 
     private void ShowPause()

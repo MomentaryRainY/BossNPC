@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using static BattleManager;
 
 public class GameManager : MonoBehaviour
@@ -19,7 +20,8 @@ public class GameManager : MonoBehaviour
     [Header("Experiment")]
     [SerializeField] private bool RandomizeExperimentMode = true;
     [SerializeField] private ExperimentMode ConfiguredExperimentMode = ExperimentMode.ModeA;
-    [SerializeField] private string PostBattleSurveyUrl;
+    [FormerlySerializedAs("PostBattleSurveyUrl")]
+    [SerializeField] private string SurveyUrl;
 
     private int CurrentSceneNum;
 
@@ -92,7 +94,6 @@ public class GameManager : MonoBehaviour
         }
 
         BattleConfig config = BattleConfigs[CurrentSceneNum];
-        OpenPostBattleSurvey(config);
         PlayPostBattleSurveySequence(config);
     }
 
@@ -114,23 +115,20 @@ public class GameManager : MonoBehaviour
         });
     }
 
-    private void OpenPostBattleSurvey(BattleConfig config)
+    public void OpenExperimentSurvey()
     {
-        if (!config.IsBossFight || !config.OpenSurveyAfterBattle)
-        {
-            return;
-        }
-
         int encounterNumber = GetBossEncounterIndex(CurrentSceneNum) + 1;
-        string url = experimentSession.BuildSurveyUrl(PostBattleSurveyUrl, encounterNumber);
+        string url = experimentSession.BuildSurveyUrl(SurveyUrl, encounterNumber);
 
-        if (string.IsNullOrEmpty(url))
+        if (string.IsNullOrWhiteSpace(url))
         {
-            Debug.Log(
-                $"Post-battle survey placeholder: session={experimentSession.SessionCode}, " +
-                $"mode={experimentSession.Mode}, encounter={encounterNumber}.");
+            Debug.LogWarning("Experiment survey URL is not configured.");
             return;
         }
+
+        Debug.Log(
+            $"Opening survey: session={experimentSession.SessionCode}, " +
+            $"mode={experimentSession.Mode}, encounter={encounterNumber}.");
 
         Application.OpenURL(url);
     }
@@ -143,7 +141,8 @@ public class GameManager : MonoBehaviour
             GlobalUIManager.Instance.SetChoicesText(
                 config.ChoiceConfig.Options[0].ChoiceTextKey,
                 config.ChoiceConfig.Options[1].ChoiceTextKey,
-                config.ChoiceConfig.Options[2].ChoiceTextKey);
+                config.ChoiceConfig.Options[2].ChoiceTextKey,
+                config.ChoiceConfig.Options[3].ChoiceTextKey);
 
             GlobalUIManager.Instance.ShowChoicePanel();
             Time.timeScale = 0f;

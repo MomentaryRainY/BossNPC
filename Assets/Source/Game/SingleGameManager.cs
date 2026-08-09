@@ -206,7 +206,8 @@ public class SingleGameManager : MonoBehaviour
         GlobalUIManager.Instance.SetChoicesText(
             BattleConfig.ChoiceConfig.Options[0].ChoiceTextKey,
             BattleConfig.ChoiceConfig.Options[1].ChoiceTextKey,
-            BattleConfig.ChoiceConfig.Options[2].ChoiceTextKey);
+            BattleConfig.ChoiceConfig.Options[2].ChoiceTextKey,
+            BattleConfig.ChoiceConfig.Options[3].ChoiceTextKey);
 
         GlobalUIManager.Instance.ShowChoicePanel();
         Time.timeScale = 0f;

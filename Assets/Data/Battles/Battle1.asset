@@ -32,4 +32,9 @@ MonoBehaviour:
     - {fileID: 11400000, guid: fb818d008fec1b04da05327c9991601f, type: 2}
     - {fileID: 11400000, guid: d556e7ffc2973d749ab38c862afebc28, type: 2}
     - {fileID: 11400000, guid: 01e2d773e78987b4990f545728a73dd0, type: 2}
+    - {fileID: 11400000, guid: 49a4ff7f25caf5446a0f13138acdc282, type: 2}
+  IsBossFight: 0
   CollectGameplayMemories: 1
+  DialogueCondition: 0
+  PreBattleSequence: {fileID: 0}
+  PostBattleSurveySequence: {fileID: 0}

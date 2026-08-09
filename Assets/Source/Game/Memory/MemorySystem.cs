@@ -1,4 +1,7 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MemorySystem : MonoBehaviour
@@ -10,8 +13,10 @@ public class MemorySystem : MonoBehaviour
     public IReadOnlyList<MemoryRecord> MemoryPool => Memories;
 
     [SerializeField] private RetrievalStrategy strategy;
+    [SerializeField] private string embeddingProxyUrl = "http://127.0.0.1:3000/embed";
 
     private IMemoryRetriever retriever;
+    private EmbeddingClient embeddingClient;
 
     private int uid = 0;
 
@@ -25,6 +30,7 @@ public class MemorySystem : MonoBehaviour
         Instance = this;
 
         Memories = new List<MemoryRecord>();
+        embeddingClient = new EmbeddingClient(embeddingProxyUrl);
         SetRetrievalStrategy(strategy);
     }
 
@@ -54,14 +60,74 @@ public class MemorySystem : MonoBehaviour
         }
     }
 
-    public List<MemoryRecord> Retrieve(MemoryQuery query, int topK)
+    public IEnumerator Retrieve(
+        MemoryQuery query,
+        int topK,
+        Action<List<MemoryRecord>> onSuccess,
+        Action<string> onError)
     {
         if (retriever == null)
         {
             SetRetrievalStrategy(strategy);
         }
 
-        return retriever.Retrieve(Memories, query, topK);
+        if (query == null || string.IsNullOrWhiteSpace(query.QueryText))
+        {
+            onError?.Invoke("Memory retrieval requires a non-empty query.");
+            yield break;
+        }
+
+        if (topK <= 0 || Memories.Count == 0)
+        {
+            onSuccess?.Invoke(new List<MemoryRecord>());
+            yield break;
+        }
+
+        List<MemoryRecord> memoriesWithoutVectors = Memories
+            .Where(memory => memory.Vector == null || memory.Vector.Length == 0)
+            .ToList();
+
+        List<string> texts = new List<string> { query.QueryText };
+        texts.AddRange(memoriesWithoutVectors.Select(memory => memory.Text));
+
+        List<float[]> vectors = null;
+        string embeddingError = null;
+
+        yield return embeddingClient.Embed(
+            texts,
+            result => vectors = result,
+            error => embeddingError = error);
+
+        if (!string.IsNullOrEmpty(embeddingError))
+        {
+            onError?.Invoke(embeddingError);
+            yield break;
+        }
+
+        if (vectors == null || vectors.Count != texts.Count)
+        {
+            onError?.Invoke(
+                $"Embedding service returned {vectors?.Count ?? 0} vector(s) " +
+                $"for {texts.Count} text(s).");
+            yield break;
+        }
+
+        query.Vector = vectors[0];
+
+        for (int i = 0; i < memoriesWithoutVectors.Count; i++)
+        {
+            memoriesWithoutVectors[i].Vector = vectors[i + 1];
+        }
+
+        try
+        {
+            onSuccess?.Invoke(retriever.Retrieve(Memories, query, topK));
+        }
+        catch (Exception exception)
+        {
+            onError?.Invoke(
+                $"{strategy} retrieval failed: {exception.Message}");
+        }
     }
 
     private void OnMemoryEvent(MemoryEventData data)
@@ -79,7 +145,8 @@ public class MemorySystem : MonoBehaviour
            Category = data.Category,
            Text = data.Text,
            Recency = 3f,
-           Metrics = data.Metrics?.Clone() ?? new MemoryEventMetrics()
+           Metrics = data.Metrics?.Clone() ?? new MemoryEventMetrics(),
+           Vector = null
         };
         Memories.Add(record);
         Debug.Log(
@@ -98,6 +165,7 @@ public class MemorySystem : MonoBehaviour
                 $"[{memory.Id}] " +
                 $"battle={memory.BattleId}, " +
                 $"category={memory.Category}, " +
+                $"vectorDimensions={memory.Vector?.Length ?? 0}, " +
                 $"text={memory.Text}, " +
                 $"turns={memory.Metrics.TurnCount}, " +
                 $"health={memory.Metrics.RemainingHealthPercent:P0}, " +
@@ -126,6 +194,7 @@ public class MemoryRecord
     public string Text;
     public float Recency;
     public MemoryEventMetrics Metrics;
+    public float[] Vector;
 }
 
 public interface IMemoryRetriever
@@ -137,13 +206,10 @@ public interface IMemoryRetriever
     );
 }
 
-public class MemoryQuery
+public sealed class MemoryQuery
 {
     public string QueryText;
-    public string SpeakerId;
-    public string TargetId;
-    public string BattleId;
-    public string Intent;
+    public float[] Vector;
 }
 
 public enum RetrievalStrategy

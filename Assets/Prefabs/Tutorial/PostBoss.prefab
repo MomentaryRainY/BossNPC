@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 2818825535543521733}
-  Key: tutorial.start
+  Key: tutorial.continue
 --- !u!1 &1261377134886829775
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,7 +372,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Target: {fileID: 794615361217822032}
-  Key: tutorial.target
+  Key: tutorial.postboss
 --- !u!1 &5559342579827428625
 GameObject:
   m_ObjectHideFlags: 0

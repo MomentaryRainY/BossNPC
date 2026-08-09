@@ -45,6 +45,10 @@ tutorial.carddeck,您初始只有三种牌，每张携带了两张。教学关�
 tutorial.transition,在每场战斗结束后，您会获得数值提升以及新的卡牌！并且您可以编辑您的牌库！没有卡牌总数上限限制，每种卡牌限制最多携带两张。设计您的牌库进行挑战吧！,"After each battle, you'll receive stat boosts and new cards! You can also edit your deck! There's no limit to the total number of cards you can carry, but you can only bring a maximum of two copies of each type. Design your deck and take on the challenge!"
 tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
 tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>
+tutorial.continue,按下空格间以继续 -->,Press Space to Continue -->
+tutorial.preboss,接下来开始正式测试，请点击下方按钮打开问卷链接。在后续游玩时请勿关闭，每场Boss战结束后请切换应用，返回问卷页面回答该Boss的相关问题。接下来您将遇到四场Boss战，其中Boss的对话内容将有一定改变，请细心观察。,"The following four boss battles will be encountered, and the boss dialogue will be slightly different, so please observe carefully."
+tutorial.postboss,请在完成该Boss的问卷内容后继续...,Please continue after completing this boss's questionnaire…
+tutorial.link,链接,Link
 ,,
 boss.dialogue.boss_intro,你终于来了。,So you finally came.
 boss.dialogue.boss_turn_start,让我看看你还能坚持多久。,Let me see how long you can endure.
@@ -59,12 +63,15 @@ boss.dialogue.boss_defeat,这还没有结束。,This is not over.
 boss.dialogue.player_defeat,你的旅程到此为止。,Your journey ends here.
 ,,
 choice.1_1,释放他,Spare him
-choice.1_2,解决他,Execute him
+choice.1_2,处决他,Execute him
 choice.1_3,审问他,Interrogate him
-choice.1_4,嘲讽BOSS,Mock the boss through the subordinate
-choice.1_5,放走他,Show respect to the fallen enemy
-choice.1_6,审问他,Search for information
-choice.1_7,解救他被绑架的亲人,Help to rescue the captive
-choice.1_8,用正义道德劝诫,Righteousness persuasion
-choice.1_9,忽视他并继续前进,Ignore the captive
+character1,他是Boss的无机造物，担任雪山的守卫，毫无情感但是无比忠诚,"He is the Boss's inorganic creation, serving as the guardian of the snow mountain; he is devoid of emotion but utterly loyal."
+choice.2_1,无视他的情况并继续前行,Ignore his situation and keep going.
+choice.2_2,嘲讽Boss胁迫的行为并继续前行,Mocking the Boss's coercive behavior and keep going
+choice.2_3,协助拯救他的家庭然后继续前行,Help save his family then keep going.
+character2,Boss看护着他的家人，他半情愿的帮助守卫雪山,"The boss looked after his family, and he reluctantly helped guard the snow mountain."
+choice.3_1,直接放他走,Spare him
+choice.3_2,尝试劝诫,Try to persuade
+choice.3_3,处决他,Execute him
+character3,Boss的同族伙伴，认可Boss的愿望，愿意协助他,"The Boss's kinsmen, who acknowledge his wishes, are willing to assist him."
 choice.thisone,选择这个,This One

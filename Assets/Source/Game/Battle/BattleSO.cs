@@ -29,10 +29,9 @@ public class BattleConfig : ScriptableObject
     [Header("Boss Dialogue")]
     public BossDialogueCondition DialogueCondition = BossDialogueCondition.SimilarityOnly;
 
-    [Header("Experiment")]
+    [Header("Narrative")]
     public TutorialSequence PreBattleSequence;
     public TutorialSequence PostBattleSurveySequence;
-    public bool OpenSurveyAfterBattle;
 }
 
 [System.Serializable]

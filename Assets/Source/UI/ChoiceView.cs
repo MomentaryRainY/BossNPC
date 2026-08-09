@@ -8,17 +8,19 @@ public class ChoiceView : MonoBehaviour
     [SerializeField] private TextMeshProUGUI choice1;
     [SerializeField] private TextMeshProUGUI choice2;
     [SerializeField] private TextMeshProUGUI choice3;
+    [SerializeField] private TextMeshProUGUI character;
     [SerializeField] private Button BTN1;
     [SerializeField] private Button BTN2;
     [SerializeField] private Button BTN3;
 
     private string key1, key2, key3;
+    private string characterKey;
+
     public void OnEnable()
     {
         BTN1.onClick.AddListener(OnChoice1Clicked);
         BTN2.onClick.AddListener(OnChoice2Clicked);
         BTN3.onClick.AddListener(OnChoice3Clicked);
-        
     }
 
     private void Start()
@@ -39,11 +41,12 @@ public class ChoiceView : MonoBehaviour
         choicesPanel.blocksRaycasts = false;
     }
 
-    public void SetChoices(string key1, string key2, string key3)
+    public void SetChoices(string key1, string key2, string key3, string key4)
     {
         this.key1 = key1;
         this.key2 = key2;
         this.key3 = key3;
+        this.characterKey = key4;
         SetTexts();
     }
 
@@ -52,6 +55,7 @@ public class ChoiceView : MonoBehaviour
         choice1.text = LocalizationManager.Instance.GetText(key1);
         choice2.text = LocalizationManager.Instance.GetText(key2);
         choice3.text = LocalizationManager.Instance.GetText(key3);
+        character.text = LocalizationManager.Instance.GetText(characterKey);
     }
 
     private void OnChoice1Clicked()
