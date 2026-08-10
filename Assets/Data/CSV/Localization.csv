@@ -46,21 +46,23 @@ tutorial.transition,在每场战斗结束后，您会获得数值提升以及新
 tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
 tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>
 tutorial.continue,按下空格间以继续 -->,Press Space to Continue -->
-tutorial.preboss,接下来开始正式测试，请点击下方按钮打开问卷链接。在后续游玩时请勿关闭，每场Boss战结束后请切换应用，返回问卷页面回答该Boss的相关问题。接下来您将遇到四场Boss战，其中Boss的对话内容将有一定改变，请细心观察。,"The following four boss battles will be encountered, and the boss dialogue will be slightly different, so please observe carefully."
+tutorial.preboss,接下来开始正式测试，请点击下方按钮打开问卷链接，并填写对应的随机码在下框中。在后续游玩时请勿关闭，每场Boss战结束后请切换应用，返回问卷页面回答该Boss的相关问题。接下来您将遇到四场Boss战，其中Boss的对话内容将有一定改变，请细心观察。,"The questionnaire will now begin. Please click the button below to open the questionnaire link and fill in the corresponding random code in the box below. Do not close the application during subsequent gameplay. After each boss battle, please switch applications and return to the questionnaire page to answer the relevant questions for that boss. You will then encounter four boss battles, during which the boss dialogue will be slightly different; please observe carefully."
 tutorial.postboss,请在完成该Boss的问卷内容后继续...,Please continue after completing this boss's questionnaire…
 tutorial.link,链接,Link
 ,,
-boss.dialogue.boss_intro,你终于来了。,So you finally came.
-boss.dialogue.boss_turn_start,让我看看你还能坚持多久。,Let me see how long you can endure.
-boss.dialogue.player_turn_high_damage,这一击比我预想的更有力。,That strike was stronger than I expected.
-boss.dialogue.player_turn_hand_empty,你已经无牌可出了。,You have exhausted your hand.
-boss.dialogue.player_turn_high_damage_and_hand_empty,孤注一掷？有点意思。,An all-out gamble? Interesting.
-boss.dialogue.boss_hp_below_75,你确实伤到了我。,You have actually wounded me.
-boss.dialogue.boss_hp_below_25,我不会倒在这里。,I will not fall here.
-boss.dialogue.player_hp_below_50,你开始动摇了。,You are beginning to falter.
-boss.dialogue.player_hp_below_25,死亡已经站在你身后。,Death is already standing behind you.
-boss.dialogue.boss_defeat,这还没有结束。,This is not over.
-boss.dialogue.player_defeat,你的旅程到此为止。,Your journey ends here.
+boss.dialogue.boss_intro,你击败了我一手打造的守护者，击败我庇护的武士，甚至越过我的亲族，才找到我。现在告诉我，骑士：你究竟效忠于谁的正义？,"You crossed the guardian I forged, the man whose family I sheltered, and my own kin to reach me. Now tell me, knight: whose justice do you serve？"
+boss.dialogue.boss_turn_start,骑士，准备好了。即使是敌人，我也会给你公正的对决。,"Stand your ground, knight. Even an enemy deserves a measured judgement."
+boss.dialogue.player_turn_high_damage,是一次有力的打击。我将给你你的国王对待敌人所不具备的尊重。,A disciplined strike. I will grant you the respect your sovereign denies his foes.
+boss.dialogue.player_turn_hand_empty,刚好用完准备好的策略了？看的出来你的头脑很好，但是接下来该我了。,"Just used up all the strategies you prepared? I can tell you're very clever, but it's my turn now."
+boss.dialogue.player_turn_high_damage_and_hand_empty,完美地策略和执行。有没有看清你们国王的昏庸，加入我们吧,Perfect strategy and execution. Have you seen through your king's incompetence? Join us!
+boss.dialogue.boss_hp_below_75,你染上的每一滴血都包含了我复仇的欲望；不要将我所受伤害误认为是我事业的失败。,You have drawn noble blood; do not mistake injury for the defeat of my cause
+boss.dialogue.boss_hp_below_25,我的身体或许会倒下，但我绝不会向毁了我家的王位屈服。,"My body may fail, but I will not kneel to the throne that ruined my house."
+boss.dialogue.player_hp_below_50,屈服吧，或许我还能向你们展现你们的皇帝曾给予我人民的仁慈。,"Yield, and I may yet show you the mercy your Emperor denied my people."
+boss.dialogue.player_hp_below_25,职责已将你带到死亡边缘。趁现在还能选择，请选择正义而非服从。,Duty has brought you to death’s edge. Choose justice over obedience while you still can.
+boss.dialogue.boss_defeat,你或许能阻止我的复仇，但你无法抹去王室埋藏的真相。,"You may end my revenge, but not the truth the Crown buried."
+boss.dialogue.player_defeat,你对王室的效忠到此为止。历史将会比你的国王更加严厉。,Your service to the Crown ends here. May history judge your master more harshly than you.
+boss.dialogue.monster_first,你先解决了眼前的近战敌人，却让远处的威胁继续存在。骑士，勇气若没有远见，代价往往很高。,"You chose the blade before you and left the distant threat untouched. Courage without foresight is an expensive virtue, knight."
+boss.dialogue.devil_first,你先清除了远处的威胁。判断得很好，骑士；你的头脑与你的剑术一样训练有素。,"You removed the distant threat first. Well judged, knight; your mind is as disciplined as your sword."
 ,,
 choice.1_1,释放他,Spare him
 choice.1_2,处决他,Execute him

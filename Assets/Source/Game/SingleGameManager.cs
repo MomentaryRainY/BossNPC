@@ -149,6 +149,7 @@ public class SingleGameManager : MonoBehaviour
                 Prefab = enemy.Config.EnemyPrefab,
                 Config = new UnitConfig
                 {
+                    type = enemy.Role,
                     MaxHealth = enemy.Config.MaxHealth,
                     MoveRange = enemy.Config.MoveRange,
                     MoveSpeed = enemy.Config.MoveSpeed

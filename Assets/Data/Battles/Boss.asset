@@ -20,16 +20,24 @@ MonoBehaviour:
   MaxStamina: 3
   MaxHandCount: 5
   Enemies:
-  - Config: {fileID: 11400000, guid: b3f837bc7a6d5bc47a9910b6be4562db, type: 2}
+  - Config: {fileID: 11400000, guid: e95e0fa4ce79e6c4bb4ee87ed7fd7a12, type: 2}
     GridPos: {x: 2, y: 0}
+    Role: 1
+  - Config: {fileID: 11400000, guid: b3f837bc7a6d5bc47a9910b6be4562db, type: 2}
+    GridPos: {x: 3, y: 0}
+    Role: 0
+  - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
+    GridPos: {x: 1, y: 0}
+    Role: 0
   UseTransitionAfterBattle: 0
-  ShowLevelUpPage: 0
+  ShowLevelUpPage: 1
   ShowRewardCardPage: 0
   RewardCard: {fileID: 0}
   ChoiceConfig:
     ShowAfterBattle: 0
     Options: []
   IsBossFight: 1
+  CollectGameplayMemories: 0
   DialogueCondition: 3
   PreBattleSequence: {fileID: 11400000, guid: 7e7aa6fb908b7714290993afea114699, type: 2}
   PostBattleSurveySequence: {fileID: 11400000, guid: 1cdfbceec091fe144a79d36555247347, type: 2}

@@ -4,7 +4,10 @@ using UnityEngine;
 
 public enum EnemyType
 {
-    DEFAULT
+    DEFAULT,
+    BOSS,
+    RANGED_MINION,
+    MELEE_MINION
 }
 public class Enemy : Unit
 {

@@ -39,5 +39,6 @@ public class EnemySpawnConfig
 {
     public EnemyConfig Config;
     public Vector2Int GridPos;
+    public EnemyType Role = EnemyType.DEFAULT;
 
 }

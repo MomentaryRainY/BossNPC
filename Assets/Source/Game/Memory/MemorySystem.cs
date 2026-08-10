@@ -11,6 +11,7 @@ public class MemorySystem : MonoBehaviour
     private List<MemoryRecord> Memories;
 
     public IReadOnlyList<MemoryRecord> MemoryPool => Memories;
+    public RetrievalStrategy CurrentStrategy => strategy;
 
     [SerializeField] private RetrievalStrategy strategy;
     [SerializeField] private string embeddingProxyUrl = "http://127.0.0.1:3000/embed";
@@ -64,7 +65,8 @@ public class MemorySystem : MonoBehaviour
         MemoryQuery query,
         int topK,
         Action<List<MemoryRecord>> onSuccess,
-        Action<string> onError)
+        Action<string> onError,
+        Action<float> onTimingCompleted = null)
     {
         if (retriever == null)
         {
@@ -79,6 +81,7 @@ public class MemorySystem : MonoBehaviour
 
         if (topK <= 0 || Memories.Count == 0)
         {
+            onTimingCompleted?.Invoke(0f);
             onSuccess?.Invoke(new List<MemoryRecord>());
             yield break;
         }
@@ -102,12 +105,14 @@ public class MemorySystem : MonoBehaviour
 
         if (!string.IsNullOrEmpty(embeddingError))
         {
+            onTimingCompleted?.Invoke(GetElapsedMilliseconds(retrievalStartedAt));
             onError?.Invoke(embeddingError);
             yield break;
         }
 
         if (vectors == null || vectors.Count != texts.Count)
         {
+            onTimingCompleted?.Invoke(GetElapsedMilliseconds(retrievalStartedAt));
             onError?.Invoke(
                 $"Embedding service returned {vectors?.Count ?? 0} vector(s) " +
                 $"for {texts.Count} text(s).");
@@ -128,17 +133,24 @@ public class MemorySystem : MonoBehaviour
         }
         catch (Exception exception)
         {
+            onTimingCompleted?.Invoke(GetElapsedMilliseconds(retrievalStartedAt));
             onError?.Invoke(
                 $"{strategy} retrieval failed: {exception.Message}");
             yield break;
         }
 
-        float elapsedMilliseconds = (Time.realtimeSinceStartup - retrievalStartedAt) * 1000f;
-        Debug.Log($"Memory retrieval completed: strategy={strategy}, " +
+        float elapsedMilliseconds = GetElapsedMilliseconds(retrievalStartedAt);
+        onTimingCompleted?.Invoke(elapsedMilliseconds);
+        Debug.Log($"Memory retrieval completedw: strategy={strategy}, " +
             $"pool={Memories.Count}, embeddedMemories={memoriesWithoutVectors.Count}, " +
             $"returned={retrievedMemories.Count}, elapsed={elapsedMilliseconds:F1} ms");
 
         onSuccess?.Invoke(retrievedMemories);
+    }
+
+    private static float GetElapsedMilliseconds(float startedAt)
+    {
+        return (Time.realtimeSinceStartup - startedAt) * 1000f;
     }
 
     private void OnMemoryEvent(MemoryEventData data)

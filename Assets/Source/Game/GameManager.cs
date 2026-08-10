@@ -294,6 +294,7 @@ public class GameManager : MonoBehaviour
                 Prefab = enemy.Config.EnemyPrefab,
                 Config = new UnitConfig
                 {
+                    type = enemy.Role,
                     MaxHealth = enemy.Config.MaxHealth,
                     MoveRange = enemy.Config.MoveRange,
                     MoveSpeed = enemy.Config.MoveSpeed
@@ -317,6 +318,9 @@ public class GameManager : MonoBehaviour
             : ConfiguredExperimentMode;
 
         experimentSession.Begin(mode);
+        DialoguePerformanceLogger.BeginSession(
+            experimentSession.SessionCode,
+            experimentSession.Mode.ToString());
 
         if (!string.IsNullOrEmpty(experimentSession.PreviousIncompleteSessionCode))
         {

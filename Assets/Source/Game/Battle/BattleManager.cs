@@ -92,17 +92,25 @@ public class BattleManager : MonoBehaviour
             enemyUnit.BindHealthBar(hpBarE);
             CurrentEnemies.Add(enemyUnit);
 
-            if (CurrentBattleState.isBossFight && CurrentBossDialogueDirector == null)
+            if (CurrentBattleState.isBossFight)
             {
-                BossDialogueDirector director =
-                    enemyUnit.GetComponentInChildren<BossDialogueDirector>(true);
+                bool isExplicitBoss = enemyUnit.EnemyRole == EnemyType.BOSS;
+                bool canUseLegacyFallback =
+                    CurrentBossDialogueDirector == null &&
+                    enemyUnit.EnemyRole == EnemyType.DEFAULT;
 
-                if (director != null)
+                if (isExplicitBoss || canUseLegacyFallback)
                 {
-                    CurrentBoss = enemyUnit;
-                    CurrentBossDialogueDirector = director;
-                    CurrentBossDialogueDirector.Configure(
-                        CurrentBattleState.DialogueCondition);
+                    BossDialogueDirector director =
+                        enemyUnit.GetComponentInChildren<BossDialogueDirector>(true);
+
+                    if (director != null)
+                    {
+                        CurrentBoss = enemyUnit;
+                        CurrentBossDialogueDirector = director;
+                        CurrentBossDialogueDirector.Configure(
+                            CurrentBattleState.DialogueCondition);
+                    }
                 }
             }
         }
@@ -409,6 +417,35 @@ public class BattleManager : MonoBehaviour
 
     private void RemoveDeadEnemies()
     {
+        List<Unit> defeatedTacticalMinions = new List<Unit>();
+
+        foreach (Unit enemy in CurrentEnemies)
+        {
+            if (enemy == CurrentBoss || enemy.State != UnitState.Dead)
+            {
+                continue;
+            }
+
+            if (enemy.EnemyRole == EnemyType.RANGED_MINION ||
+                enemy.EnemyRole == EnemyType.MELEE_MINION)
+            {
+                defeatedTacticalMinions.Add(enemy);
+            }
+        }
+
+        if (defeatedTacticalMinions.Count == 1 &&
+            CurrentBossDialogueDirector != null &&
+            CurrentBoss != null &&
+            CurrentBoss.State != UnitState.Dead)
+        {
+            CurrentBossDialogueDirector.OnBossMinionDefeated(
+                defeatedTacticalMinions[0].EnemyRole);
+        }
+        else if (defeatedTacticalMinions.Count > 1)
+        {
+            Debug.Log("Boss encounter memory skipped: tactical minions were defeated simultaneously.");
+        }
+
         for (int i = CurrentEnemies.Count - 1; i >= 0; i--)
         {
             Unit enemy = CurrentEnemies[i];

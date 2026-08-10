@@ -23,7 +23,17 @@ public class DialogueController : MonoBehaviour
 
     public void SpeakFromMemory(string queryText)
     {
-        StartCoroutine(SpeakFromMemoryCoroutine(queryText, 3f));
+        StartCoroutine(SpeakFromMemoryCoroutine(queryText, 3f, null));
+    }
+
+    public void SpeakFromMemory(
+        string queryText,
+        IReadOnlyList<string> encounterMemories)
+    {
+        StartCoroutine(SpeakFromMemoryCoroutine(
+            queryText,
+            3f,
+            CopyEncounterMemories(encounterMemories)));
     }
 
     public void SpeakScripted(string intent, float duration = 3f)
@@ -47,12 +57,28 @@ public class DialogueController : MonoBehaviour
 
     public IEnumerator SpeakFromMemoryAndWait(string queryText, float displayDuration = 3f)
     {
-        yield return SpeakFromMemoryCoroutine(queryText, displayDuration);
+        yield return SpeakFromMemoryCoroutine(queryText, displayDuration, null);
         yield return new WaitForSecondsRealtime(displayDuration);
     }
 
-    private IEnumerator SpeakFromMemoryCoroutine(string queryText, float displayDuration)
+    public IEnumerator SpeakFromMemoryAndWait(
+        string queryText,
+        IReadOnlyList<string> encounterMemories,
+        float displayDuration = 3f)
     {
+        yield return SpeakFromMemoryCoroutine(
+            queryText,
+            displayDuration,
+            CopyEncounterMemories(encounterMemories));
+        yield return new WaitForSecondsRealtime(displayDuration);
+    }
+
+    private IEnumerator SpeakFromMemoryCoroutine(
+        string queryText,
+        float displayDuration,
+        List<string> encounterMemories)
+    {
+        float responseStartedAt = Time.realtimeSinceStartup;
         MemoryQuery query = new MemoryQuery
         {
             QueryText = BuildRetrievalQuery(queryText)
@@ -61,22 +87,38 @@ public class DialogueController : MonoBehaviour
         if (MemorySystem.Instance == null)
         {
             Debug.LogError("Cannot retrieve memories because MemorySystem is missing.");
+            RecordRetrievalFailure(
+                queryText,
+                "Unavailable",
+                "MemorySystem is missing.",
+                0f,
+                responseStartedAt,
+                encounterMemories?.Count ?? 0);
             Speak("So, you finally reached me. (MS missing)", displayDuration);
             yield break;
         }
 
         List<MemoryRecord> memories = null;
         string retrievalError = null;
+        float retrievalMilliseconds = 0f;
 
         yield return MemorySystem.Instance.Retrieve(
             query,
             3,
             result => memories = result,
-            error => retrievalError = error);
+            error => retrievalError = error,
+            elapsed => retrievalMilliseconds = elapsed);
 
         if (!string.IsNullOrEmpty(retrievalError))
         {
             Debug.LogError(retrievalError);
+            RecordRetrievalFailure(
+                queryText,
+                MemorySystem.Instance.CurrentStrategy.ToString(),
+                retrievalError,
+                retrievalMilliseconds,
+                responseStartedAt,
+                encounterMemories?.Count ?? 0);
             Speak("So, you finally reached me. (retrieval error)", displayDuration);
             yield break;
         }
@@ -84,23 +126,101 @@ public class DialogueController : MonoBehaviour
         DialogueContext context = new DialogueContext
         {
             SpeakerId = "boss",
-            SpeakerName = "Cavern Lord",
-            TargetName = "Player",
+            SpeakerName = "Rowan Serenade",
+            TargetName = "the player knight",
             Intent = queryText,
-            Tone = "proud, threatening",
-            SceneId = "Boss"
+            Tone = "formal, controlled, concise, admonitory, with restrained anger",
+            SceneId = "Rowan's snow-mountain boss encounter",
+            OutputLanguage = GetOutputLanguage()
         };
 
-        string prompt = Generator.BuildPrompt(context, memories);
+        string prompt = Generator.BuildPrompt(context, memories, encounterMemories);
+        string generatedText = null;
+        string generationError = null;
+        float generationMilliseconds = 0f;
 
         yield return Generator.Generate(
             prompt,
-            text => Speak(text, displayDuration),
-            error =>
-            {
-                Debug.LogError(error);
-                Speak("So, you finally reached me. (LLM error)", displayDuration);
-            });
+            text => generatedText = text,
+            error => generationError = error,
+            elapsed => generationMilliseconds = elapsed);
+
+        float endToEndMilliseconds =
+            (Time.realtimeSinceStartup - responseStartedAt) * 1000f;
+
+        DialoguePerformanceLogger.Record(new DialoguePerformanceRecord
+        {
+            RetrievalStrategy = MemorySystem.Instance.CurrentStrategy.ToString(),
+            Trigger = queryText,
+            PromptCharacters = prompt.Length,
+            PromptUtf8Bytes = System.Text.Encoding.UTF8.GetByteCount(prompt),
+            RetrievedMemoryCount = memories?.Count ?? 0,
+            EncounterMemoryCount = encounterMemories?.Count ?? 0,
+            RetrievalMilliseconds = retrievalMilliseconds,
+            GenerationMilliseconds = generationMilliseconds,
+            EndToEndMilliseconds = endToEndMilliseconds,
+            ResponseCharacters = generatedText?.Length ?? 0,
+            Success = string.IsNullOrEmpty(generationError),
+            Error = generationError
+        });
+
+        if (!string.IsNullOrEmpty(generationError))
+        {
+            Debug.LogError(generationError);
+            Speak("So, you finally reached me. (LLM error)", displayDuration);
+            yield break;
+        }
+
+        Speak(generatedText, displayDuration);
+    }
+
+    private static void RecordRetrievalFailure(
+        string trigger,
+        string strategy,
+        string error,
+        float retrievalMilliseconds,
+        float responseStartedAt,
+        int encounterMemoryCount)
+    {
+        DialoguePerformanceLogger.Record(new DialoguePerformanceRecord
+        {
+            RetrievalStrategy = strategy,
+            Trigger = trigger,
+            EncounterMemoryCount = encounterMemoryCount,
+            RetrievalMilliseconds = retrievalMilliseconds,
+            EndToEndMilliseconds =
+                (Time.realtimeSinceStartup - responseStartedAt) * 1000f,
+            Success = false,
+            Error = error
+        });
+    }
+
+    private static List<string> CopyEncounterMemories(
+        IReadOnlyList<string> encounterMemories)
+    {
+        if (encounterMemories == null || encounterMemories.Count == 0)
+        {
+            return null;
+        }
+
+        List<string> copy = new List<string>(encounterMemories.Count);
+        for (int i = 0; i < encounterMemories.Count; i++)
+        {
+            copy.Add(encounterMemories[i]);
+        }
+
+        return copy;
+    }
+
+    private static string GetOutputLanguage()
+    {
+        if (LocalizationManager.Instance != null &&
+            LocalizationManager.Instance.CurrentLanguage == Language.Zh)
+        {
+            return "Simplified Chinese";
+        }
+
+        return "English";
     }
 
     private static string BuildRetrievalQuery(string intent)
@@ -118,6 +238,10 @@ public class DialogueController : MonoBehaviour
                 return "What memories describe the player's strongest attacks and combat performance?";
             case "player_turn_hand_empty":
                 return "What memories describe the player exhausting their hand during combat?";
+            case "devil_first":
+            case "monster_first":
+                return "What previous choices help Rowan judge the player's tactical decisions " +
+                    "and treatment of Rowan's forces?";
             case "boss_hp_below_75":
             case "boss_hp_below_25":
                 return "What previous actions show how dangerous the player is to their enemies?";

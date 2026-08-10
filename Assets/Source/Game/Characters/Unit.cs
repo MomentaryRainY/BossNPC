@@ -43,6 +43,9 @@ public abstract class Unit : MonoBehaviour
     public float CurrentHP => runtime.CurrentHP;
     public float MaxHP => runtime.Config.MaxHealth;
     public float HPPercent => MaxHP <= 0 ? 0f : CurrentHP / MaxHP;
+    public EnemyType EnemyRole => runtime?.Config != null
+        ? runtime.Config.type
+        : EnemyType.DEFAULT;
 
     private HPBarView HPBar;
 

@@ -22,16 +22,6 @@ MonoBehaviour:
   Enemies:
   - Config: {fileID: 11400000, guid: e95e0fa4ce79e6c4bb4ee87ed7fd7a12, type: 2}
     GridPos: {x: 11, y: 5}
-  - Config: {fileID: 11400000, guid: 72a6079bbc48a654488753ce00e651ee, type: 2}
-    GridPos: {x: 10, y: 5}
-  - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
-    GridPos: {x: 11, y: 3}
-  - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
-    GridPos: {x: 11, y: 7}
-  - Config: {fileID: 11400000, guid: b3f837bc7a6d5bc47a9910b6be4562db, type: 2}
-    GridPos: {x: 0, y: 3}
-  - Config: {fileID: 11400000, guid: b3f837bc7a6d5bc47a9910b6be4562db, type: 2}
-    GridPos: {x: 0, y: 7}
   UseTransitionAfterBattle: 0
   ShowLevelUpPage: 0
   ShowRewardCardPage: 0

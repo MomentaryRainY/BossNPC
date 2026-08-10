@@ -1747,9 +1747,9 @@ MonoBehaviour:
   - Boss1
   - Boss2
   - Boss3
-  RandomizeExperimentMode: 1
+  RandomizeExperimentMode: 0
   ConfiguredExperimentMode: 0
-  PostBattleSurveyUrl: 
+  SurveyUrl: www.bilibili.com
 --- !u!224 &790968154
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5633,6 +5633,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   strategy: 0
+  embeddingProxyUrl: http://127.0.0.1:3000/embed
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

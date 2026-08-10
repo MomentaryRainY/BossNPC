@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BossDialogueDirector : MonoBehaviour
@@ -16,6 +17,8 @@ public class BossDialogueDirector : MonoBehaviour
     private float lastDialogueTime = -999f;
     private int nextBossTurnToSpeak = 1;
     private int nextBossTurnInterval = 1;
+    private readonly List<string> encounterMemories = new List<string>();
+    private bool firstTacticalMinionDefeatRecorded;
 
     private void Awake()
     {
@@ -28,6 +31,8 @@ public class BossDialogueDirector : MonoBehaviour
     public void Configure(BossDialogueCondition condition)
     {
         dialogueCondition = condition;
+        encounterMemories.Clear();
+        firstTacticalMinionDefeatRecorded = false;
 
         if (dialogueCondition != BossDialogueCondition.Scripted)
         {
@@ -123,6 +128,41 @@ public class BossDialogueDirector : MonoBehaviour
         }
     }
 
+    public void OnBossMinionDefeated(EnemyType defeatedRole)
+    {
+        if (firstTacticalMinionDefeatRecorded)
+        {
+            return;
+        }
+
+        string intent;
+        string memory;
+
+        switch (defeatedRole)
+        {
+            case EnemyType.RANGED_MINION:
+                intent = "devil_first";
+                memory = "During the current boss fight, the player defeated the ranged " +
+                    "Devil before the melee Monster. Removing the ranged threat first was " +
+                    "a sound tactical priority because it limited attacks from a distance.";
+                break;
+
+            case EnemyType.MELEE_MINION:
+                intent = "monster_first";
+                memory = "During the current boss fight, the player defeated the melee " +
+                    "Monster before the ranged Devil. This left the ranged threat active " +
+                    "and was a less efficient tactical priority.";
+                break;
+
+            default:
+                return;
+        }
+
+        firstTacticalMinionDefeatRecorded = true;
+        encounterMemories.Add(memory);
+        Speak(DialogueTriggerType.FirstBossMinionDefeated, intent, ignoreCooldown: true);
+    }
+
     public IEnumerator PlayBattleEndDialogue(BattleManager.BattleResult result)
     {
         string intent = result == BattleManager.BattleResult.Victory
@@ -144,7 +184,7 @@ public class BossDialogueDirector : MonoBehaviour
         if (ApplyRetrievalStrategy())
         {
             lastDialogueTime = Time.time;
-            yield return bossDialogue.SpeakFromMemoryAndWait(intent);
+            yield return bossDialogue.SpeakFromMemoryAndWait(intent, encounterMemories);
         }
     }
 
@@ -176,7 +216,7 @@ public class BossDialogueDirector : MonoBehaviour
         }
 
         lastDialogueTime = Time.time;
-        bossDialogue.SpeakFromMemory(intent);
+        bossDialogue.SpeakFromMemory(intent, encounterMemories);
         return true;
     }
 
@@ -222,5 +262,6 @@ public enum DialogueTriggerType
     BossHpBelow25,
     PlayerHpBelow50,
     PlayerHpBelow25,
+    FirstBossMinionDefeated,
     BattleEnd
 }
