@@ -13,6 +13,13 @@ public class SingleGameManager : MonoBehaviour
     [SerializeField] private bool PlayPostBattleSequence;
     [SerializeField] private bool RestartSceneOnDefeat = true;
 
+    [Header("Memory Retrieval Test")]
+    [SerializeField] private bool SeedRetrievalTestMemories;
+    [SerializeField] private bool ClearMemoryPoolBeforeSeeding = true;
+    [SerializeField] private bool OverrideRetrievalStrategyForTest = true;
+    [SerializeField] private RetrievalStrategy TestRetrievalStrategy =
+        RetrievalStrategy.RuleBasedImportance;
+
     private RunState CurrentRun;
     private bool eventsRegistered;
     private bool battleStarted;
@@ -26,11 +33,97 @@ public class SingleGameManager : MonoBehaviour
         }
 
         RegisterEvents();
+        ConfigureRetrievalTest();
 
         if (StartAutomatically)
         {
             StartSingleBattle();
         }
+    }
+
+    private void ConfigureRetrievalTest()
+    {
+        if (SeedRetrievalTestMemories)
+        {
+            SeedRetrievalTestMemoryPool();
+        }
+    }
+
+    [ContextMenu("Debug/Seed Retrieval Test Memory Pool")]
+    private void SeedRetrievalTestMemoryPool()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning("Retrieval test memories can only be seeded in Play Mode.");
+            return;
+        }
+
+        MemorySystem memorySystem = MemorySystem.Instance;
+        if (memorySystem == null)
+        {
+            Debug.LogWarning(
+                "SingleGameManager cannot seed retrieval test memories because " +
+                "MemorySystem is missing.");
+            return;
+        }
+
+        if (ClearMemoryPoolBeforeSeeding)
+        {
+            memorySystem.ClearMemories();
+        }
+
+        if (OverrideRetrievalStrategyForTest)
+        {
+            memorySystem.SetRetrievalStrategy(TestRetrievalStrategy);
+        }
+
+        foreach (MemoryEventData memoryEvent in CreateRetrievalTestMemories())
+        {
+            EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, memoryEvent);
+        }
+
+        Debug.Log(
+            $"Seeded retrieval test memory pool: count={memorySystem.MemoryPool.Count}, " +
+            $"strategy={memorySystem.CurrentStrategy}.");
+        memorySystem.DumpMemoryPool();
+    }
+
+    private static List<MemoryEventData> CreateRetrievalTestMemories()
+    {
+        return new List<MemoryEventData>
+        {
+            MemoryEventFactory.CreateEncounterOutcome("Battle1", 2, 0.90f),
+            MemoryEventFactory.CreateCombatPattern("Battle1", 0, 67f, 0.67f),
+            CreateTestChoice("Battle1", 2, "Execute him"),
+
+            MemoryEventFactory.CreateEncounterOutcome("Battle2", 2, 0.88f),
+            MemoryEventFactory.CreateCombatPattern("Battle2", 0, 70f, 1f),
+            CreateTestChoice(
+                "Battle2",
+                1,
+                "Ignore his situation and keep going."),
+
+            MemoryEventFactory.CreateEncounterOutcome("Battle3", 3, 0.87f),
+            MemoryEventFactory.CreateCombatPattern("Battle3", 2, 55.5f, 0.37f),
+            CreateTestChoice("Battle3", 3, "Execute him")
+        };
+    }
+
+    private static MemoryEventData CreateTestChoice(
+        string battleId,
+        int choiceIndex,
+        string choiceText)
+    {
+        return new MemoryEventData
+        {
+            BattleId = battleId,
+            Category = MemoryCategory.NarrativeChoice,
+            Text = $"The player selected: {choiceText}.",
+            Metrics = new MemoryEventMetrics
+            {
+                ChoiceIndex = choiceIndex
+            }
+        };
     }
 
     public void StartSingleBattle()
@@ -61,13 +154,16 @@ public class SingleGameManager : MonoBehaviour
 
         Time.timeScale = 1f;
         battleStarted = true;
+        BossDialogueCondition dialogueCondition = ResolveDialogueCondition();
 
         DialoguePerformanceLogger.BeginSession(
             $"SINGLE-{SceneManager.GetActiveScene().name}",
-            $"Standalone-{BattleConfig.DialogueCondition}");
+            $"Standalone-{dialogueCondition}");
 
         CreateRunState();
-        RuntimeBattleState runtimeState = CreateRuntimeState(BattleConfig);
+        RuntimeBattleState runtimeState = CreateRuntimeState(
+            BattleConfig,
+            dialogueCondition);
 
         cardManager.Init(runtimeState);
         cardRenderer.Init(cardManager.instances);
@@ -118,7 +214,32 @@ public class SingleGameManager : MonoBehaviour
         }
     }
 
-    private RuntimeBattleState CreateRuntimeState(BattleConfig config)
+    private BossDialogueCondition ResolveDialogueCondition()
+    {
+        if (!SeedRetrievalTestMemories || !OverrideRetrievalStrategyForTest)
+        {
+            return BattleConfig.DialogueCondition;
+        }
+
+        switch (TestRetrievalStrategy)
+        {
+            case RetrievalStrategy.SimilarityOnly:
+                return BossDialogueCondition.SimilarityOnly;
+
+            case RetrievalStrategy.RuleBasedImportance:
+                return BossDialogueCondition.RuleBasedImportance;
+
+            case RetrievalStrategy.ModelAssistedImportance:
+                return BossDialogueCondition.ModelAssistedImportance;
+
+            default:
+                return BattleConfig.DialogueCondition;
+        }
+    }
+
+    private RuntimeBattleState CreateRuntimeState(
+        BattleConfig config,
+        BossDialogueCondition dialogueCondition)
     {
         RuntimeBattleState state = new RuntimeBattleState
         {
@@ -146,7 +267,7 @@ public class SingleGameManager : MonoBehaviour
             BattleId = config.name,
             CollectGameplayMemories = config.CollectGameplayMemories,
             isBossFight = config.IsBossFight,
-            DialogueCondition = config.DialogueCondition
+            DialogueCondition = dialogueCondition
         };
 
         if (config.Enemies == null)

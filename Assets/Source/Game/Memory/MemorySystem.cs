@@ -141,7 +141,7 @@ public class MemorySystem : MonoBehaviour
 
         float elapsedMilliseconds = GetElapsedMilliseconds(retrievalStartedAt);
         onTimingCompleted?.Invoke(elapsedMilliseconds);
-        Debug.Log($"Memory retrieval completedw: strategy={strategy}, " +
+        Debug.Log($"Memory retrieval completed: strategy={strategy}, " +
             $"pool={Memories.Count}, embeddedMemories={memoriesWithoutVectors.Count}, " +
             $"returned={retrievedMemories.Count}, elapsed={elapsedMilliseconds:F1} ms");
 
@@ -167,7 +167,6 @@ public class MemorySystem : MonoBehaviour
            BattleId = data.BattleId,
            Category = data.Category,
            Text = data.Text,
-           Recency = 3f,
            Metrics = data.Metrics?.Clone() ?? new MemoryEventMetrics(),
            Vector = null
         };
@@ -215,7 +214,6 @@ public class MemoryRecord
     public string BattleId;
     public MemoryCategory Category;
     public string Text;
-    public float Recency;
     public MemoryEventMetrics Metrics;
     public float[] Vector;
 }
