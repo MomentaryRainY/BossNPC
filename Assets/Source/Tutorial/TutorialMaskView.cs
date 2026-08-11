@@ -190,4 +190,9 @@ public class TutorialMaskView : MonoBehaviour
 
         gameObject.SetActive(false);
     }
+
+    public virtual bool TryContinue()
+    {
+        return true;
+    }
 }

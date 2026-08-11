@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -5160883161883191796}
   - component: {fileID: -7477179221747112047}
   - component: {fileID: 3705743099807526647}
+  - component: {fileID: -8724765019551086181}
   m_Layer: 7
   m_Name: Monster42_01
   m_TagString: Untagged
@@ -103,6 +104,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb42b4288d37ec646b1f8c7df168c795, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-8724765019551086181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3064182496570947963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4642319fe09a774383c41a8775628c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossDialogue: {fileID: 3705743099807526647}
+  dialogueCooldown: 3
+  dialogueCondition: 0
 --- !u!1001 &8095509608874350016
 PrefabInstance:
   m_ObjectHideFlags: 0

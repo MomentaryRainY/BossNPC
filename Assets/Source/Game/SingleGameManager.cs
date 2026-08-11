@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SingleGameManager : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class SingleGameManager : MonoBehaviour
     [SerializeField] private int CopiesPerCard = 2;
     [SerializeField] private bool StartAutomatically = true;
     [SerializeField] private bool DisableIfGameManagerExists = true;
+    [SerializeField] private bool PlayPreBattleSequence;
+    [SerializeField] private bool PlayPostBattleSequence;
+    [SerializeField] private bool RestartSceneOnDefeat = true;
 
     private RunState CurrentRun;
     private bool eventsRegistered;
@@ -58,6 +62,10 @@ public class SingleGameManager : MonoBehaviour
         Time.timeScale = 1f;
         battleStarted = true;
 
+        DialoguePerformanceLogger.BeginSession(
+            $"SINGLE-{SceneManager.GetActiveScene().name}",
+            $"Standalone-{BattleConfig.DialogueCondition}");
+
         CreateRunState();
         RuntimeBattleState runtimeState = CreateRuntimeState(BattleConfig);
 
@@ -66,6 +74,16 @@ public class SingleGameManager : MonoBehaviour
         uiManager.Init(cardRenderer);
         battleManager.Init(runtimeState, cardManager, uiManager);
         inputController.Init(battleManager);
+
+        if (PlayPreBattleSequence &&
+            BattleConfig.PreBattleSequence != null &&
+            TutorialManager.Instance != null)
+        {
+            TutorialManager.Instance.Play(
+                BattleConfig.PreBattleSequence,
+                battleManager.GameStart);
+            return;
+        }
 
         battleManager.GameStart();
     }
@@ -188,9 +206,34 @@ public class SingleGameManager : MonoBehaviour
 
         if (data.Result == BattleManager.BattleResult.Defeat)
         {
+            if (RestartSceneOnDefeat)
+            {
+                Time.timeScale = 1f;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
             return;
         }
 
+        if (PlayPostBattleSequence &&
+            BattleConfig.PostBattleSurveySequence != null &&
+            TutorialManager.Instance != null)
+        {
+            Time.timeScale = 0f;
+            TutorialManager.Instance.Play(
+                BattleConfig.PostBattleSurveySequence,
+                () =>
+                {
+                    Time.timeScale = 1f;
+                    ShowBattleChoicesIfConfigured();
+                });
+            return;
+        }
+
+        ShowBattleChoicesIfConfigured();
+    }
+
+    private void ShowBattleChoicesIfConfigured()
+    {
         if (BattleConfig.ChoiceConfig == null || !BattleConfig.ChoiceConfig.ShowAfterBattle)
         {
             return;
@@ -198,7 +241,7 @@ public class SingleGameManager : MonoBehaviour
 
         if (GlobalUIManager.Instance == null ||
             BattleConfig.ChoiceConfig.Options == null ||
-            BattleConfig.ChoiceConfig.Options.Length < 3)
+            BattleConfig.ChoiceConfig.Options.Length < 4)
         {
             Debug.LogWarning("SingleGameManager cannot show battle choices because GlobalUIManager or choice options are missing.");
             return;

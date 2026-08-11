@@ -50,7 +50,7 @@ public class TutorialManager : MonoBehaviour
             currentPage = Instantiate(prefab, TutorialRoot);
             currentPage.Show();
 
-            yield return WaitForSpace();
+            yield return WaitForSpace(currentPage);
 
             currentPage.Hide();
             Destroy(currentPage.gameObject);
@@ -66,12 +66,18 @@ public class TutorialManager : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    private IEnumerator WaitForSpace()
+    private IEnumerator WaitForSpace(TutorialMaskView page)
     {
         yield return null;
 
-        while (!Input.GetKeyDown(KeyCode.Space))
+        while (true)
         {
+            if (Input.GetKeyDown(KeyCode.Space) &&
+                (page == null || page.TryContinue()))
+            {
+                yield break;
+            }
+
             yield return null;
         }
     }

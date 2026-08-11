@@ -314,13 +314,13 @@ public class GameManager : MonoBehaviour
         shownPreBattleSequences.Clear();
 
         ExperimentMode mode = RandomizeExperimentMode
-            ? (Random.value > 0.5f ? ExperimentMode.ModeA : ExperimentMode.ModeB)
+            ? (ExperimentMode)Random.Range(0, 4)
             : ConfiguredExperimentMode;
 
-        experimentSession.Begin(mode);
+        experimentSession.Begin(mode, modeConfirmed: false);
         DialoguePerformanceLogger.BeginSession(
             experimentSession.SessionCode,
-            experimentSession.Mode.ToString());
+            "Pending");
 
         if (!string.IsNullOrEmpty(experimentSession.PreviousIncompleteSessionCode))
         {
@@ -331,7 +331,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log(
             $"Experiment started: session={experimentSession.SessionCode}, " +
-            $"mode={experimentSession.Mode}.");
+            "mode=Pending.");
 
         MemorySystem.Instance.ClearMemories();
 
@@ -356,6 +356,26 @@ public class GameManager : MonoBehaviour
     {
         RandomizeExperimentMode = false;
         ConfiguredExperimentMode = mode;
+
+        if (!string.IsNullOrEmpty(experimentSession.SessionCode))
+        {
+            experimentSession.SetMode(mode);
+            DialoguePerformanceLogger.UpdateExperimentMode(mode.ToString());
+        }
+    }
+
+    public bool TrySetExperimentModeCode(string input, out string normalizedCode)
+    {
+        normalizedCode = string.Empty;
+        if (!ExperimentSession.TryParseModeCode(input, out ExperimentMode mode))
+        {
+            return false;
+        }
+
+        SetExperimentMode(mode);
+        normalizedCode = mode.ToString().Substring("Mode".Length);
+        Debug.Log($"Experiment mode confirmed: {mode}.");
+        return true;
     }
 
     private BossDialogueCondition ResolveDialogueCondition(BattleConfig config)

@@ -34,7 +34,7 @@ public static class DialoguePerformanceLogger
     private static string currentSessionCode = "standalone";
     private static string currentExperimentMode = "standalone";
 
-    public static string FilePath => Path.Combine(Application.persistentDataPath, FileName);
+    public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
     public static IReadOnlyList<DialoguePerformanceRecord> CurrentSessionRecords =>
         currentSessionRecords;
 
@@ -50,6 +50,78 @@ public static class DialoguePerformanceLogger
 
         Debug.Log($"Dialogue performance session started: {currentSessionCode}, " +
             $"mode={currentExperimentMode}, output={FilePath}");
+    }
+
+    public static void UpdateExperimentMode(string experimentMode)
+    {
+        if (!string.IsNullOrWhiteSpace(experimentMode))
+        {
+            currentExperimentMode = experimentMode;
+        }
+    }
+
+    public static string BuildCurrentSessionSummary()
+    {
+        StringBuilder summary = new StringBuilder();
+        summary.AppendLine($"session={currentSessionCode}");
+        summary.AppendLine($"mode={currentExperimentMode}");
+
+        if (currentSessionRecords.Count == 0)
+        {
+            summary.Append("requests=0");
+            return summary.ToString();
+        }
+
+        Dictionary<string, List<DialoguePerformanceRecord>> groups =
+            new Dictionary<string, List<DialoguePerformanceRecord>>();
+
+        foreach (DialoguePerformanceRecord record in currentSessionRecords)
+        {
+            string strategy = string.IsNullOrWhiteSpace(record.RetrievalStrategy)
+                ? "Unknown"
+                : record.RetrievalStrategy;
+
+            if (!groups.TryGetValue(strategy, out List<DialoguePerformanceRecord> records))
+            {
+                records = new List<DialoguePerformanceRecord>();
+                groups.Add(strategy, records);
+            }
+
+            records.Add(record);
+        }
+
+        foreach (KeyValuePair<string, List<DialoguePerformanceRecord>> group in groups)
+        {
+            int successCount = 0;
+            float retrievalTotal = 0f;
+            float generationTotal = 0f;
+            float endToEndTotal = 0f;
+            float promptTotal = 0f;
+
+            foreach (DialoguePerformanceRecord record in group.Value)
+            {
+                if (record.Success)
+                {
+                    successCount++;
+                }
+
+                retrievalTotal += record.RetrievalMilliseconds;
+                generationTotal += record.GenerationMilliseconds;
+                endToEndTotal += record.EndToEndMilliseconds;
+                promptTotal += record.PromptCharacters;
+            }
+
+            float count = group.Value.Count;
+            summary.AppendLine();
+            summary.Append(
+                $"{group.Key}: requests={group.Value.Count}, success={successCount}, " +
+                $"avgRetrievalMs={retrievalTotal / count:F1}, " +
+                $"avgGenerationMs={generationTotal / count:F1}, " +
+                $"avgEndToEndMs={endToEndTotal / count:F1}, " +
+                $"avgPromptChars={promptTotal / count:F0}");
+        }
+
+        return summary.ToString();
     }
 
     public static void Record(DialoguePerformanceRecord record)
@@ -91,5 +163,11 @@ public static class DialoguePerformanceLogger
         {
             Debug.LogError($"Failed to write dialogue performance data: {exception.Message}");
         }
+    }
+
+    private static string GetGameDirectory()
+    {
+        DirectoryInfo dataDirectory = Directory.GetParent(Application.dataPath);
+        return dataDirectory != null ? dataDirectory.FullName : Application.dataPath;
     }
 }
