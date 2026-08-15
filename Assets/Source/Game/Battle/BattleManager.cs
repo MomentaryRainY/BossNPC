@@ -210,7 +210,7 @@ public class BattleManager : MonoBehaviour
     private void EndPlayerTurn()
     {
         bool handIsEmpty = CurrentCardManager.HandCardCount == 0;
-        MemoryTracker?.CompletePlayerTurn(handIsEmpty);
+        MemoryTracker?.CompletePlayerTurn(handIsEmpty, CurrentPlayer.HPPercent);
 
         if (CurrentBossDialogueDirector != null && CurrentBoss != null)
         {
@@ -271,7 +271,9 @@ public class BattleManager : MonoBehaviour
     {
         if (result == BattleResult.Victory && MemoryTracker != null)
         {
-            MemoryTracker.CompletePlayerTurn(CurrentCardManager.HandCardCount == 0);
+            MemoryTracker.CompletePlayerTurn(
+                CurrentCardManager.HandCardCount == 0,
+                CurrentPlayer.HPPercent);
 
             List<MemoryEventData> memoryEvents = MemoryTracker.BuildVictoryMemories(
                 CurrentBattleState.CurrentTurn,

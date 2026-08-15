@@ -96,7 +96,7 @@ public class DialogueGenerator
     public string BuildPrompt(
         DialogueContext context,
         List<MemoryRecord> memories,
-        IReadOnlyList<string> encounterMemories)
+        IReadOnlyList<string> workingMemories)
     {
         if (context == null)
         {
@@ -123,15 +123,15 @@ public class DialogueGenerator
         sb.AppendLine();
 
         sb.AppendLine("[CURRENT ENCOUNTER WORKING MEMORY]");
-        if (encounterMemories == null || encounterMemories.Count == 0)
+        if (workingMemories == null || workingMemories.Count == 0)
         {
             sb.AppendLine("- No encounter-local event has been recorded.");
         }
         else
         {
-            foreach (string encounterMemory in encounterMemories)
+            foreach (string workingMemory in workingMemories)
             {
-                sb.AppendLine($"- {encounterMemory}");
+                sb.AppendLine($"- {workingMemory}");
             }
         }
         sb.AppendLine();

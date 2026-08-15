@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class DialogueController : MonoBehaviour
 {
-    private const string ScriptedDialogueKeyPrefix = "boss.dialogue.";
-
     private Unit CurrentUnit;
 
     private DialogueGenerator Generator;
@@ -28,31 +26,12 @@ public class DialogueController : MonoBehaviour
 
     public void SpeakFromMemory(
         string queryText,
-        IReadOnlyList<string> encounterMemories)
+        IReadOnlyList<string> workingMemories)
     {
         StartCoroutine(SpeakFromMemoryCoroutine(
             queryText,
             3f,
-            CopyEncounterMemories(encounterMemories)));
-    }
-
-    public void SpeakScripted(string intent, float duration = 3f)
-    {
-        string key = ScriptedDialogueKeyPrefix + intent;
-        string content = LocalizationManager.Instance.GetText(key);
-
-        if (content == key)
-        {
-            Debug.LogWarning($"Missing scripted dialogue key: {key}");
-        }
-
-        Speak(content, duration);
-    }
-
-    public IEnumerator SpeakScriptedAndWait(string intent, float displayDuration = 3f)
-    {
-        SpeakScripted(intent, displayDuration);
-        yield return new WaitForSecondsRealtime(displayDuration);
+            CopyWorkingMemories(workingMemories)));
     }
 
     public IEnumerator SpeakFromMemoryAndWait(string queryText, float displayDuration = 3f)
@@ -63,20 +42,20 @@ public class DialogueController : MonoBehaviour
 
     public IEnumerator SpeakFromMemoryAndWait(
         string queryText,
-        IReadOnlyList<string> encounterMemories,
+        IReadOnlyList<string> workingMemories,
         float displayDuration = 3f)
     {
         yield return SpeakFromMemoryCoroutine(
             queryText,
             displayDuration,
-            CopyEncounterMemories(encounterMemories));
+            CopyWorkingMemories(workingMemories));
         yield return new WaitForSecondsRealtime(displayDuration);
     }
 
     private IEnumerator SpeakFromMemoryCoroutine(
         string queryText,
         float displayDuration,
-        List<string> encounterMemories)
+        List<string> workingMemories)
     {
         float responseStartedAt = Time.realtimeSinceStartup;
         MemoryQuery query = new MemoryQuery
@@ -93,7 +72,7 @@ public class DialogueController : MonoBehaviour
                 "MemorySystem is missing.",
                 0f,
                 responseStartedAt,
-                encounterMemories?.Count ?? 0);
+                workingMemories?.Count ?? 0);
             Speak("So, you finally reached me. (MS missing)", displayDuration);
             yield break;
         }
@@ -118,7 +97,7 @@ public class DialogueController : MonoBehaviour
                 retrievalError,
                 retrievalMilliseconds,
                 responseStartedAt,
-                encounterMemories?.Count ?? 0);
+                workingMemories?.Count ?? 0);
             Speak("So, you finally reached me. (retrieval error)", displayDuration);
             yield break;
         }
@@ -134,7 +113,7 @@ public class DialogueController : MonoBehaviour
             OutputLanguage = GetOutputLanguage()
         };
 
-        string prompt = Generator.BuildPrompt(context, memories, encounterMemories);
+        string prompt = Generator.BuildPrompt(context, memories, workingMemories);
         string generatedText = null;
         string generationError = null;
         float generationMilliseconds = 0f;
@@ -155,7 +134,7 @@ public class DialogueController : MonoBehaviour
             PromptCharacters = prompt.Length,
             PromptUtf8Bytes = System.Text.Encoding.UTF8.GetByteCount(prompt),
             RetrievedMemoryCount = memories?.Count ?? 0,
-            EncounterMemoryCount = encounterMemories?.Count ?? 0,
+            EncounterMemoryCount = workingMemories?.Count ?? 0,
             RetrievalMilliseconds = retrievalMilliseconds,
             GenerationMilliseconds = generationMilliseconds,
             EndToEndMilliseconds = endToEndMilliseconds,
@@ -195,18 +174,18 @@ public class DialogueController : MonoBehaviour
         });
     }
 
-    private static List<string> CopyEncounterMemories(
-        IReadOnlyList<string> encounterMemories)
+    private static List<string> CopyWorkingMemories(
+        IReadOnlyList<string> workingMemories)
     {
-        if (encounterMemories == null || encounterMemories.Count == 0)
+        if (workingMemories == null || workingMemories.Count == 0)
         {
             return null;
         }
 
-        List<string> copy = new List<string>(encounterMemories.Count);
-        for (int i = 0; i < encounterMemories.Count; i++)
+        List<string> copy = new List<string>(workingMemories.Count);
+        for (int i = 0; i < workingMemories.Count; i++)
         {
-            copy.Add(encounterMemories[i]);
+            copy.Add(workingMemories[i]);
         }
 
         return copy;

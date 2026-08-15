@@ -92,19 +92,26 @@ public class SingleGameManager : MonoBehaviour
     {
         return new List<MemoryEventData>
         {
-            MemoryEventFactory.CreateEncounterOutcome("Battle1", 2, 0.90f),
-            MemoryEventFactory.CreateCombatPattern("Battle1", 0, 67f, 0.67f),
+            MemoryEventFactory.CreateTurnEvent("Battle1", 1, 33f, 0.33f, false, 0.95f),
+            MemoryEventFactory.CreateTurnEvent("Battle1", 2, 67f, 0.67f, false, 0.90f),
+            MemoryEventFactory.CreateEncounterDuration("Battle1", 2),
+            MemoryEventFactory.CreateFinalHealth("Battle1", 0.90f),
             CreateTestChoice("Battle1", 2, "Execute him"),
 
-            MemoryEventFactory.CreateEncounterOutcome("Battle2", 2, 0.88f),
-            MemoryEventFactory.CreateCombatPattern("Battle2", 0, 70f, 1f),
+            MemoryEventFactory.CreateTurnEvent("Battle2", 1, 28f, 0.40f, false, 0.91f),
+            MemoryEventFactory.CreateTurnEvent("Battle2", 2, 70f, 1f, false, 0.88f),
+            MemoryEventFactory.CreateEncounterDuration("Battle2", 2),
+            MemoryEventFactory.CreateFinalHealth("Battle2", 0.88f),
             CreateTestChoice(
                 "Battle2",
                 1,
                 "Ignore his situation and keep going."),
 
-            MemoryEventFactory.CreateEncounterOutcome("Battle3", 3, 0.87f),
-            MemoryEventFactory.CreateCombatPattern("Battle3", 2, 55.5f, 0.37f),
+            MemoryEventFactory.CreateTurnEvent("Battle3", 1, 40f, 0.27f, false, 0.93f),
+            MemoryEventFactory.CreateTurnEvent("Battle3", 2, 55.5f, 0.37f, true, 0.90f),
+            MemoryEventFactory.CreateTurnEvent("Battle3", 3, 45f, 0.30f, true, 0.87f),
+            MemoryEventFactory.CreateEncounterDuration("Battle3", 3),
+            MemoryEventFactory.CreateFinalHealth("Battle3", 0.87f),
             CreateTestChoice("Battle3", 3, "Execute him")
         };
     }
@@ -223,6 +230,9 @@ public class SingleGameManager : MonoBehaviour
 
         switch (TestRetrievalStrategy)
         {
+            case RetrievalStrategy.FullMemory:
+                return BossDialogueCondition.FullMemory;
+
             case RetrievalStrategy.SimilarityOnly:
                 return BossDialogueCondition.SimilarityOnly;
 

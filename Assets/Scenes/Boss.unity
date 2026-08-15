@@ -29503,9 +29503,13 @@ MonoBehaviour:
   CopiesPerCard: 2
   StartAutomatically: 1
   DisableIfGameManagerExists: 1
-  PlayPreBattleSequence: 1
-  PlayPostBattleSequence: 1
+  PlayPreBattleSequence: 0
+  PlayPostBattleSequence: 0
   RestartSceneOnDefeat: 1
+  SeedRetrievalTestMemories: 1
+  ClearMemoryPoolBeforeSeeding: 1
+  OverrideRetrievalStrategyForTest: 1
+  TestRetrievalStrategy: 0
 --- !u!114 &1731389275
 MonoBehaviour:
   m_ObjectHideFlags: 0

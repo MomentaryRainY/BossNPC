@@ -48,11 +48,15 @@ public class RuleBasedImportanceRetriever : IMemoryRetriever
             case MemoryCategory.NarrativeChoice:
                 return 1f;
 
-            case MemoryCategory.EncounterOutcome:
-                return CalculateOutcomeImportance(memory.Metrics);
+            case MemoryCategory.EncounterDuration:
+                return CalculateTurnScore(memory.Metrics?.TurnCount ?? -1);
 
-            case MemoryCategory.CombatPattern:
-                return CalculateCombatImportance(memory.Metrics);
+            case MemoryCategory.FinalHealth:
+                return CalculateHealthScore(
+                    memory.Metrics?.RemainingHealthPercent ?? -1f);
+
+            case MemoryCategory.TurnEvent:
+                return CalculateTurnEventImportance(memory.Metrics);
 
             default:
                 return 0f;
@@ -81,18 +85,6 @@ public class RuleBasedImportanceRetriever : IMemoryRetriever
         };
     }
 
-    private static float CalculateOutcomeImportance(MemoryEventMetrics metrics)
-    {
-        if (metrics == null)
-        {
-            return 0f;
-        }
-
-        float turnScore = CalculateTurnScore(metrics.TurnCount);
-        float healthScore = CalculateHealthScore(metrics.RemainingHealthPercent);
-        return 0.5f * turnScore + 0.5f * healthScore;
-    }
-
     private static float CalculateTurnScore(int turnCount)
     {
         if (turnCount < 0)
@@ -118,31 +110,40 @@ public class RuleBasedImportanceRetriever : IMemoryRetriever
         return remainingHealthPercent >= 0.5f ? 0.4f : 0.6f;
     }
 
-    private static float CalculateCombatImportance(MemoryEventMetrics metrics)
+    private static float CalculateTurnEventImportance(MemoryEventMetrics metrics)
     {
         if (metrics == null)
         {
             return 0f;
         }
 
-        float emptyHandScore = metrics.EmptyHandTurnCount > 0 ? 1f : 0f;
-        float damageScore = CalculateDamageScore(metrics.HighestTurnDamagePercent);
-        return 0.4f * emptyHandScore + 0.6f * damageScore;
-    }
-
-    private static float CalculateDamageScore(float highestTurnDamagePercent)
-    {
-        if (highestTurnDamagePercent < 0f)
+        if (metrics.TurnDamagePercent < 0f)
         {
             return 0f;
         }
 
-        if (highestTurnDamagePercent >= 0.25f)
+        float damageScore;
+        if (metrics.TurnDamagePercent >= 0.25f)
+        {
+            damageScore = 0.9f;
+        }
+        else if (metrics.TurnDamagePercent >= 0.1f)
+        {
+            damageScore = 0.5f;
+        }
+        else
+        {
+            damageScore = 0.2f;
+        }
+
+        if (metrics.HandExhausted && metrics.TurnDamagePercent >= 0.25f)
         {
             return 1f;
         }
 
-        return highestTurnDamagePercent >= 0.1f ? 0.6f : 0.2f;
+        return metrics.HandExhausted
+            ? Mathf.Max(0.6f, damageScore)
+            : damageScore;
     }
 
     private sealed class ScoredMemory

@@ -17,7 +17,7 @@ public class BossDialogueDirector : MonoBehaviour
     private float lastDialogueTime = -999f;
     private int nextBossTurnToSpeak = 1;
     private int nextBossTurnInterval = 1;
-    private readonly List<string> encounterMemories = new List<string>();
+    private readonly List<string> workingMemories = new List<string>();
     private bool firstTacticalMinionDefeatRecorded;
 
     private void Awake()
@@ -31,13 +31,8 @@ public class BossDialogueDirector : MonoBehaviour
     public void Configure(BossDialogueCondition condition)
     {
         dialogueCondition = condition;
-        encounterMemories.Clear();
-        firstTacticalMinionDefeatRecorded = false;
-
-        if (dialogueCondition != BossDialogueCondition.Scripted)
-        {
-            ApplyRetrievalStrategy();
-        }
+        ResetEncounterState();
+        ApplyRetrievalStrategy();
     }
 
     public void OnBossEncounterStart(Unit boss, RuntimeBattleState state)
@@ -159,7 +154,7 @@ public class BossDialogueDirector : MonoBehaviour
         }
 
         firstTacticalMinionDefeatRecorded = true;
-        encounterMemories.Add(memory);
+        workingMemories.Add(memory);
         Speak(DialogueTriggerType.FirstBossMinionDefeated, intent, ignoreCooldown: true);
     }
 
@@ -174,17 +169,10 @@ public class BossDialogueDirector : MonoBehaviour
             yield break;
         }
 
-        if (dialogueCondition == BossDialogueCondition.Scripted)
-        {
-            lastDialogueTime = Time.time;
-            yield return bossDialogue.SpeakScriptedAndWait(intent);
-            yield break;
-        }
-
         if (ApplyRetrievalStrategy())
         {
             lastDialogueTime = Time.time;
-            yield return bossDialogue.SpeakFromMemoryAndWait(intent, encounterMemories);
+            yield return bossDialogue.SpeakFromMemoryAndWait(intent, workingMemories);
         }
     }
 
@@ -203,21 +191,28 @@ public class BossDialogueDirector : MonoBehaviour
 
         if (!ignoreCooldown && !CanSpeak()) return false;
 
-        if (dialogueCondition == BossDialogueCondition.Scripted)
-        {
-            lastDialogueTime = Time.time;
-            bossDialogue.SpeakScripted(intent);
-            return true;
-        }
-
         if (!ApplyRetrievalStrategy())
         {
             return false;
         }
 
         lastDialogueTime = Time.time;
-        bossDialogue.SpeakFromMemory(intent, encounterMemories);
+        bossDialogue.SpeakFromMemory(intent, workingMemories);
         return true;
+    }
+
+    private void ResetEncounterState()
+    {
+        introPlayed = false;
+        bossHp75Played = false;
+        bossHp25Played = false;
+        playerHp50Played = false;
+        playerHp25Played = false;
+        lastDialogueTime = -999f;
+        nextBossTurnToSpeak = 1;
+        nextBossTurnInterval = 1;
+        firstTacticalMinionDefeatRecorded = false;
+        workingMemories.Clear();
     }
 
     private bool ApplyRetrievalStrategy()
@@ -231,6 +226,10 @@ public class BossDialogueDirector : MonoBehaviour
         RetrievalStrategy retrievalStrategy;
         switch (dialogueCondition)
         {
+            case BossDialogueCondition.FullMemory:
+                retrievalStrategy = RetrievalStrategy.FullMemory;
+                break;
+
             case BossDialogueCondition.SimilarityOnly:
                 retrievalStrategy = RetrievalStrategy.SimilarityOnly;
                 break;

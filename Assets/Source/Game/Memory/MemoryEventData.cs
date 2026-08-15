@@ -4,8 +4,9 @@ using UnityEngine;
 public enum MemoryCategory
 {
     NarrativeChoice,
-    EncounterOutcome,
-    CombatPattern
+    EncounterDuration,
+    FinalHealth,
+    TurnEvent
 }
 
 [Serializable]
@@ -14,9 +15,11 @@ public sealed class MemoryEventMetrics
     public int ChoiceIndex = -1;
     public int TurnCount = -1;
     public float RemainingHealthPercent = -1f;
-    public int EmptyHandTurnCount = -1;
-    public float HighestTurnDamage = -1f;
-    public float HighestTurnDamagePercent = -1f;
+    public int TurnIndex = -1;
+    public float TurnDamage = -1f;
+    public float TurnDamagePercent = -1f;
+    public bool HandExhausted;
+    public float PlayerHealthPercentAfterTurn = -1f;
 
     public MemoryEventMetrics Clone()
     {
@@ -56,9 +59,22 @@ public static class MemoryEventFactory
         };
     }
 
-    public static MemoryEventData CreateEncounterOutcome(
+    public static MemoryEventData CreateEncounterDuration(string battleId, int turnCount)
+    {
+        return new MemoryEventData
+        {
+            BattleId = battleId,
+            Category = MemoryCategory.EncounterDuration,
+            Text = $"The player completed {battleId} in {turnCount} turns.",
+            Metrics = new MemoryEventMetrics
+            {
+                TurnCount = turnCount
+            }
+        };
+    }
+
+    public static MemoryEventData CreateFinalHealth(
         string battleId,
-        int turnCount,
         float remainingHealthPercent)
     {
         float health = Mathf.Clamp01(remainingHealthPercent);
@@ -81,39 +97,50 @@ public static class MemoryEventFactory
         return new MemoryEventData
         {
             BattleId = battleId,
-            Category = MemoryCategory.EncounterOutcome,
-            Text = $"The player completed {battleId} in {turnCount} turns and finished " +
-                $"{healthStatus} with {healthPercentage}% health.",
+            Category = MemoryCategory.FinalHealth,
+            Text = $"The player finished {battleId} {healthStatus} with " +
+                $"{healthPercentage}% health.",
             Metrics = new MemoryEventMetrics
             {
-                TurnCount = turnCount,
                 RemainingHealthPercent = health
             }
         };
     }
 
-    public static MemoryEventData CreateCombatPattern(string battleId, int emptyHandTurnCount,
-        float highestTurnDamage, float highestTurnDamagePercent)
+    public static MemoryEventData CreateTurnEvent(
+        string battleId,
+        int turnIndex,
+        float turnDamage,
+        float turnDamagePercent,
+        bool handExhausted,
+        float playerHealthPercentAfterTurn)
     {
-        float damagePercent = Mathf.Max(0f, highestTurnDamagePercent);
-        int roundedDamage = Mathf.RoundToInt(Mathf.Max(0f, highestTurnDamage));
+        float damage = Mathf.Max(0f, turnDamage);
+        float damagePercent = Mathf.Max(0f, turnDamagePercent);
+        float health = Mathf.Clamp01(playerHealthPercentAfterTurn);
+        int roundedDamage = Mathf.RoundToInt(damage);
         int roundedDamagePercent = Mathf.RoundToInt(damagePercent * 100f);
+        int roundedHealthPercent = Mathf.RoundToInt(health * 100f);
 
-        string handText = emptyHandTurnCount == 0
-            ? "The player did not exhaust their hand during the encounter."
-            : $"The player exhausted their hand on {emptyHandTurnCount} turn(s).";
+        string handText = handExhausted
+            ? "exhausted every card in hand"
+            : "did not exhaust the hand";
 
         return new MemoryEventData
         {
             BattleId = battleId,
-            Category = MemoryCategory.CombatPattern,
-            Text = $"{handText} Their strongest turn dealt {roundedDamage} damage, " +
-                $"equal to {roundedDamagePercent}% of the enemies' combined maximum health.",
+            Category = MemoryCategory.TurnEvent,
+            Text = $"On player turn {turnIndex} of {battleId}, the player dealt " +
+                $"{roundedDamage} damage, equal to {roundedDamagePercent}% of the enemies' " +
+                $"combined maximum health, {handText}, and ended the turn with " +
+                $"{roundedHealthPercent}% health.",
             Metrics = new MemoryEventMetrics
             {
-                EmptyHandTurnCount = emptyHandTurnCount,
-                HighestTurnDamage = Mathf.Max(0f, highestTurnDamage),
-                HighestTurnDamagePercent = damagePercent
+                TurnIndex = turnIndex,
+                TurnDamage = damage,
+                TurnDamagePercent = damagePercent,
+                HandExhausted = handExhausted,
+                PlayerHealthPercentAfterTurn = health
             }
         };
     }

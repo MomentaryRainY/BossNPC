@@ -5,10 +5,10 @@ public sealed class BattleMemoryTracker
 {
     private readonly string battleId;
     private readonly float totalEnemyMaxHealth;
+    private readonly List<PlayerTurnMemory> completedTurns = new();
 
     private float currentTurnDamage;
-    private float highestTurnDamage;
-    private int emptyHandTurnCount;
+    private int currentTurnIndex;
     private bool currentTurnActive;
     private bool currentTurnCompleted;
 
@@ -27,6 +27,7 @@ public sealed class BattleMemoryTracker
 
     public void StartPlayerTurn()
     {
+        currentTurnIndex++;
         currentTurnDamage = 0f;
         currentTurnActive = true;
         currentTurnCompleted = false;
@@ -42,42 +43,58 @@ public sealed class BattleMemoryTracker
         currentTurnDamage += Mathf.Max(0f, result.TotalDamageDealt);
     }
 
-    public void CompletePlayerTurn(bool handIsEmpty)
+    public void CompletePlayerTurn(bool handIsEmpty, float playerHealthPercent)
     {
         if (!currentTurnActive || currentTurnCompleted)
         {
             return;
         }
 
-        highestTurnDamage = Mathf.Max(highestTurnDamage, currentTurnDamage);
+        float damagePercent = totalEnemyMaxHealth > 0f
+            ? currentTurnDamage / totalEnemyMaxHealth
+            : 0f;
 
-        if (handIsEmpty)
+        completedTurns.Add(new PlayerTurnMemory
         {
-            emptyHandTurnCount++;
-        }
+            TurnIndex = currentTurnIndex,
+            Damage = currentTurnDamage,
+            DamagePercent = damagePercent,
+            HandExhausted = handIsEmpty,
+            PlayerHealthPercent = Mathf.Clamp01(playerHealthPercent)
+        });
 
         currentTurnCompleted = true;
+        currentTurnActive = false;
     }
 
     public List<MemoryEventData> BuildVictoryMemories(
         int turnCount,
         float remainingHealthPercent)
     {
-        float highestTurnDamagePercent = totalEnemyMaxHealth > 0f
-            ? highestTurnDamage / totalEnemyMaxHealth
-            : 0f;
+        List<MemoryEventData> memories = new List<MemoryEventData>();
 
-        return new List<MemoryEventData>
+        foreach (PlayerTurnMemory turn in completedTurns)
         {
-            MemoryEventFactory.CreateEncounterOutcome(
+            memories.Add(MemoryEventFactory.CreateTurnEvent(
                 battleId,
-                turnCount,
-                remainingHealthPercent),
-            MemoryEventFactory.CreateCombatPattern(
-                battleId,
-                emptyHandTurnCount,
-                highestTurnDamage,
-                highestTurnDamagePercent)
-        };
+                turn.TurnIndex,
+                turn.Damage,
+                turn.DamagePercent,
+                turn.HandExhausted,
+                turn.PlayerHealthPercent));
+        }
+
+        memories.Add(MemoryEventFactory.CreateEncounterDuration(battleId, turnCount));
+        memories.Add(MemoryEventFactory.CreateFinalHealth(battleId, remainingHealthPercent));
+        return memories;
+    }
+
+    private sealed class PlayerTurnMemory
+    {
+        public int TurnIndex;
+        public float Damage;
+        public float DamagePercent;
+        public bool HandExhausted;
+        public float PlayerHealthPercent;
     }
 }

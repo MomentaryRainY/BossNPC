@@ -47,6 +47,10 @@ public class MemorySystem : MonoBehaviour
 
         switch (strategy)
         {
+            case RetrievalStrategy.FullMemory:
+                retriever = new FullMemoryRetriever();
+                break;
+
             case RetrievalStrategy.SimilarityOnly:
                 retriever = new SimilarityOnlyRetriever();
                 break;
@@ -71,6 +75,24 @@ public class MemorySystem : MonoBehaviour
         if (retriever == null)
         {
             SetRetrievalStrategy(strategy);
+        }
+
+        if (strategy == RetrievalStrategy.FullMemory)
+        {
+            float fullMemoryStartedAt = Time.realtimeSinceStartup;
+            List<MemoryRecord> fullMemory = retriever.Retrieve(
+                Memories,
+                query,
+                Memories.Count);
+            float fullMemoryMilliseconds = GetElapsedMilliseconds(fullMemoryStartedAt);
+
+            onTimingCompleted?.Invoke(fullMemoryMilliseconds);
+            Debug.Log(
+                $"Memory retrieval completed: strategy={strategy}, pool={Memories.Count}, " +
+                $"embeddedMemories=0, returned={fullMemory.Count}, " +
+                $"elapsed={fullMemoryMilliseconds:F1} ms");
+            onSuccess?.Invoke(fullMemory);
+            yield break;
         }
 
         if (query == null || string.IsNullOrWhiteSpace(query.QueryText))
@@ -189,11 +211,7 @@ public class MemorySystem : MonoBehaviour
                 $"category={memory.Category}, " +
                 $"vectorDimensions={memory.Vector?.Length ?? 0}, " +
                 $"text={memory.Text}, " +
-                $"turns={memory.Metrics.TurnCount}, " +
-                $"health={memory.Metrics.RemainingHealthPercent:P0}, " +
-                $"emptyHand={memory.Metrics.EmptyHandTurnCount}, " +
-                $"highestDamage={memory.Metrics.HighestTurnDamage}, " +
-                $"highestDamagePercent={memory.Metrics.HighestTurnDamagePercent:P0}");
+                $"metrics={JsonUtility.ToJson(memory.Metrics)}");
         }
     }
 
@@ -235,7 +253,8 @@ public sealed class MemoryQuery
 
 public enum RetrievalStrategy
 {
-    SimilarityOnly,
-    RuleBasedImportance,
-    ModelAssistedImportance
+    SimilarityOnly = 0,
+    RuleBasedImportance = 1,
+    ModelAssistedImportance = 2,
+    FullMemory = 3
 }

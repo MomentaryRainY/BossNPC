@@ -18,7 +18,7 @@ public sealed class ExperimentSession
 
     private static readonly BossDialogueCondition[] ModeAOrder =
     {
-        BossDialogueCondition.Scripted,
+        BossDialogueCondition.FullMemory,
         BossDialogueCondition.SimilarityOnly,
         BossDialogueCondition.ModelAssistedImportance,
         BossDialogueCondition.RuleBasedImportance
@@ -28,7 +28,7 @@ public sealed class ExperimentSession
     {
         BossDialogueCondition.SimilarityOnly,
         BossDialogueCondition.RuleBasedImportance,
-        BossDialogueCondition.Scripted,
+        BossDialogueCondition.FullMemory,
         BossDialogueCondition.ModelAssistedImportance
     };
 
@@ -37,13 +37,13 @@ public sealed class ExperimentSession
         BossDialogueCondition.RuleBasedImportance,
         BossDialogueCondition.ModelAssistedImportance,
         BossDialogueCondition.SimilarityOnly,
-        BossDialogueCondition.Scripted
+        BossDialogueCondition.FullMemory
     };
 
     private static readonly BossDialogueCondition[] ModeDOrder =
     {
         BossDialogueCondition.ModelAssistedImportance,
-        BossDialogueCondition.Scripted,
+        BossDialogueCondition.FullMemory,
         BossDialogueCondition.RuleBasedImportance,
         BossDialogueCondition.SimilarityOnly
     };

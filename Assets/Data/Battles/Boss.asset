@@ -25,10 +25,10 @@ MonoBehaviour:
     Role: 1
   - Config: {fileID: 11400000, guid: b3f837bc7a6d5bc47a9910b6be4562db, type: 2}
     GridPos: {x: 3, y: 0}
-    Role: 0
+    Role: 2
   - Config: {fileID: 11400000, guid: aa6ad54ea2a60494fbc74147c0d86f1c, type: 2}
     GridPos: {x: 1, y: 0}
-    Role: 0
+    Role: 3
   UseTransitionAfterBattle: 0
   ShowLevelUpPage: 1
   ShowRewardCardPage: 0

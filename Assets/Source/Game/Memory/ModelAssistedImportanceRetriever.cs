@@ -8,16 +8,16 @@ public class ModelAssistedImportanceRetriever : IMemoryRetriever
         "0 = trivial or not useful for judging the player's behaviour; " +
         "1 = supporting evidence that may affect a response; " +
         "2 = decisive evidence of strategy, risk, or narrative intent.\n" +
+        "Each record is atomic: score only the fact in the supplied record and do not " +
+        "infer an unrecorded encounter summary.\n" +
         "Turn count: 1-3 turns indicates an efficient victory; 4-6 is typical; " +
         "7 or more indicates a prolonged encounter.\n" +
         "Remaining health: 75-100% indicates a strong finish; 50-74% a stable finish; " +
         "25-49% a wounded finish; below 25% a critical finish.\n" +
-        "Empty hand turns: because cards are constrained by range and stamina, exhausting " +
-        "the available hand is evidence of deliberate resource use and should not be " +
-        "described as foolish. Repeated empty-hand turns indicate consistently using all " +
-        "available options, but do not call the overall strategy successful unless damage " +
-        "or encounter outcome also supports that conclusion.\n" +
-        "Highest damage in one turn: at least 25% of combined enemy maximum health is a " +
+        "Turn events: because cards are constrained by range and stamina, exhausting the " +
+        "available hand is evidence of deliberate resource use and should not be described " +
+        "as foolish. Do not call the turn successful unless its damage supports that claim.\n" +
+        "Turn damage: at least 25% of combined enemy maximum health is a " +
         "high-impact turn; 10-24% is meaningful; below 10% is limited impact.\n" +
         "Narrative choices may receive importance 2 when they directly concern mercy, " +
         "loyalty, betrayal, justice, or Rowan's forces.\n" +
@@ -39,6 +39,7 @@ public class ModelAssistedImportanceRetriever : IMemoryRetriever
         prompt.AppendLine($"Battle: {memory?.BattleId}");
         prompt.AppendLine($"Category: {memory?.Category}");
         prompt.AppendLine($"Text: {memory?.Text}");
+        prompt.AppendLine($"Structured metrics: {UnityEngine.JsonUtility.ToJson(memory?.Metrics)}");
         prompt.AppendLine();
         prompt.AppendLine(
             "Return JSON only: {\"importance\":0,\"reason\":\"brief evidence-based reason\"}");
