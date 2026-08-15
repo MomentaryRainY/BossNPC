@@ -6,9 +6,8 @@ public class BossDialogueDirector : MonoBehaviour
 {
     [SerializeField] private DialogueController bossDialogue;
     [SerializeField] private float dialogueCooldown = 3f;
-    [SerializeField] private BossDialogueCondition dialogueCondition =
-        BossDialogueCondition.SimilarityOnly;
 
+    private BossDialogueCondition dialogueCondition;
     private bool introPlayed;
     private bool bossHp75Played;
     private bool bossHp25Played;
@@ -19,6 +18,7 @@ public class BossDialogueDirector : MonoBehaviour
     private int nextBossTurnInterval = 1;
     private readonly List<string> workingMemories = new List<string>();
     private bool firstTacticalMinionDefeatRecorded;
+    private IBossDialogueOutput dialogueOutput;
 
     private void Awake()
     {
@@ -28,11 +28,32 @@ public class BossDialogueDirector : MonoBehaviour
         }
     }
 
-    public void Configure(BossDialogueCondition condition)
+    public void Configure(GameRunMode runMode, BossDialogueCondition condition)
     {
-        dialogueCondition = condition;
         ResetEncounterState();
-        ApplyRetrievalStrategy();
+
+        if (runMode == GameRunMode.Scripted)
+        {
+            ScriptedBossDialogue scriptedDialogue =
+                GetComponent<ScriptedBossDialogue>();
+
+            if (scriptedDialogue == null)
+            {
+                scriptedDialogue = gameObject.AddComponent<ScriptedBossDialogue>();
+            }
+
+            dialogueOutput = new ScriptedDialogueOutput(scriptedDialogue);
+            return;
+        }
+
+        if (runMode == GameRunMode.Experiment)
+        {
+            dialogueCondition = condition;
+        }
+
+        dialogueOutput = ApplyRetrievalStrategy(runMode)
+            ? new GeneratedDialogueOutput(bossDialogue)
+            : null;
     }
 
     public void OnBossEncounterStart(Unit boss, RuntimeBattleState state)
@@ -164,16 +185,13 @@ public class BossDialogueDirector : MonoBehaviour
             ? "boss_defeat"
             : "player_defeat";
 
-        if (bossDialogue == null)
+        if (dialogueOutput == null || !dialogueOutput.IsAvailable)
         {
             yield break;
         }
 
-        if (ApplyRetrievalStrategy())
-        {
-            lastDialogueTime = Time.time;
-            yield return bossDialogue.SpeakFromMemoryAndWait(intent, workingMemories);
-        }
+        lastDialogueTime = Time.time;
+        yield return dialogueOutput.SpeakAndWait(intent, workingMemories);
     }
 
     private bool CanSpeak()
@@ -183,21 +201,16 @@ public class BossDialogueDirector : MonoBehaviour
 
     private bool Speak(DialogueTriggerType trigger, string intent, bool ignoreCooldown = false)
     {
-        if (bossDialogue == null)
+        if (dialogueOutput == null || !dialogueOutput.IsAvailable)
         {
-            Debug.LogWarning("BossDialogueDirector has no DialogueController.");
+            Debug.LogWarning("BossDialogueDirector has no configured dialogue output.");
             return false;
         }
 
         if (!ignoreCooldown && !CanSpeak()) return false;
 
-        if (!ApplyRetrievalStrategy())
-        {
-            return false;
-        }
-
         lastDialogueTime = Time.time;
-        bossDialogue.SpeakFromMemory(intent, workingMemories);
+        dialogueOutput.Speak(intent, workingMemories);
         return true;
     }
 
@@ -215,7 +228,7 @@ public class BossDialogueDirector : MonoBehaviour
         workingMemories.Clear();
     }
 
-    private bool ApplyRetrievalStrategy()
+    private bool ApplyRetrievalStrategy(GameRunMode runMode)
     {
         if (MemorySystem.Instance == null)
         {
@@ -223,13 +236,16 @@ public class BossDialogueDirector : MonoBehaviour
             return false;
         }
 
+        if (runMode == GameRunMode.FullMemory)
+        {
+            MemorySystem.Instance.SetRetrievalStrategy(
+                RetrievalStrategy.FullMemory);
+            return true;
+        }
+
         RetrievalStrategy retrievalStrategy;
         switch (dialogueCondition)
         {
-            case BossDialogueCondition.FullMemory:
-                retrievalStrategy = RetrievalStrategy.FullMemory;
-                break;
-
             case BossDialogueCondition.SimilarityOnly:
                 retrievalStrategy = RetrievalStrategy.SimilarityOnly;
                 break;
@@ -248,6 +264,65 @@ public class BossDialogueDirector : MonoBehaviour
 
         MemorySystem.Instance.SetRetrievalStrategy(retrievalStrategy);
         return true;
+    }
+
+    private interface IBossDialogueOutput
+    {
+        bool IsAvailable { get; }
+
+        void Speak(string intent, IReadOnlyList<string> workingMemory);
+
+        IEnumerator SpeakAndWait(
+            string intent,
+            IReadOnlyList<string> workingMemory);
+    }
+
+    private sealed class GeneratedDialogueOutput : IBossDialogueOutput
+    {
+        private readonly DialogueController controller;
+
+        public bool IsAvailable => controller != null;
+
+        public GeneratedDialogueOutput(DialogueController controller)
+        {
+            this.controller = controller;
+        }
+
+        public void Speak(string intent, IReadOnlyList<string> workingMemory)
+        {
+            controller.SpeakFromMemory(intent, workingMemory);
+        }
+
+        public IEnumerator SpeakAndWait(
+            string intent,
+            IReadOnlyList<string> workingMemory)
+        {
+            yield return controller.SpeakFromMemoryAndWait(intent, workingMemory);
+        }
+    }
+
+    private sealed class ScriptedDialogueOutput : IBossDialogueOutput
+    {
+        private readonly ScriptedBossDialogue scriptedDialogue;
+
+        public bool IsAvailable => scriptedDialogue != null;
+
+        public ScriptedDialogueOutput(ScriptedBossDialogue scriptedDialogue)
+        {
+            this.scriptedDialogue = scriptedDialogue;
+        }
+
+        public void Speak(string intent, IReadOnlyList<string> workingMemory)
+        {
+            scriptedDialogue.Speak(intent);
+        }
+
+        public IEnumerator SpeakAndWait(
+            string intent,
+            IReadOnlyList<string> workingMemory)
+        {
+            yield return scriptedDialogue.SpeakAndWait(intent);
+        }
     }
 
 }

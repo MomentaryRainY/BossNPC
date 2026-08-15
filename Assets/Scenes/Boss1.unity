@@ -29451,7 +29451,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e3e5027b740cb043be4606bcb56ae84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BattleConfig: {fileID: 11400000, guid: 46c0e0bfb5cfbdd4b9d406aa5d82a92a, type: 2}
+  RunMode: 0
+  ExperimentBattleConfig: {fileID: 11400000, guid: db349df358ad5ec4baea58391ec93c95, type: 2}
+  FullMemoryBattleConfig: {fileID: 11400000, guid: db349df358ad5ec4baea58391ec93c95, type: 2}
+  ScriptedBattleConfig: {fileID: 11400000, guid: db349df358ad5ec4baea58391ec93c95, type: 2}
+  ExperimentDialogueCondition: 0
   InitialOwnedCards: {fileID: 11400000, guid: c8e29c441f09c9a49b00d43fa2c1e7c7, type: 2}
   CopiesPerCard: 2
   StartAutomatically: 1

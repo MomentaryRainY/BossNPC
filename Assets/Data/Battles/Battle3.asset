@@ -35,6 +35,5 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 5babddd5cf7df6849a27f98cdc8d7199, type: 2}
   IsBossFight: 0
   CollectGameplayMemories: 1
-  DialogueCondition: 0
   PreBattleSequence: {fileID: 0}
   PostBattleSurveySequence: {fileID: 0}

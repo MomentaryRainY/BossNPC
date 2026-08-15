@@ -109,6 +109,7 @@ public class BattleManager : MonoBehaviour
                         CurrentBoss = enemyUnit;
                         CurrentBossDialogueDirector = director;
                         CurrentBossDialogueDirector.Configure(
+                            CurrentBattleState.RunMode,
                             CurrentBattleState.DialogueCondition);
                     }
                 }

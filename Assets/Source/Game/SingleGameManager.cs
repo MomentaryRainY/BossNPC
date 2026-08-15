@@ -1,10 +1,23 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class SingleGameManager : MonoBehaviour
 {
-    [SerializeField] private BattleConfig BattleConfig;
+    [Header("Run Mode")]
+    [SerializeField] private GameRunMode RunMode = GameRunMode.Experiment;
+
+    [Header("Battle Config by Run Mode")]
+    [FormerlySerializedAs("BattleConfig")]
+    [SerializeField] private BattleConfig ExperimentBattleConfig;
+    [SerializeField] private BattleConfig FullMemoryBattleConfig;
+    [SerializeField] private BattleConfig ScriptedBattleConfig;
+
+    [Header("Standalone Experiment Condition")]
+    [SerializeField] private BossDialogueCondition ExperimentDialogueCondition =
+        BossDialogueCondition.SimilarityOnly;
+
     [SerializeField] private CardDeck InitialOwnedCards;
     [SerializeField] private int CopiesPerCard = 2;
     [SerializeField] private bool StartAutomatically = true;
@@ -16,11 +29,9 @@ public class SingleGameManager : MonoBehaviour
     [Header("Memory Retrieval Test")]
     [SerializeField] private bool SeedRetrievalTestMemories;
     [SerializeField] private bool ClearMemoryPoolBeforeSeeding = true;
-    [SerializeField] private bool OverrideRetrievalStrategyForTest = true;
-    [SerializeField] private RetrievalStrategy TestRetrievalStrategy =
-        RetrievalStrategy.RuleBasedImportance;
 
     private RunState CurrentRun;
+    private BattleConfig ActiveBattleConfig;
     private bool eventsRegistered;
     private bool battleStarted;
 
@@ -29,6 +40,13 @@ public class SingleGameManager : MonoBehaviour
         if (DisableIfGameManagerExists && GameManager.Instance != null)
         {
             enabled = false;
+            return;
+        }
+
+        ActiveBattleConfig = ResolveBattleConfig();
+        if (ActiveBattleConfig == null)
+        {
+            Debug.LogError($"SingleGameManager has no BattleConfig for {RunMode} mode.");
             return;
         }
 
@@ -72,19 +90,13 @@ public class SingleGameManager : MonoBehaviour
             memorySystem.ClearMemories();
         }
 
-        if (OverrideRetrievalStrategyForTest)
-        {
-            memorySystem.SetRetrievalStrategy(TestRetrievalStrategy);
-        }
-
         foreach (MemoryEventData memoryEvent in CreateRetrievalTestMemories())
         {
             EventsHandler.TriggerEvent(MemoryEvents.MEMORY_EVENT, memoryEvent);
         }
 
         Debug.Log(
-            $"Seeded retrieval test memory pool: count={memorySystem.MemoryPool.Count}, " +
-            $"strategy={memorySystem.CurrentStrategy}.");
+            $"Seeded retrieval test memory pool: count={memorySystem.MemoryPool.Count}.");
         memorySystem.DumpMemoryPool();
     }
 
@@ -140,9 +152,9 @@ public class SingleGameManager : MonoBehaviour
             return;
         }
 
-        if (BattleConfig == null)
+        if (ActiveBattleConfig == null)
         {
-            Debug.LogError("SingleGameManager requires a BattleConfig.");
+            Debug.LogError($"SingleGameManager requires a {RunMode} BattleConfig.");
             return;
         }
 
@@ -162,14 +174,17 @@ public class SingleGameManager : MonoBehaviour
         Time.timeScale = 1f;
         battleStarted = true;
         BossDialogueCondition dialogueCondition = ResolveDialogueCondition();
+        string dialogueModeLabel = RunMode == GameRunMode.Experiment
+            ? $"{RunMode}-{dialogueCondition}"
+            : RunMode.ToString();
 
         DialoguePerformanceLogger.BeginSession(
             $"SINGLE-{SceneManager.GetActiveScene().name}",
-            $"Standalone-{dialogueCondition}");
+            $"Standalone-{dialogueModeLabel}");
 
         CreateRunState();
         RuntimeBattleState runtimeState = CreateRuntimeState(
-            BattleConfig,
+            ActiveBattleConfig,
             dialogueCondition);
 
         cardManager.Init(runtimeState);
@@ -179,11 +194,12 @@ public class SingleGameManager : MonoBehaviour
         inputController.Init(battleManager);
 
         if (PlayPreBattleSequence &&
-            BattleConfig.PreBattleSequence != null &&
+            RunMode == GameRunMode.Experiment &&
+            ActiveBattleConfig.PreBattleSequence != null &&
             TutorialManager.Instance != null)
         {
             TutorialManager.Instance.Play(
-                BattleConfig.PreBattleSequence,
+                ActiveBattleConfig.PreBattleSequence,
                 battleManager.GameStart);
             return;
         }
@@ -195,8 +211,8 @@ public class SingleGameManager : MonoBehaviour
     {
         CurrentRun = new RunState
         {
-            MaxHealth = BattleConfig.PlayerMaxHealth,
-            MaxStamina = BattleConfig.MaxStamina
+            MaxHealth = ActiveBattleConfig.PlayerMaxHealth,
+            MaxStamina = ActiveBattleConfig.MaxStamina
         };
 
         if (InitialOwnedCards == null || InitialOwnedCards.Cards == null)
@@ -223,27 +239,19 @@ public class SingleGameManager : MonoBehaviour
 
     private BossDialogueCondition ResolveDialogueCondition()
     {
-        if (!SeedRetrievalTestMemories || !OverrideRetrievalStrategyForTest)
+        return ExperimentDialogueCondition;
+    }
+
+    private BattleConfig ResolveBattleConfig()
+    {
+        switch (RunMode)
         {
-            return BattleConfig.DialogueCondition;
-        }
-
-        switch (TestRetrievalStrategy)
-        {
-            case RetrievalStrategy.FullMemory:
-                return BossDialogueCondition.FullMemory;
-
-            case RetrievalStrategy.SimilarityOnly:
-                return BossDialogueCondition.SimilarityOnly;
-
-            case RetrievalStrategy.RuleBasedImportance:
-                return BossDialogueCondition.RuleBasedImportance;
-
-            case RetrievalStrategy.ModelAssistedImportance:
-                return BossDialogueCondition.ModelAssistedImportance;
-
+            case GameRunMode.FullMemory:
+                return FullMemoryBattleConfig;
+            case GameRunMode.Scripted:
+                return ScriptedBattleConfig;
             default:
-                return BattleConfig.DialogueCondition;
+                return ExperimentBattleConfig;
         }
     }
 
@@ -277,6 +285,7 @@ public class SingleGameManager : MonoBehaviour
             BattleId = config.name,
             CollectGameplayMemories = config.CollectGameplayMemories,
             isBossFight = config.IsBossFight,
+            RunMode = this.RunMode,
             DialogueCondition = dialogueCondition
         };
 
@@ -346,12 +355,13 @@ public class SingleGameManager : MonoBehaviour
         }
 
         if (PlayPostBattleSequence &&
-            BattleConfig.PostBattleSurveySequence != null &&
+            RunMode == GameRunMode.Experiment &&
+            ActiveBattleConfig.PostBattleSurveySequence != null &&
             TutorialManager.Instance != null)
         {
             Time.timeScale = 0f;
             TutorialManager.Instance.Play(
-                BattleConfig.PostBattleSurveySequence,
+                ActiveBattleConfig.PostBattleSurveySequence,
                 () =>
                 {
                     Time.timeScale = 1f;
@@ -365,24 +375,25 @@ public class SingleGameManager : MonoBehaviour
 
     private void ShowBattleChoicesIfConfigured()
     {
-        if (BattleConfig.ChoiceConfig == null || !BattleConfig.ChoiceConfig.ShowAfterBattle)
+        if (ActiveBattleConfig.ChoiceConfig == null ||
+            !ActiveBattleConfig.ChoiceConfig.ShowAfterBattle)
         {
             return;
         }
 
         if (GlobalUIManager.Instance == null ||
-            BattleConfig.ChoiceConfig.Options == null ||
-            BattleConfig.ChoiceConfig.Options.Length < 4)
+            ActiveBattleConfig.ChoiceConfig.Options == null ||
+            ActiveBattleConfig.ChoiceConfig.Options.Length < 4)
         {
             Debug.LogWarning("SingleGameManager cannot show battle choices because GlobalUIManager or choice options are missing.");
             return;
         }
 
         GlobalUIManager.Instance.SetChoicesText(
-            BattleConfig.ChoiceConfig.Options[0].ChoiceTextKey,
-            BattleConfig.ChoiceConfig.Options[1].ChoiceTextKey,
-            BattleConfig.ChoiceConfig.Options[2].ChoiceTextKey,
-            BattleConfig.ChoiceConfig.Options[3].ChoiceTextKey);
+            ActiveBattleConfig.ChoiceConfig.Options[0].ChoiceTextKey,
+            ActiveBattleConfig.ChoiceConfig.Options[1].ChoiceTextKey,
+            ActiveBattleConfig.ChoiceConfig.Options[2].ChoiceTextKey,
+            ActiveBattleConfig.ChoiceConfig.Options[3].ChoiceTextKey);
 
         GlobalUIManager.Instance.ShowChoicePanel();
         Time.timeScale = 0f;
@@ -397,12 +408,13 @@ public class SingleGameManager : MonoBehaviour
             GlobalUIManager.Instance.HideChoicePanel();
         }
 
-        BattleChoiceOption option = BattleConfig.ChoiceConfig.Options[choiceIndex - 1];
+        BattleChoiceOption option =
+            ActiveBattleConfig.ChoiceConfig.Options[choiceIndex - 1];
 
-        if (BattleConfig.CollectGameplayMemories)
+        if (ActiveBattleConfig.CollectGameplayMemories)
         {
             MemoryEventData memoryEvent = MemoryEventFactory.CreateChoice(
-                BattleConfig.name,
+                ActiveBattleConfig.name,
                 choiceIndex,
                 option);
 

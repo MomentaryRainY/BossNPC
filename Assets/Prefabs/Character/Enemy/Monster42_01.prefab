@@ -118,7 +118,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bossDialogue: {fileID: 3705743099807526647}
   dialogueCooldown: 3
-  dialogueCondition: 0
 --- !u!1001 &8095509608874350016
 PrefabInstance:
   m_ObjectHideFlags: 0

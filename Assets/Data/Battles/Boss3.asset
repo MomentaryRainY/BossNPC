@@ -30,6 +30,5 @@ MonoBehaviour:
     ShowAfterBattle: 0
     Options: []
   IsBossFight: 1
-  DialogueCondition: 2
   PreBattleSequence: {fileID: 0}
   PostBattleSurveySequence: {fileID: 11400000, guid: 1cdfbceec091fe144a79d36555247347, type: 2}

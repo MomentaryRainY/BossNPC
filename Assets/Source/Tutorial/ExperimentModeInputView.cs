@@ -40,7 +40,7 @@ public sealed class ExperimentModeInputView : TutorialMaskView
         {
             if (ValidationText != null)
             {
-                ValidationText.text = "Please enter A, B, C, or D before continuing.";
+                ValidationText.text = "Please enter A, B, or C before continuing.";
             }
 
             ModeInput.text = string.Empty;

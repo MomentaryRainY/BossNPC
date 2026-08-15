@@ -11,11 +11,27 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private CardDeck InitialOwnedCards;
 
-    [SerializeField] public BattleConfig[] BattleConfigs;
+    [Header("Run Mode")]
+    [SerializeField] private GameRunMode RunMode = GameRunMode.Experiment;
+
+    [Header("Experiment Battle Flow")]
+    [FormerlySerializedAs("BattleConfigs")]
+    [SerializeField] private BattleConfig[] ExperimentBattleConfigs;
+    [FormerlySerializedAs("BattleNames")]
+    [SerializeField] private string[] ExperimentBattleNames;
+
+    [Header("Full-Memory Battle Flow")]
+    [SerializeField] private BattleConfig[] FullMemoryBattleConfigs;
+    [SerializeField] private string[] FullMemoryBattleNames;
+
+    [Header("Scripted Battle Flow")]
+    [SerializeField] private BattleConfig[] ScriptedBattleConfigs;
+    [SerializeField] private string[] ScriptedBattleNames;
+
+    private BattleConfig[] BattleConfigs;
+    private string[] BattleNames;
 
     public RunState CurrentRun { get; private set; }
-
-    [SerializeField] private string[] BattleNames;
 
     [Header("Experiment")]
     [SerializeField] private bool RandomizeExperimentMode = true;
@@ -32,6 +48,7 @@ public class GameManager : MonoBehaviour
 
     public string ExperimentSessionCode => experimentSession.SessionCode;
     public ExperimentMode CurrentExperimentMode => experimentSession.Mode;
+    public GameRunMode CurrentRunMode => RunMode;
 
     void Awake()
     {
@@ -43,10 +60,8 @@ public class GameManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        if (BattleConfigs.Length < BattleNames.Length)
-        {
-            Debug.LogError("battle configs' count < scene count");
-        }
+        ConfigureActiveBattleFlow();
+        ValidateActiveBattleFlow();
 
     }
     private void OnLoadingNextScene()
@@ -94,6 +109,13 @@ public class GameManager : MonoBehaviour
         }
 
         BattleConfig config = BattleConfigs[CurrentSceneNum];
+
+        if (RunMode != GameRunMode.Experiment)
+        {
+            ContinueAfterBattleResult(config);
+            return;
+        }
+
         PlayPostBattleSurveySequence(config);
     }
 
@@ -117,6 +139,12 @@ public class GameManager : MonoBehaviour
 
     public void OpenExperimentSurvey()
     {
+        if (RunMode != GameRunMode.Experiment)
+        {
+            Debug.LogWarning("The survey is only available in Experiment run mode.");
+            return;
+        }
+
         int encounterNumber = GetBossEncounterIndex(CurrentSceneNum) + 1;
         string url = experimentSession.BuildSurveyUrl(SurveyUrl, encounterNumber);
 
@@ -158,7 +186,11 @@ public class GameManager : MonoBehaviour
 
         if (isLastBattle)
         {
-            experimentSession.Complete();
+            if (RunMode == GameRunMode.Experiment)
+            {
+                experimentSession.Complete();
+            }
+
             SceneManager.LoadScene("GameEnd");
             return;
         }
@@ -230,7 +262,11 @@ public class GameManager : MonoBehaviour
         CurrentBattleInputController.Init(CurrentBattleManager);
 
         Debug.Log("6 GameStart");
-        TutorialSequence preBattleSequence = BattleConfigs[CurrentSceneNum].PreBattleSequence;
+        BattleConfig currentConfig = BattleConfigs[CurrentSceneNum];
+        TutorialSequence preBattleSequence =
+            RunMode != GameRunMode.Experiment && currentConfig.IsBossFight
+                ? null
+                : currentConfig.PreBattleSequence;
 
         if (preBattleSequence == null || shownPreBattleSequences.Contains(CurrentSceneNum))
         {
@@ -284,6 +320,7 @@ public class GameManager : MonoBehaviour
             BattleId = config.name,
             CollectGameplayMemories = config.CollectGameplayMemories,
             isBossFight = config.IsBossFight,
+            RunMode = this.RunMode,
             DialogueCondition = ResolveDialogueCondition(config)
         };
 
@@ -309,29 +346,45 @@ public class GameManager : MonoBehaviour
 
     public void StartNewRun()
     {
+        ConfigureActiveBattleFlow();
+        if (!ValidateActiveBattleFlow())
+        {
+            return;
+        }
+
         CurrentSceneNum = 0;
         CurrentRun = new RunState();
         shownPreBattleSequences.Clear();
 
-        ExperimentMode mode = RandomizeExperimentMode
-            ? (ExperimentMode)Random.Range(0, 4)
-            : ConfiguredExperimentMode;
-
-        experimentSession.Begin(mode, modeConfirmed: false);
-        DialoguePerformanceLogger.BeginSession(
-            experimentSession.SessionCode,
-            "Pending");
-
-        if (!string.IsNullOrEmpty(experimentSession.PreviousIncompleteSessionCode))
+        if (RunMode == GameRunMode.Experiment)
         {
-            Debug.LogWarning(
-                $"Discarding incomplete experiment session " +
-                $"{experimentSession.PreviousIncompleteSessionCode} and starting a new run.");
-        }
+            ExperimentMode mode = RandomizeExperimentMode
+                ? (ExperimentMode)Random.Range(0, 3)
+                : ConfiguredExperimentMode;
 
-        Debug.Log(
-            $"Experiment started: session={experimentSession.SessionCode}, " +
-            "mode=Pending.");
+            experimentSession.Begin(mode, modeConfirmed: false);
+            DialoguePerformanceLogger.BeginSession(
+                experimentSession.SessionCode,
+                "Pending");
+
+            if (!string.IsNullOrEmpty(experimentSession.PreviousIncompleteSessionCode))
+            {
+                Debug.LogWarning(
+                    $"Discarding incomplete experiment session " +
+                    $"{experimentSession.PreviousIncompleteSessionCode} and starting a new run.");
+            }
+
+            Debug.Log(
+                $"Experiment started: session={experimentSession.SessionCode}, " +
+                "mode=Pending.");
+        }
+        else
+        {
+            string sessionCode = $"{RunMode}-" +
+                System.Guid.NewGuid().ToString("N").Substring(0, 6).ToUpperInvariant();
+            DialoguePerformanceLogger.BeginSession(sessionCode, RunMode.ToString());
+            Debug.Log($"{RunMode} run started: session={sessionCode}.");
+        }
 
         MemorySystem.Instance.ClearMemories();
 
@@ -354,6 +407,12 @@ public class GameManager : MonoBehaviour
 
     public void SetExperimentMode(ExperimentMode mode)
     {
+        if (RunMode != GameRunMode.Experiment)
+        {
+            Debug.LogWarning("Experiment mode cannot be set outside an Experiment run.");
+            return;
+        }
+
         RandomizeExperimentMode = false;
         ConfiguredExperimentMode = mode;
 
@@ -367,6 +426,11 @@ public class GameManager : MonoBehaviour
     public bool TrySetExperimentModeCode(string input, out string normalizedCode)
     {
         normalizedCode = string.Empty;
+        if (RunMode != GameRunMode.Experiment)
+        {
+            return false;
+        }
+
         if (!ExperimentSession.TryParseModeCode(input, out ExperimentMode mode))
         {
             return false;
@@ -380,13 +444,54 @@ public class GameManager : MonoBehaviour
 
     private BossDialogueCondition ResolveDialogueCondition(BattleConfig config)
     {
-        if (!config.IsBossFight)
+        if (!config.IsBossFight || RunMode != GameRunMode.Experiment)
         {
-            return config.DialogueCondition;
+            return BossDialogueCondition.SimilarityOnly;
         }
 
         int encounterIndex = GetBossEncounterIndex(CurrentSceneNum);
-        return experimentSession.ResolveCondition(encounterIndex, config.DialogueCondition);
+        return experimentSession.ResolveCondition(encounterIndex);
+    }
+
+    private void ConfigureActiveBattleFlow()
+    {
+        switch (RunMode)
+        {
+            case GameRunMode.FullMemory:
+                BattleConfigs = FullMemoryBattleConfigs;
+                BattleNames = FullMemoryBattleNames;
+                break;
+
+            case GameRunMode.Scripted:
+                BattleConfigs = ScriptedBattleConfigs;
+                BattleNames = ScriptedBattleNames;
+                break;
+
+            default:
+                BattleConfigs = ExperimentBattleConfigs;
+                BattleNames = ExperimentBattleNames;
+                break;
+        }
+    }
+
+    private bool ValidateActiveBattleFlow()
+    {
+        if (BattleConfigs == null || BattleNames == null ||
+            BattleConfigs.Length == 0 || BattleNames.Length == 0)
+        {
+            Debug.LogError($"{RunMode} battle flow is empty.");
+            return false;
+        }
+
+        if (BattleConfigs.Length != BattleNames.Length)
+        {
+            Debug.LogError(
+                $"{RunMode} battle flow has {BattleConfigs.Length} configs but " +
+                $"{BattleNames.Length} scene names.");
+            return false;
+        }
+
+        return true;
     }
 
     private int GetBossEncounterIndex(int sceneIndex)
@@ -537,6 +642,7 @@ public class RuntimeBattleState
     public string BattleId;
     public bool CollectGameplayMemories;
     public bool isBossFight;
+    public GameRunMode RunMode;
     public BossDialogueCondition DialogueCondition;
 }
 

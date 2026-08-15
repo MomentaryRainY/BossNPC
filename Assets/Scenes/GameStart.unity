@@ -1729,24 +1729,47 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   InitialOwnedCards: {fileID: 11400000, guid: c8e29c441f09c9a49b00d43fa2c1e7c7, type: 2}
-  BattleConfigs:
+  RunMode: 0
+  ExperimentBattleConfigs:
+  - {fileID: 11400000, guid: ed9824e0134f78d4ea3ea8171d810988, type: 2}
+  - {fileID: 11400000, guid: 2dd3b28063d71c942b818b24996084d0, type: 2}
+  - {fileID: 11400000, guid: 0e85a3049a035b049924b045374f9d25, type: 2}
+  - {fileID: 11400000, guid: ecaedafa0ef503447a4f9ce9937232bc, type: 2}
+  - {fileID: 11400000, guid: db349df358ad5ec4baea58391ec93c95, type: 2}
+  - {fileID: 11400000, guid: 23fe26cfc9f7aa84fbc50ef7146059cb, type: 2}
+  - {fileID: 11400000, guid: 08f50734dc583a24490c32c35cdca3c9, type: 2}
+  ExperimentBattleNames:
+  - TeachingScene
+  - BattleScene1
+  - BattleScene2
+  - BattleScene3
+  - Boss1
+  - Boss2
+  - Boss3
+  FullMemoryBattleConfigs:
   - {fileID: 11400000, guid: ed9824e0134f78d4ea3ea8171d810988, type: 2}
   - {fileID: 11400000, guid: 2dd3b28063d71c942b818b24996084d0, type: 2}
   - {fileID: 11400000, guid: 0e85a3049a035b049924b045374f9d25, type: 2}
   - {fileID: 11400000, guid: ecaedafa0ef503447a4f9ce9937232bc, type: 2}
   - {fileID: 11400000, guid: 46c0e0bfb5cfbdd4b9d406aa5d82a92a, type: 2}
-  - {fileID: 11400000, guid: db349df358ad5ec4baea58391ec93c95, type: 2}
-  - {fileID: 11400000, guid: 23fe26cfc9f7aa84fbc50ef7146059cb, type: 2}
-  - {fileID: 11400000, guid: 08f50734dc583a24490c32c35cdca3c9, type: 2}
-  BattleNames:
+  FullMemoryBattleNames:
   - TeachingScene
   - BattleScene1
   - BattleScene2
   - BattleScene3
   - Boss
-  - Boss1
-  - Boss2
-  - Boss3
+  ScriptedBattleConfigs:
+  - {fileID: 11400000, guid: ed9824e0134f78d4ea3ea8171d810988, type: 2}
+  - {fileID: 11400000, guid: 2dd3b28063d71c942b818b24996084d0, type: 2}
+  - {fileID: 11400000, guid: 0e85a3049a035b049924b045374f9d25, type: 2}
+  - {fileID: 11400000, guid: ecaedafa0ef503447a4f9ce9937232bc, type: 2}
+  - {fileID: 11400000, guid: 46c0e0bfb5cfbdd4b9d406aa5d82a92a, type: 2}
+  ScriptedBattleNames:
+  - TeachingScene
+  - BattleScene1
+  - BattleScene2
+  - BattleScene3
+  - Boss
   RandomizeExperimentMode: 0
   ConfiguredExperimentMode: 0
   SurveyUrl: www.bilibili.com

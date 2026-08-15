@@ -6,8 +6,7 @@ public enum ExperimentMode
 {
     ModeA,
     ModeB,
-    ModeC,
-    ModeD
+    ModeC
 }
 
 public sealed class ExperimentSession
@@ -18,34 +17,23 @@ public sealed class ExperimentSession
 
     private static readonly BossDialogueCondition[] ModeAOrder =
     {
-        BossDialogueCondition.FullMemory,
         BossDialogueCondition.SimilarityOnly,
-        BossDialogueCondition.ModelAssistedImportance,
-        BossDialogueCondition.RuleBasedImportance
+        BossDialogueCondition.RuleBasedImportance,
+        BossDialogueCondition.ModelAssistedImportance
     };
 
     private static readonly BossDialogueCondition[] ModeBOrder =
     {
-        BossDialogueCondition.SimilarityOnly,
         BossDialogueCondition.RuleBasedImportance,
-        BossDialogueCondition.FullMemory,
-        BossDialogueCondition.ModelAssistedImportance
+        BossDialogueCondition.ModelAssistedImportance,
+        BossDialogueCondition.SimilarityOnly
     };
 
     private static readonly BossDialogueCondition[] ModeCOrder =
     {
-        BossDialogueCondition.RuleBasedImportance,
         BossDialogueCondition.ModelAssistedImportance,
         BossDialogueCondition.SimilarityOnly,
-        BossDialogueCondition.FullMemory
-    };
-
-    private static readonly BossDialogueCondition[] ModeDOrder =
-    {
-        BossDialogueCondition.ModelAssistedImportance,
-        BossDialogueCondition.FullMemory,
-        BossDialogueCondition.RuleBasedImportance,
-        BossDialogueCondition.SimilarityOnly
+        BossDialogueCondition.RuleBasedImportance
     };
 
     public string SessionCode { get; private set; }
@@ -83,18 +71,20 @@ public sealed class ExperimentSession
         PlayerPrefs.Save();
     }
 
-    public BossDialogueCondition ResolveCondition(int bossEncounterIndex, BossDialogueCondition fallback) {
+    public BossDialogueCondition ResolveCondition(int bossEncounterIndex) {
         if (!ModeConfirmed)
         {
-            Debug.LogWarning("Experiment mode has not been confirmed; using BattleConfig fallback.");
-            return fallback;
+            Debug.LogWarning(
+                "Experiment mode has not been confirmed; using the pending assigned order.");
         }
 
         BossDialogueCondition[] order = GetOrder(Mode);
 
         if (bossEncounterIndex < 0 || bossEncounterIndex >= order.Length)
         {
-            return fallback;
+            Debug.LogWarning(
+                $"Boss encounter index {bossEncounterIndex} is outside the experiment order.");
+            return BossDialogueCondition.SimilarityOnly;
         }
 
         return order[bossEncounterIndex];
@@ -114,9 +104,6 @@ public sealed class ExperimentSession
             case "C":
                 mode = ExperimentMode.ModeC;
                 return true;
-            case "D":
-                mode = ExperimentMode.ModeD;
-                return true;
             default:
                 mode = ExperimentMode.ModeA;
                 return false;
@@ -131,8 +118,6 @@ public sealed class ExperimentSession
                 return ModeBOrder;
             case ExperimentMode.ModeC:
                 return ModeCOrder;
-            case ExperimentMode.ModeD:
-                return ModeDOrder;
             default:
                 return ModeAOrder;
         }

@@ -26,9 +26,6 @@ public class BattleConfig : ScriptableObject
     [Header("Memory Collection")]
     public bool CollectGameplayMemories;
 
-    [Header("Boss Dialogue")]
-    public BossDialogueCondition DialogueCondition = BossDialogueCondition.SimilarityOnly;
-
     [Header("Narrative")]
     public TutorialSequence PreBattleSequence;
     public TutorialSequence PostBattleSurveySequence;
