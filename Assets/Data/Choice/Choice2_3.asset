@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Choice2_3
   m_EditorClassIdentifier: 
   ChoiceTextKey: choice.2_3
+  NarrativeConsequence: 2

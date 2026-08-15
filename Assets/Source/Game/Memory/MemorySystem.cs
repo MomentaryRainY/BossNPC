@@ -12,9 +12,13 @@ public class MemorySystem : MonoBehaviour
 
     public IReadOnlyList<MemoryRecord> MemoryPool => Memories;
     public RetrievalStrategy CurrentStrategy => strategy;
+    public int RetrievalTopK => retrievalConfig != null
+        ? retrievalConfig.EffectiveTopK
+        : 3;
 
     [SerializeField] private RetrievalStrategy strategy;
     [SerializeField] private string embeddingProxyUrl = "http://127.0.0.1:3000/embed";
+    [SerializeField] private MemoryRetrievalConfig retrievalConfig = new();
 
     private IMemoryRetriever retriever;
     private EmbeddingClient embeddingClient;
@@ -31,6 +35,8 @@ public class MemorySystem : MonoBehaviour
         Instance = this;
 
         Memories = new List<MemoryRecord>();
+        retrievalConfig = retrievalConfig ?? new MemoryRetrievalConfig();
+        retrievalConfig.Sanitize();
         embeddingClient = new EmbeddingClient(embeddingProxyUrl);
         SetRetrievalStrategy(strategy);
     }
@@ -56,7 +62,7 @@ public class MemorySystem : MonoBehaviour
                 break;
 
             case RetrievalStrategy.RuleBasedImportance:
-                retriever = new RuleBasedImportanceRetriever();
+                retriever = new RuleBasedImportanceRetriever(retrievalConfig);
                 break;
 
             case RetrievalStrategy.ModelAssistedImportance:
@@ -67,7 +73,6 @@ public class MemorySystem : MonoBehaviour
 
     public IEnumerator Retrieve(
         MemoryQuery query,
-        int topK,
         Action<List<MemoryRecord>> onSuccess,
         Action<string> onError,
         Action<float> onTimingCompleted = null)
@@ -101,7 +106,9 @@ public class MemorySystem : MonoBehaviour
             yield break;
         }
 
-        if (topK <= 0 || Memories.Count == 0)
+        int topK = RetrievalTopK;
+
+        if (Memories.Count == 0)
         {
             onTimingCompleted?.Invoke(0f);
             onSuccess?.Invoke(new List<MemoryRecord>());
@@ -162,6 +169,11 @@ public class MemorySystem : MonoBehaviour
         }
 
         float elapsedMilliseconds = GetElapsedMilliseconds(retrievalStartedAt);
+        if (retriever is IRetrievalTraceProvider traceProvider)
+        {
+            MemoryRetrievalTraceLogger.Record(traceProvider.LastTrace);
+        }
+
         onTimingCompleted?.Invoke(elapsedMilliseconds);
         Debug.Log($"Memory retrieval completed: strategy={strategy}, " +
             $"pool={Memories.Count}, embeddedMemories={memoriesWithoutVectors.Count}, " +
@@ -173,6 +185,12 @@ public class MemorySystem : MonoBehaviour
     private static float GetElapsedMilliseconds(float startedAt)
     {
         return (Time.realtimeSinceStartup - startedAt) * 1000f;
+    }
+
+    private void OnValidate()
+    {
+        retrievalConfig = retrievalConfig ?? new MemoryRetrievalConfig();
+        retrievalConfig.Sanitize();
     }
 
     private void OnMemoryEvent(MemoryEventData data)
@@ -247,6 +265,8 @@ public interface IMemoryRetriever
 
 public sealed class MemoryQuery
 {
+    public string RequestId;
+    public string Trigger;
     public string QueryText;
     public float[] Vector;
 }

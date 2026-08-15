@@ -6,11 +6,12 @@ public class DialogueBubbleView : MonoBehaviour
     [SerializeField] private RectTransform bubbleRect;
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private CanvasGroup alpha;
-    [SerializeField] private Vector2 padding;
-    [SerializeField] private float maxWidth = 220f;
-    [SerializeField] private float maxHeight = 220f;
-    [SerializeField] private float minWidth = 160f;
-    [SerializeField] private float minHeight = 80f;
+    [Tooltip("Left, top, right, and bottom safe-space inside the bubble.")]
+    [SerializeField] private Vector4 padding = new(45f, 60f, 45f, 90f);
+    [SerializeField] private float maxWidth = 380f;
+    [SerializeField] private float maxHeight = 280f;
+    [SerializeField] private float minWidth = 260f;
+    [SerializeField] private float minHeight = 180f;
 
     public RectTransform rect => bubbleRect;
     public CanvasGroup Alpha => alpha;
@@ -23,19 +24,24 @@ public class DialogueBubbleView : MonoBehaviour
         text.enableWordWrapping = true;
         text.overflowMode = TextOverflowModes.Page;
 
-        float textMaxWidth = maxWidth - padding.x;
-        float textMaxHeight = maxHeight - padding.y;
+        float horizontalPadding = padding.x + padding.z;
+        float verticalPadding = padding.y + padding.w;
+        float textMaxWidth = Mathf.Max(1f, maxWidth - horizontalPadding);
 
         Vector2 preferred = text.GetPreferredValues(content, textMaxWidth, 0f);
 
-        float bubbleWidth = Mathf.Clamp(preferred.x + padding.x, minWidth, maxWidth);
-        float bubbleHeight = Mathf.Clamp(preferred.y + padding.y, minHeight, maxHeight);
+        float bubbleWidth = Mathf.Clamp(preferred.x + horizontalPadding, minWidth, maxWidth);
+        float bubbleHeight = Mathf.Clamp(preferred.y + verticalPadding, minHeight, maxHeight);
 
         bubbleRect.sizeDelta = new Vector2(bubbleWidth, bubbleHeight);
 
         text.rectTransform.sizeDelta = new Vector2(
-            bubbleWidth - padding.x,
-            bubbleHeight - padding.y
+            Mathf.Max(1f, bubbleWidth - horizontalPadding),
+            Mathf.Max(1f, bubbleHeight - verticalPadding)
+        );
+        text.rectTransform.anchoredPosition = new Vector2(
+            (padding.x - padding.z) * 0.5f,
+            (padding.w - padding.y) * 0.5f
         );
 
         text.text = content;

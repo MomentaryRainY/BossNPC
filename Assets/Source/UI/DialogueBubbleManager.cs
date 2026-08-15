@@ -8,6 +8,7 @@ public class DialogueBubbleManager : MonoBehaviour
     public static DialogueBubbleManager Instance;
 
     [SerializeField] DialogueBubbleView BubblePrefab;
+    [SerializeField] private int sortingOrder = 10;
 
     private Dictionary<Unit, DialogueBubbleView> dic = new();
     private void Awake()
@@ -17,7 +18,15 @@ public class DialogueBubbleManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
+
+        Canvas bubbleCanvas = GetComponent<Canvas>();
+        if (bubbleCanvas != null)
+        {
+            bubbleCanvas.overrideSorting = true;
+            bubbleCanvas.sortingOrder = sortingOrder;
+        }
     }
 
     public void ShowBubble(Unit unit, string content, float duration = 3f)

@@ -7,6 +7,7 @@ using UnityEngine;
 [Serializable]
 public sealed class DialoguePerformanceRecord
 {
+    public string RequestId;
     public string SessionCode;
     public string ExperimentMode;
     public string RetrievalStrategy;
@@ -35,6 +36,8 @@ public static class DialoguePerformanceLogger
     private static string currentExperimentMode = "standalone";
 
     public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
+    public static string CurrentSessionCode => currentSessionCode;
+    public static string CurrentExperimentMode => currentExperimentMode;
     public static IReadOnlyList<DialoguePerformanceRecord> CurrentSessionRecords =>
         currentSessionRecords;
 
@@ -152,7 +155,8 @@ public static class DialoguePerformanceLogger
                 Encoding.UTF8);
 
             Debug.Log(
-                $"Dialogue metrics: session={record.SessionCode}, " +
+                $"Dialogue metrics: request={record.RequestId}, " +
+                $"session={record.SessionCode}, " +
                 $"condition={record.RetrievalStrategy}, trigger={record.Trigger}, " +
                 $"promptChars={record.PromptCharacters}, retrieved={record.RetrievedMemoryCount}, " +
                 $"retrieval={record.RetrievalMilliseconds:F1}ms, " +

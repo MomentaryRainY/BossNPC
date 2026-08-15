@@ -4,4 +4,5 @@ using UnityEngine;
 public class BattleChoiceOption : ScriptableObject
 {
     public string ChoiceTextKey;
+    public NarrativeConsequence NarrativeConsequence;
 }

@@ -13,6 +13,7 @@ public enum MemoryCategory
 public sealed class MemoryEventMetrics
 {
     public int ChoiceIndex = -1;
+    public NarrativeConsequence NarrativeConsequence;
     public int TurnCount = -1;
     public float RemainingHealthPercent = -1f;
     public int TurnIndex = -1;
@@ -54,7 +55,8 @@ public static class MemoryEventFactory
             Text = $"The player selected: {resolvedText}.",
             Metrics = new MemoryEventMetrics
             {
-                ChoiceIndex = choiceIndex
+                ChoiceIndex = choiceIndex,
+                NarrativeConsequence = option.NarrativeConsequence
             }
         };
     }
@@ -81,11 +83,11 @@ public static class MemoryEventFactory
         int healthPercentage = Mathf.RoundToInt(health * 100f);
         string healthStatus;
 
-        if (health <= 0.25f)
+        if (health < 0.25f)
         {
             healthStatus = "critically wounded";
         }
-        else if (health <= 0.5f)
+        else if (health < 0.5f)
         {
             healthStatus = "wounded";
         }

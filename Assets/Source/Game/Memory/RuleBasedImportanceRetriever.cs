@@ -3,67 +3,102 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class RuleBasedImportanceRetriever : IMemoryRetriever
+public sealed class RuleBasedImportanceRetriever : IMemoryRetriever, IRetrievalTraceProvider
 {
-    private const float SimilarityWeight = 0.7f;
-    private const float ImportanceWeight = 0.3f;
+    private readonly MemoryRetrievalConfig config;
 
-    public List<MemoryRecord> Retrieve(List<MemoryRecord> memories, MemoryQuery query, int topK)
+    public MemoryRetrievalTrace LastTrace { get; private set; }
+
+    public RuleBasedImportanceRetriever(MemoryRetrievalConfig config = null)
+    {
+        this.config = config ?? new MemoryRetrievalConfig();
+    }
+
+    public List<MemoryRecord> Retrieve(
+        List<MemoryRecord> memories,
+        MemoryQuery query,
+        int topK)
     {
         if (query?.Vector == null || query.Vector.Length == 0)
         {
             throw new ArgumentException("Rule-based retrieval requires a query vector.");
         }
 
-        List<ScoredMemory> ranked = memories
-            .Where(memory => memory.Vector != null &&
-                memory.Vector.Length == query.Vector.Length)
-            .Select((memory, index) => ScoreMemory(memory, query.Vector, index))
+        List<ScoredMemory> ranked = (memories ?? new List<MemoryRecord>())
+            .Select((memory, index) => new { Memory = memory, OriginalIndex = index })
+            .Where(item => item.Memory?.Vector != null &&
+                item.Memory.Vector.Length == query.Vector.Length)
+            .Select(item => ScoreMemory(item.Memory, query.Vector, item.OriginalIndex))
             .OrderByDescending(item => item.FinalScore)
-            .ThenByDescending(item => item.SemanticSimilarity)
+            .ThenByDescending(item => item.RawCosineSimilarity)
             .ThenBy(item => item.OriginalIndex)
-            .Take(Mathf.Max(0, topK))
             .ToList();
 
-        foreach (ScoredMemory item in ranked)
+        int selectedCount = Mathf.Min(Mathf.Max(0, topK), ranked.Count);
+        config.NormalizeWeights(out float similarityWeight, out float importanceWeight);
+        LastTrace = BuildTrace(
+            query.RequestId,
+            query.Trigger,
+            memories?.Count ?? 0,
+            query.QueryText,
+            topK,
+            similarityWeight,
+            importanceWeight,
+            ranked,
+            selectedCount);
+
+        foreach (MemoryRetrievalTraceEntry entry in LastTrace.Entries)
         {
             Debug.Log(
-                $"Rule retrieval: query=\"{query.QueryText}\", memory={item.Memory.Id}, " +
-                $"similarity={item.SemanticSimilarity:F4}, " +
-                $"importance={item.RuleImportance:F4}, final={item.FinalScore:F4}");
+                $"Rule retrieval candidate: selected={entry.Selected}, rank={entry.Rank}, " +
+                $"query=\"{query.QueryText}\", memory={entry.MemoryId}, " +
+                $"cosine={entry.RawCosineSimilarity:F4}, " +
+                $"normalizedSimilarity={entry.NormalizedSimilarity:F4}, " +
+                $"importance={entry.RuleImportanceScore}/2, " +
+                $"rule={entry.RuleId}, final={entry.FinalScore:F4}, " +
+                $"reason={entry.RuleReason}");
         }
 
-        return ranked.Select(item => item.Memory).ToList();
+        return ranked
+            .Take(selectedCount)
+            .Select(item => item.Memory)
+            .ToList();
     }
 
-    public static float CalculateImportance(MemoryRecord memory)
+    public static RuleImportanceResult CalculateImportance(
+        MemoryRecord memory,
+        MemoryRetrievalConfig config = null)
     {
+        MemoryRetrievalConfig effectiveConfig = config ?? new MemoryRetrievalConfig();
         if (memory == null)
         {
-            return 0f;
+            return Result(0, "invalid_memory", "The memory record is null.");
         }
 
         switch (memory.Category)
         {
             case MemoryCategory.NarrativeChoice:
-                return 1f;
+                return CalculateChoiceImportance(memory.Metrics);
 
             case MemoryCategory.EncounterDuration:
-                return CalculateTurnScore(memory.Metrics?.TurnCount ?? -1);
+                return CalculateTurnScore(
+                    memory.Metrics?.TurnCount ?? -1,
+                    effectiveConfig);
 
             case MemoryCategory.FinalHealth:
                 return CalculateHealthScore(
-                    memory.Metrics?.RemainingHealthPercent ?? -1f);
+                    memory.Metrics?.RemainingHealthPercent ?? -1f,
+                    effectiveConfig);
 
             case MemoryCategory.TurnEvent:
-                return CalculateTurnEventImportance(memory.Metrics);
+                return CalculateTurnEventImportance(memory.Metrics, effectiveConfig);
 
             default:
-                return 0f;
+                return Result(0, "unsupported_category", "No rule exists for this category.");
         }
     }
 
-    private static ScoredMemory ScoreMemory(
+    private ScoredMemory ScoreMemory(
         MemoryRecord memory,
         float[] queryVector,
         int originalIndex)
@@ -72,86 +107,209 @@ public class RuleBasedImportanceRetriever : IMemoryRetriever
             queryVector,
             memory.Vector);
         float normalizedSimilarity = Mathf.Clamp01((cosineSimilarity + 1f) * 0.5f);
-        float ruleImportance = CalculateImportance(memory);
+        RuleImportanceResult importance = CalculateImportance(memory, config);
+        config.NormalizeWeights(out float similarityWeight, out float importanceWeight);
 
         return new ScoredMemory
         {
             Memory = memory,
             OriginalIndex = originalIndex,
-            SemanticSimilarity = normalizedSimilarity,
-            RuleImportance = ruleImportance,
-            FinalScore = SimilarityWeight * normalizedSimilarity +
-                ImportanceWeight * ruleImportance
+            RawCosineSimilarity = cosineSimilarity,
+            NormalizedSimilarity = normalizedSimilarity,
+            Importance = importance,
+            FinalScore = similarityWeight * normalizedSimilarity +
+                importanceWeight * importance.NormalizedScore
         };
     }
 
-    private static float CalculateTurnScore(int turnCount)
+    private static RuleImportanceResult CalculateChoiceImportance(MemoryEventMetrics metrics)
+    {
+        NarrativeConsequence consequence =
+            metrics?.NarrativeConsequence ?? NarrativeConsequence.None;
+
+        switch (consequence)
+        {
+            case NarrativeConsequence.Irreversible:
+                return Result(
+                    2,
+                    "choice_irreversible",
+                    "The choice caused a direct and irreversible narrative consequence.");
+            case NarrativeConsequence.Indirect:
+                return Result(
+                    1,
+                    "choice_indirect",
+                    "The choice expressed intent or caused an indirect consequence.");
+            default:
+                return Result(
+                    0,
+                    "choice_no_consequence",
+                    "No concrete narrative consequence was recorded.");
+        }
+    }
+
+    private static RuleImportanceResult CalculateTurnScore(
+        int turnCount,
+        MemoryRetrievalConfig config)
     {
         if (turnCount < 0)
         {
-            return 0f;
+            return Result(0, "duration_missing", "Encounter duration was not recorded.");
         }
 
-        return turnCount <= 3 || turnCount >= 7 ? 1f : 0.4f;
+        if (turnCount <= config.ExceptionalFastTurnMaximum)
+        {
+            return Result(2, "duration_exceptionally_fast", "The encounter ended exceptionally quickly.");
+        }
+
+        if (turnCount >= config.ExceptionalSlowTurnMinimum)
+        {
+            return Result(2, "duration_exceptionally_slow", "The encounter lasted an exceptionally long time.");
+        }
+
+        if (turnCount >= config.TypicalTurnMinimum &&
+            turnCount <= config.TypicalTurnMaximum)
+        {
+            return Result(0, "duration_typical", "The encounter duration was within the expected range.");
+        }
+
+        return Result(1, "duration_notable", "The encounter duration was outside the expected range.");
     }
 
-    private static float CalculateHealthScore(float remainingHealthPercent)
+    private static RuleImportanceResult CalculateHealthScore(
+        float remainingHealthPercent,
+        MemoryRetrievalConfig config)
     {
         if (remainingHealthPercent < 0f)
         {
-            return 0f;
+            return Result(0, "health_missing", "Final player health was not recorded.");
         }
 
-        if (remainingHealthPercent >= 0.75f || remainingHealthPercent < 0.25f)
+        if (remainingHealthPercent < config.CriticalHealthThreshold)
         {
-            return 1f;
+            return Result(2, "health_critical", "The player completed the encounter at critical health.");
         }
 
-        return remainingHealthPercent >= 0.5f ? 0.4f : 0.6f;
+        if (remainingHealthPercent < config.WoundedHealthThreshold)
+        {
+            return Result(1, "health_wounded", "The player completed the encounter while wounded.");
+        }
+
+        return Result(0, "health_stable", "The player's final health was not unusually low.");
     }
 
-    private static float CalculateTurnEventImportance(MemoryEventMetrics metrics)
+    private static RuleImportanceResult CalculateTurnEventImportance(
+        MemoryEventMetrics metrics,
+        MemoryRetrievalConfig config)
     {
-        if (metrics == null)
+        if (metrics == null || metrics.TurnDamagePercent < 0f)
         {
-            return 0f;
+            return Result(0, "turn_event_missing", "Turn damage was not recorded.");
         }
 
-        if (metrics.TurnDamagePercent < 0f)
+        bool meaningfulDamage =
+            metrics.TurnDamagePercent >= config.MeaningfulDamageThreshold;
+        bool exceptionalDamage =
+            metrics.TurnDamagePercent >= config.ExceptionalDamageThreshold;
+
+        if (exceptionalDamage)
         {
-            return 0f;
+            return Result(
+                2,
+                metrics.HandExhausted
+                    ? "turn_exceptional_damage_and_hand_exhausted"
+                    : "turn_exceptional_damage",
+                metrics.HandExhausted
+                    ? "The turn combined exceptional damage with deliberate use of the full hand."
+                    : "The turn dealt an exceptional share of enemy maximum health.");
         }
 
-        float damageScore;
-        if (metrics.TurnDamagePercent >= 0.25f)
+        if (metrics.HandExhausted && meaningfulDamage)
         {
-            damageScore = 0.9f;
-        }
-        else if (metrics.TurnDamagePercent >= 0.1f)
-        {
-            damageScore = 0.5f;
-        }
-        else
-        {
-            damageScore = 0.2f;
+            return Result(
+                2,
+                "turn_meaningful_damage_and_hand_exhausted",
+                "The turn combined meaningful damage with deliberate use of the full hand.");
         }
 
-        if (metrics.HandExhausted && metrics.TurnDamagePercent >= 0.25f)
+        if (metrics.HandExhausted)
         {
-            return 1f;
+            return Result(
+                1,
+                "turn_hand_exhausted",
+                "The player deliberately used every available card in the hand.");
         }
 
-        return metrics.HandExhausted
-            ? Mathf.Max(0.6f, damageScore)
-            : damageScore;
+        if (meaningfulDamage)
+        {
+            return Result(
+                1,
+                "turn_meaningful_damage",
+                "The turn dealt a meaningful share of enemy maximum health.");
+        }
+
+        return Result(0, "turn_ordinary", "The turn contained no exceptional recorded event.");
+    }
+
+    private static RuleImportanceResult Result(int score, string ruleId, string reason)
+    {
+        return new RuleImportanceResult(score, ruleId, reason);
+    }
+
+    private static MemoryRetrievalTrace BuildTrace(
+        string requestId,
+        string trigger,
+        int poolSize,
+        string queryText,
+        int topK,
+        float similarityWeight,
+        float importanceWeight,
+        List<ScoredMemory> ranked,
+        int selectedCount)
+    {
+        MemoryRetrievalTrace trace = new MemoryRetrievalTrace
+        {
+            RequestId = requestId,
+            Strategy = RetrievalStrategy.RuleBasedImportance.ToString(),
+            Trigger = trigger,
+            QueryText = queryText,
+            PoolSize = poolSize,
+            EligibleMemoryCount = ranked.Count,
+            TopK = Mathf.Max(0, topK),
+            SimilarityWeight = similarityWeight,
+            ImportanceWeight = importanceWeight
+        };
+
+        for (int i = 0; i < ranked.Count; i++)
+        {
+            ScoredMemory item = ranked[i];
+            trace.Entries.Add(new MemoryRetrievalTraceEntry
+            {
+                MemoryId = item.Memory.Id,
+                BattleId = item.Memory.BattleId,
+                Category = item.Memory.Category.ToString(),
+                Text = item.Memory.Text,
+                RawCosineSimilarity = item.RawCosineSimilarity,
+                NormalizedSimilarity = item.NormalizedSimilarity,
+                RuleImportanceScore = item.Importance.Score,
+                NormalizedImportance = item.Importance.NormalizedScore,
+                RuleId = item.Importance.RuleId,
+                RuleReason = item.Importance.Reason,
+                FinalScore = item.FinalScore,
+                Selected = i < selectedCount,
+                Rank = i + 1
+            });
+        }
+
+        return trace;
     }
 
     private sealed class ScoredMemory
     {
         public MemoryRecord Memory;
         public int OriginalIndex;
-        public float SemanticSimilarity;
-        public float RuleImportance;
+        public float RawCosineSimilarity;
+        public float NormalizedSimilarity;
+        public RuleImportanceResult Importance;
         public float FinalScore;
     }
 }

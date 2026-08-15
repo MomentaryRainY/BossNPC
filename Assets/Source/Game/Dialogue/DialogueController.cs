@@ -58,8 +58,11 @@ public class DialogueController : MonoBehaviour
         List<string> workingMemories)
     {
         float responseStartedAt = Time.realtimeSinceStartup;
+        string requestId = System.Guid.NewGuid().ToString("N");
         MemoryQuery query = new MemoryQuery
         {
+            RequestId = requestId,
+            Trigger = queryText,
             QueryText = BuildRetrievalQuery(queryText)
         };
 
@@ -67,6 +70,7 @@ public class DialogueController : MonoBehaviour
         {
             Debug.LogError("Cannot retrieve memories because MemorySystem is missing.");
             RecordRetrievalFailure(
+                requestId,
                 queryText,
                 "Unavailable",
                 "MemorySystem is missing.",
@@ -83,7 +87,6 @@ public class DialogueController : MonoBehaviour
 
         yield return MemorySystem.Instance.Retrieve(
             query,
-            3,
             result => memories = result,
             error => retrievalError = error,
             elapsed => retrievalMilliseconds = elapsed);
@@ -92,6 +95,7 @@ public class DialogueController : MonoBehaviour
         {
             Debug.LogError(retrievalError);
             RecordRetrievalFailure(
+                requestId,
                 queryText,
                 MemorySystem.Instance.CurrentStrategy.ToString(),
                 retrievalError,
@@ -129,6 +133,7 @@ public class DialogueController : MonoBehaviour
 
         DialoguePerformanceLogger.Record(new DialoguePerformanceRecord
         {
+            RequestId = requestId,
             RetrievalStrategy = MemorySystem.Instance.CurrentStrategy.ToString(),
             Trigger = queryText,
             PromptCharacters = prompt.Length,
@@ -154,6 +159,7 @@ public class DialogueController : MonoBehaviour
     }
 
     private static void RecordRetrievalFailure(
+        string requestId,
         string trigger,
         string strategy,
         string error,
@@ -163,6 +169,7 @@ public class DialogueController : MonoBehaviour
     {
         DialoguePerformanceLogger.Record(new DialoguePerformanceRecord
         {
+            RequestId = requestId,
             RetrievalStrategy = strategy,
             Trigger = trigger,
             EncounterMemoryCount = encounterMemoryCount,

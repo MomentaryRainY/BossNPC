@@ -108,7 +108,11 @@ public class SingleGameManager : MonoBehaviour
             MemoryEventFactory.CreateTurnEvent("Battle1", 2, 67f, 0.67f, false, 0.90f),
             MemoryEventFactory.CreateEncounterDuration("Battle1", 2),
             MemoryEventFactory.CreateFinalHealth("Battle1", 0.90f),
-            CreateTestChoice("Battle1", 2, "Execute him"),
+            CreateTestChoice(
+                "Battle1",
+                2,
+                "Execute him",
+                NarrativeConsequence.Irreversible),
 
             MemoryEventFactory.CreateTurnEvent("Battle2", 1, 28f, 0.40f, false, 0.91f),
             MemoryEventFactory.CreateTurnEvent("Battle2", 2, 70f, 1f, false, 0.88f),
@@ -117,21 +121,27 @@ public class SingleGameManager : MonoBehaviour
             CreateTestChoice(
                 "Battle2",
                 1,
-                "Ignore his situation and keep going."),
+                "Ignore his situation and keep going.",
+                NarrativeConsequence.Indirect),
 
             MemoryEventFactory.CreateTurnEvent("Battle3", 1, 40f, 0.27f, false, 0.93f),
             MemoryEventFactory.CreateTurnEvent("Battle3", 2, 55.5f, 0.37f, true, 0.90f),
             MemoryEventFactory.CreateTurnEvent("Battle3", 3, 45f, 0.30f, true, 0.87f),
             MemoryEventFactory.CreateEncounterDuration("Battle3", 3),
             MemoryEventFactory.CreateFinalHealth("Battle3", 0.87f),
-            CreateTestChoice("Battle3", 3, "Execute him")
+            CreateTestChoice(
+                "Battle3",
+                3,
+                "Execute him",
+                NarrativeConsequence.Irreversible)
         };
     }
 
     private static MemoryEventData CreateTestChoice(
         string battleId,
         int choiceIndex,
-        string choiceText)
+        string choiceText,
+        NarrativeConsequence narrativeConsequence)
     {
         return new MemoryEventData
         {
@@ -140,7 +150,8 @@ public class SingleGameManager : MonoBehaviour
             Text = $"The player selected: {choiceText}.",
             Metrics = new MemoryEventMetrics
             {
-                ChoiceIndex = choiceIndex
+                ChoiceIndex = choiceIndex,
+                NarrativeConsequence = narrativeConsequence
             }
         };
     }
