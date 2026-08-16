@@ -132,18 +132,19 @@ public sealed class RuleBasedImportanceRetriever : IMemoryRetriever, IRetrievalT
             case NarrativeConsequence.Irreversible:
                 return Result(
                     2,
-                    "choice_irreversible",
-                    "The choice caused a direct and irreversible narrative consequence.");
+                    "choice_high_rowan_impact",
+                    "The choice strongly affects Rowan's judgement through his values, " +
+                    "loyalties, or relationship with the people involved.");
             case NarrativeConsequence.Indirect:
                 return Result(
                     1,
-                    "choice_indirect",
-                    "The choice expressed intent or caused an indirect consequence.");
+                    "choice_moderate_rowan_impact",
+                    "The choice gives Rowan a meaningful but indirect signal about the player's attitude.");
             default:
                 return Result(
                     0,
-                    "choice_no_consequence",
-                    "No concrete narrative consequence was recorded.");
+                    "choice_no_rowan_impact",
+                    "The choice has no recorded effect on Rowan's values, loyalties, or attitude.");
         }
     }
 
@@ -192,6 +193,15 @@ public sealed class RuleBasedImportanceRetriever : IMemoryRetriever, IRetrievalT
         if (remainingHealthPercent < config.WoundedHealthThreshold)
         {
             return Result(1, "health_wounded", "The player completed the encounter while wounded.");
+        }
+
+        if (remainingHealthPercent >= config.StrongFinishThreshold)
+        {
+            return Result(
+                2,
+                "health_strong_finish",
+                $"The player completed the encounter with at least " +
+                $"{Mathf.RoundToInt(config.StrongFinishThreshold * 100f)}% health remaining.");
         }
 
         return Result(0, "health_stable", "The player's final health was not unusually low.");

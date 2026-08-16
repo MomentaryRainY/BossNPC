@@ -10,17 +10,18 @@ public class ModelAssistedImportanceRetriever : IMemoryRetriever
         "2 = decisive evidence of strategy, risk, or narrative intent.\n" +
         "Each record is atomic: score only the fact in the supplied record and do not " +
         "infer an unrecorded encounter summary.\n" +
-        "Turn count: 1-3 turns indicates an efficient victory; 4-6 is typical; " +
-        "7 or more indicates a prolonged encounter.\n" +
-        "Remaining health: 75-100% indicates a strong finish; 50-74% a stable finish; " +
-        "25-49% a wounded finish; below 25% a critical finish.\n" +
+        "Turn count: 1-2 turns indicates an exceptionally fast victory; 3-4 is typical; " +
+        "5-6 is slower than expected; 7 or more is exceptionally prolonged.\n" +
+        "Remaining health: 90-100% indicates a strong finish worth remembering; " +
+        "50-89% is stable, 25-49% is wounded, and below 25% is critical.\n" +
         "Turn events: because cards are constrained by range and stamina, exhausting the " +
         "available hand is evidence of deliberate resource use and should not be described " +
         "as foolish. Do not call the turn successful unless its damage supports that claim.\n" +
-        "Turn damage: at least 25% of combined enemy maximum health is a " +
-        "high-impact turn; 10-24% is meaningful; below 10% is limited impact.\n" +
-        "Narrative choices may receive importance 2 when they directly concern mercy, " +
-        "loyalty, betrayal, justice, or Rowan's forces.\n" +
+        "Turn damage is the total damage across the entire player turn, not damage from " +
+        "one card. At least 50% of combined enemy maximum health is exceptional; " +
+        "25-49% is meaningful; below 25% is ordinary damage.\n" +
+        "Narrative choices may receive importance 2 when they strongly affect Rowan's " +
+        "judgement through mercy, loyalty, betrayal, justice, or treatment of Rowan's forces.\n" +
         "Judge importance independently from semantic similarity to the current query.";
 
     public List<MemoryRecord> Retrieve(List<MemoryRecord> memories, MemoryQuery query, int topK)

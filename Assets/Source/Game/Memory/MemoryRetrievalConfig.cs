@@ -13,12 +13,13 @@ public sealed class MemoryRetrievalConfig
     [Header("Encounter Duration")]
     [Min(1)] public int ExceptionalFastTurnMaximum = 2;
     [Min(1)] public int TypicalTurnMinimum = 3;
-    [Min(1)] public int TypicalTurnMaximum = 5;
+    [Min(1)] public int TypicalTurnMaximum = 4;
     [Min(1)] public int ExceptionalSlowTurnMinimum = 7;
 
     [Header("Final Health")]
     [Range(0f, 1f)] public float CriticalHealthThreshold = 0.25f;
     [Range(0f, 1f)] public float WoundedHealthThreshold = 0.5f;
+    [Range(0f, 1f)] public float StrongFinishThreshold = 0.9f;
 
     [Header("Turn Damage")]
     [Range(0f, 1f)] public float MeaningfulDamageThreshold = 0.25f;
@@ -42,6 +43,10 @@ public sealed class MemoryRetrievalConfig
         WoundedHealthThreshold = Mathf.Clamp(
             WoundedHealthThreshold,
             CriticalHealthThreshold,
+            1f);
+        StrongFinishThreshold = Mathf.Clamp(
+            StrongFinishThreshold,
+            WoundedHealthThreshold,
             1f);
         MeaningfulDamageThreshold = Mathf.Clamp01(MeaningfulDamageThreshold);
         ExceptionalDamageThreshold = Mathf.Clamp(

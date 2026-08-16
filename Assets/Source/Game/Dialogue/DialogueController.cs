@@ -77,6 +77,14 @@ public class DialogueController : MonoBehaviour
                 0f,
                 responseStartedAt,
                 workingMemories?.Count ?? 0);
+            RecordDialogueOutput(
+                requestId,
+                queryText,
+                "Unavailable",
+                null,
+                workingMemories,
+                string.Empty,
+                false);
             Speak("So, you finally reached me. (MS missing)", displayDuration);
             yield break;
         }
@@ -102,6 +110,14 @@ public class DialogueController : MonoBehaviour
                 retrievalMilliseconds,
                 responseStartedAt,
                 workingMemories?.Count ?? 0);
+            RecordDialogueOutput(
+                requestId,
+                queryText,
+                MemorySystem.Instance.CurrentStrategy.ToString(),
+                null,
+                workingMemories,
+                string.Empty,
+                false);
             Speak("So, you finally reached me. (retrieval error)", displayDuration);
             yield break;
         }
@@ -148,6 +164,15 @@ public class DialogueController : MonoBehaviour
             Error = generationError
         });
 
+        RecordDialogueOutput(
+            requestId,
+            queryText,
+            MemorySystem.Instance.CurrentStrategy.ToString(),
+            memories,
+            workingMemories,
+            generatedText,
+            string.IsNullOrEmpty(generationError));
+
         if (!string.IsNullOrEmpty(generationError))
         {
             Debug.LogError(generationError);
@@ -156,6 +181,41 @@ public class DialogueController : MonoBehaviour
         }
 
         Speak(generatedText, displayDuration);
+    }
+
+    private static void RecordDialogueOutput(
+        string requestId,
+        string trigger,
+        string strategy,
+        List<MemoryRecord> memories,
+        List<string> workingMemories,
+        string responseText,
+        bool success)
+    {
+        List<string> selectedMemoryIds = new List<string>();
+        if (memories != null)
+        {
+            foreach (MemoryRecord memory in memories)
+            {
+                if (memory != null && !string.IsNullOrWhiteSpace(memory.Id))
+                {
+                    selectedMemoryIds.Add(memory.Id);
+                }
+            }
+        }
+
+        DialogueOutputLogger.Record(new DialogueOutputRecord
+        {
+            RequestId = requestId,
+            Strategy = strategy,
+            Trigger = trigger,
+            SelectedMemoryIds = selectedMemoryIds,
+            WorkingMemories = workingMemories != null
+                ? new List<string>(workingMemories)
+                : new List<string>(),
+            ResponseText = responseText,
+            Success = success
+        });
     }
 
     private static void RecordRetrievalFailure(
