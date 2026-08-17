@@ -661,6 +661,7 @@ GameObject:
   - component: {fileID: 2013762125}
   - component: {fileID: 2013762124}
   - component: {fileID: 2013762127}
+  - component: {fileID: 2013762128}
   m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
@@ -707,7 +708,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Thanks for playing!
+  m_text: 'Game statistics has been pasted to your clipboard, please paste it to
+    questionnaire.
+
+
+    Thanks for playing!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6e3097faac17a0a4197b3d858a128521, type: 2}
   m_sharedMaterial: {fileID: -8733163950162659809, guid: 6e3097faac17a0a4197b3d858a128521, type: 2}
@@ -796,8 +801,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84909d0a228f4d46ad1826757c813da4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SummaryText: {fileID: 2013762124}
   CopyOnShow: 1
+--- !u!114 &2013762128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2013762122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4de5a8181c16cf7449e909314ec6f248, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 2013762124}
+  Key: ui.thanks
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

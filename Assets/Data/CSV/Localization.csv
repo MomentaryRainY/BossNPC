@@ -9,7 +9,11 @@ ui.newcard,获得新卡牌！,Get a new card!
 ui.press,按下任意按键以继续…,Press Any key to continue…
 ui.tryagain,再试一次,Try Again
 ui.levelup,升级！,Level Up！
-ui.thanks,感谢游玩！,Thanks for Playing!
+ui.thanks,"如果您游玩的实验版本，游戏测试数据已经粘贴到您的剪切板，请粘贴到网页问卷！
+
+感谢游玩！","Game statistics has been pasted to your clipboard, please paste it to questionnaire.
+
+Thanks for playing!"
 ,,
 ui.audio,音频控制,Volume Control
 ui.language,语言选择,Language Selection

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -204,6 +205,15 @@ public class SingleGameManager : MonoBehaviour
         battleManager.Init(runtimeState, cardManager, uiManager);
         inputController.Init(battleManager);
 
+        bool prepareBossMemory =
+            RunMode == GameRunMode.Experiment && ActiveBattleConfig.IsBossFight;
+        if (prepareBossMemory && MemorySystem.Instance != null)
+        {
+            MemorySystem.Instance.BeginBossPreparation(
+                includeModelScoring:
+                    dialogueCondition == BossDialogueCondition.ModelAssistedImportance);
+        }
+
         if (PlayPreBattleSequence &&
             RunMode == GameRunMode.Experiment &&
             ActiveBattleConfig.PreBattleSequence != null &&
@@ -211,10 +221,31 @@ public class SingleGameManager : MonoBehaviour
         {
             TutorialManager.Instance.Play(
                 ActiveBattleConfig.PreBattleSequence,
-                battleManager.GameStart);
+                () => StartBattleAfterMemoryPreparation(
+                    battleManager,
+                    prepareBossMemory));
             return;
         }
 
+        StartBattleAfterMemoryPreparation(battleManager, prepareBossMemory);
+    }
+
+    private void StartBattleAfterMemoryPreparation(
+        BattleManager battleManager,
+        bool waitForPreparation)
+    {
+        if (!waitForPreparation || MemorySystem.Instance == null)
+        {
+            battleManager.GameStart();
+            return;
+        }
+
+        StartCoroutine(WaitForMemoryPreparationThenStart(battleManager));
+    }
+
+    private IEnumerator WaitForMemoryPreparationThenStart(BattleManager battleManager)
+    {
+        yield return MemorySystem.Instance.WaitForBossPreparation();
         battleManager.GameStart();
     }
 

@@ -18,12 +18,21 @@ public class MemorySystem : MonoBehaviour
 
     [SerializeField] private RetrievalStrategy strategy;
     [SerializeField] private string embeddingProxyUrl = "http://127.0.0.1:3000/embed";
+    [SerializeField] private string importanceScoringProxyUrl =
+        "http://127.0.0.1:3000/dialogue";
     [SerializeField] private MemoryRetrievalConfig retrievalConfig = new();
 
     private IMemoryRetriever retriever;
     private EmbeddingClient embeddingClient;
+    private ImportanceScoringClient importanceScoringClient;
+    private readonly ModelImportanceScoreCache modelImportanceScoreCache =
+        new ModelImportanceScoreCache();
+    private Coroutine bossPreparationCoroutine;
+    private bool embeddingServiceWarmed;
 
     private int uid = 0;
+
+    public bool IsBossPreparationRunning => bossPreparationCoroutine != null;
 
     private void Awake()
     {
@@ -38,12 +47,21 @@ public class MemorySystem : MonoBehaviour
         retrievalConfig = retrievalConfig ?? new MemoryRetrievalConfig();
         retrievalConfig.Sanitize();
         embeddingClient = new EmbeddingClient(embeddingProxyUrl);
+        importanceScoringClient = new ImportanceScoringClient(
+            importanceScoringProxyUrl);
         SetRetrievalStrategy(strategy);
     }
 
     public void ClearMemories()
     {
+        if (bossPreparationCoroutine != null)
+        {
+            StopCoroutine(bossPreparationCoroutine);
+            bossPreparationCoroutine = null;
+        }
+
         Memories.Clear();
+        modelImportanceScoreCache.Clear();
         uid = 0;
     }
 
@@ -66,8 +84,197 @@ public class MemorySystem : MonoBehaviour
                 break;
 
             case RetrievalStrategy.ModelAssistedImportance:
-                retriever = new ModelAssistedImportanceRetriever();
+                retriever = new ModelAssistedImportanceRetriever(
+                    retrievalConfig,
+                    modelImportanceScoreCache);
                 break;
+        }
+    }
+
+    public void BeginBossPreparation(bool includeModelScoring)
+    {
+        if (bossPreparationCoroutine != null)
+        {
+            return;
+        }
+
+        bossPreparationCoroutine = StartCoroutine(
+            PrepareBossMemoryServices(includeModelScoring));
+    }
+
+    public IEnumerator WaitForBossPreparation()
+    {
+        while (bossPreparationCoroutine != null)
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PrepareBossMemoryServices(bool includeModelScoring)
+    {
+        yield return PrewarmEmbeddings();
+
+        if (includeModelScoring)
+        {
+            yield return ScoreMissingModelImportance("preboss");
+        }
+
+        Debug.Log(
+            $"Boss memory preparation completed: pool={Memories.Count}, " +
+            $"embedded={Memories.Count(memory => memory?.Vector?.Length > 0)}, " +
+            $"modelScores={modelImportanceScoreCache.ValidScoreCount}.");
+        bossPreparationCoroutine = null;
+    }
+
+    private IEnumerator PrewarmEmbeddings()
+    {
+        List<MemoryRecord> missingVectors = Memories
+            .Where(memory => memory != null &&
+                (memory.Vector == null || memory.Vector.Length == 0))
+            .ToList();
+
+        List<string> texts = missingVectors
+            .Select(memory => memory.Text)
+            .Where(text => !string.IsNullOrWhiteSpace(text))
+            .ToList();
+
+        bool isWarmupOnly = texts.Count == 0;
+        if (isWarmupOnly)
+        {
+            if (embeddingServiceWarmed)
+            {
+                yield break;
+            }
+
+            texts.Add("embedding service warmup");
+        }
+
+        List<float[]> vectors = null;
+        string embeddingError = null;
+        yield return embeddingClient.Embed(
+            texts,
+            result => vectors = result,
+            error => embeddingError = error);
+
+        if (!string.IsNullOrEmpty(embeddingError))
+        {
+            Debug.LogWarning($"Embedding prewarm failed: {embeddingError}");
+            yield break;
+        }
+
+        embeddingServiceWarmed = true;
+        if (isWarmupOnly)
+        {
+            Debug.Log("Embedding service prewarmed without pending memory vectors.");
+            yield break;
+        }
+
+        if (vectors == null || vectors.Count != missingVectors.Count)
+        {
+            Debug.LogWarning(
+                $"Embedding prewarm returned {vectors?.Count ?? 0} vector(s) for " +
+                $"{missingVectors.Count} memories.");
+            yield break;
+        }
+
+        for (int i = 0; i < missingVectors.Count; i++)
+        {
+            missingVectors[i].Vector = vectors[i];
+        }
+
+        Debug.Log($"Precomputed embeddings for {missingVectors.Count} memories.");
+    }
+
+    private IEnumerator ScoreMissingModelImportance(string origin)
+    {
+        List<MemoryRecord> missingScores = Memories
+            .Where(memory => memory != null &&
+                !string.IsNullOrWhiteSpace(memory.Id) &&
+                !modelImportanceScoreCache.HasValidScore(memory.Id))
+            .ToList();
+
+        if (missingScores.Count == 0)
+        {
+            yield break;
+        }
+
+        string batchId = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpperInvariant();
+        List<ModelImportanceScoreResult> results = null;
+        string scoringError = null;
+        float scoringMilliseconds = 0f;
+
+        yield return importanceScoringClient.Score(
+            missingScores,
+            value => results = value,
+            error => scoringError = error,
+            milliseconds => scoringMilliseconds = milliseconds);
+
+        int scoredCount = 0;
+        if (!string.IsNullOrEmpty(scoringError))
+        {
+            foreach (MemoryRecord memory in missingScores)
+            {
+                modelImportanceScoreCache.StoreError(
+                    memory.Id,
+                    scoringError,
+                    origin);
+            }
+        }
+        else
+        {
+            Dictionary<string, ModelImportanceScoreResult> resultById =
+                (results ?? new List<ModelImportanceScoreResult>())
+                .Where(result => result != null &&
+                    !string.IsNullOrWhiteSpace(result.MemoryId))
+                .GroupBy(result => result.MemoryId)
+                .ToDictionary(group => group.Key, group => group.First());
+
+            foreach (MemoryRecord memory in missingScores)
+            {
+                if (resultById.TryGetValue(
+                    memory.Id,
+                    out ModelImportanceScoreResult result))
+                {
+                    modelImportanceScoreCache.StoreScore(
+                        memory.Id,
+                        result.Score,
+                        result.Reason,
+                        origin);
+                    scoredCount++;
+                    continue;
+                }
+
+                modelImportanceScoreCache.StoreError(
+                    memory.Id,
+                    "The scoring response omitted this memory.",
+                    origin);
+            }
+
+            if (scoredCount != missingScores.Count)
+            {
+                scoringError =
+                    $"The scoring response covered {scoredCount} of " +
+                    $"{missingScores.Count} requested memories.";
+            }
+        }
+
+        MemoryImportanceScoringLogger.Record(new MemoryImportanceScoringRecord
+        {
+            BatchId = batchId,
+            Origin = origin,
+            PoolSize = Memories.Count,
+            RequestedMemoryCount = missingScores.Count,
+            ScoredMemoryCount = scoredCount,
+            CacheHitCount = Mathf.Max(0, Memories.Count - missingScores.Count),
+            ScoringMilliseconds = scoringMilliseconds,
+            Success = string.IsNullOrEmpty(scoringError) &&
+                scoredCount == missingScores.Count,
+            Error = scoringError
+        });
+
+        if (!string.IsNullOrEmpty(scoringError))
+        {
+            Debug.LogWarning($"Model importance scoring incomplete: {scoringError}");
         }
     }
 
@@ -116,6 +323,12 @@ public class MemorySystem : MonoBehaviour
         }
 
         float retrievalStartedAt = Time.realtimeSinceStartup;
+
+        if (strategy == RetrievalStrategy.ModelAssistedImportance)
+        {
+            yield return WaitForBossPreparation();
+            yield return ScoreMissingModelImportance($"runtime:{query.RequestId}");
+        }
 
         List<MemoryRecord> memoriesWithoutVectors = Memories
             .Where(memory => memory.Vector == null || memory.Vector.Length == 0)

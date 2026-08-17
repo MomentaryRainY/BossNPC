@@ -263,6 +263,14 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("6 GameStart");
         BattleConfig currentConfig = BattleConfigs[CurrentSceneNum];
+        bool prepareBossMemory =
+            RunMode == GameRunMode.Experiment && currentConfig.IsBossFight;
+        if (prepareBossMemory && MemorySystem.Instance != null)
+        {
+            // Every experiment order eventually includes Model-assisted retrieval.
+            MemorySystem.Instance.BeginBossPreparation(includeModelScoring: true);
+        }
+
         TutorialSequence preBattleSequence =
             RunMode != GameRunMode.Experiment && currentConfig.IsBossFight
                 ? null
@@ -270,16 +278,40 @@ public class GameManager : MonoBehaviour
 
         if (preBattleSequence == null || shownPreBattleSequences.Contains(CurrentSceneNum))
         {
-            CurrentBattleManager.GameStart();
+            StartBattleAfterMemoryPreparation(
+                CurrentBattleManager,
+                prepareBossMemory);
             return;
         }
 
         PlaySequenceOrContinue(preBattleSequence, () =>
         {
             shownPreBattleSequences.Add(CurrentSceneNum);
-            CurrentBattleManager.GameStart();
+            StartBattleAfterMemoryPreparation(
+                CurrentBattleManager,
+                prepareBossMemory);
         });
     }
+
+    private void StartBattleAfterMemoryPreparation(
+        BattleManager battleManager,
+        bool waitForPreparation)
+    {
+        if (!waitForPreparation || MemorySystem.Instance == null)
+        {
+            battleManager.GameStart();
+            return;
+        }
+
+        StartCoroutine(WaitForMemoryPreparationThenStart(battleManager));
+    }
+
+    private IEnumerator WaitForMemoryPreparationThenStart(BattleManager battleManager)
+    {
+        yield return MemorySystem.Instance.WaitForBossPreparation();
+        battleManager.GameStart();
+    }
+
     private void PlaySequenceOrContinue(TutorialSequence sequence, System.Action onComplete)
     {
         if (sequence != null && TutorialManager.Instance != null)

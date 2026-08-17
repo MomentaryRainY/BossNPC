@@ -17,9 +17,82 @@ public sealed class MemoryRetrievalTraceEntry
     public float NormalizedImportance;
     public string RuleId;
     public string RuleReason;
+    public int ModelImportanceScore = -1;
+    public string ModelReason;
+    public bool ModelScoreCacheHit;
+    public string ModelScoreError;
     public float FinalScore;
     public bool Selected;
     public int Rank;
+}
+
+[Serializable]
+public sealed class MemoryImportanceScoringRecord
+{
+    public string BatchId;
+    public string SessionCode;
+    public string ExperimentMode;
+    public string Origin;
+    public int PoolSize;
+    public int RequestedMemoryCount;
+    public int ScoredMemoryCount;
+    public int CacheHitCount;
+    public float ScoringMilliseconds;
+    public bool Success;
+    public string Error;
+    public string TimestampUtc;
+}
+
+public static class MemoryImportanceScoringLogger
+{
+    private const string FileName = "memory_importance_scoring.jsonl";
+
+    public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
+
+    public static void Record(MemoryImportanceScoringRecord record)
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        record.SessionCode = DialoguePerformanceLogger.CurrentSessionCode;
+        record.ExperimentMode = DialoguePerformanceLogger.CurrentExperimentMode;
+        record.TimestampUtc = DateTime.UtcNow.ToString("O");
+        record.Error = record.Error ?? string.Empty;
+
+        try
+        {
+            string directory = Path.GetDirectoryName(FilePath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.AppendAllText(
+                FilePath,
+                JsonUtility.ToJson(record) + Environment.NewLine,
+                Encoding.UTF8);
+
+            Debug.Log(
+                $"Memory importance scoring logged: batch={record.BatchId}, " +
+                $"origin={record.Origin}, requested={record.RequestedMemoryCount}, " +
+                $"scored={record.ScoredMemoryCount}, " +
+                $"elapsed={record.ScoringMilliseconds:F1}ms, " +
+                $"success={record.Success}");
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError(
+                $"Failed to write memory importance scoring data: {exception.Message}");
+        }
+    }
+
+    private static string GetGameDirectory()
+    {
+        DirectoryInfo dataDirectory = Directory.GetParent(Application.dataPath);
+        return dataDirectory != null ? dataDirectory.FullName : Application.dataPath;
+    }
 }
 
 [Serializable]

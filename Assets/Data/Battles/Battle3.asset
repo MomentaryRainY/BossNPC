@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 6109471106817678834, guid: 83bc9632b54cdd14f90022ece32c9942, type: 3}
   PlayerStartPos: {x: 5, y: 5}
-  PlayerMaxHealth: 150
+  PlayerMaxHealth: 120
   PlayerMoveRange: 4
   PlayerMoveSpeed: 2.2
   MaxStamina: 5
@@ -22,6 +22,7 @@ MonoBehaviour:
   Enemies:
   - Config: {fileID: 11400000, guid: e95e0fa4ce79e6c4bb4ee87ed7fd7a12, type: 2}
     GridPos: {x: 11, y: 5}
+    Role: 0
   UseTransitionAfterBattle: 0
   ShowLevelUpPage: 0
   ShowRewardCardPage: 0
