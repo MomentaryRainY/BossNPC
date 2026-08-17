@@ -40,6 +40,21 @@ public class DialogueGenerator
         "accepted Rowan's goals, and willingly assisted Rowan.";
 
     private string proxyUrl = "http://localhost:3000/dialogue";
+    private readonly List<UnityWebRequest> activeRequests = new List<UnityWebRequest>();
+
+    public void CancelPendingRequests()
+    {
+        UnityWebRequest[] requests = activeRequests.ToArray();
+        activeRequests.Clear();
+
+        foreach (UnityWebRequest request in requests)
+        {
+            if (request != null && !request.isDone)
+            {
+                request.Abort();
+            }
+        }
+    }
 
     public IEnumerator Generate(
         string prompt,
@@ -60,7 +75,9 @@ public class DialogueGenerator
         request.SetRequestHeader("Content-Type", "application/json");
 
         float generationStartedAt = Time.realtimeSinceStartup;
+        activeRequests.Add(request);
         yield return request.SendWebRequest();
+        activeRequests.Remove(request);
         float generationMilliseconds =
             (Time.realtimeSinceStartup - generationStartedAt) * 1000f;
         onTimingCompleted?.Invoke(generationMilliseconds);

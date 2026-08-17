@@ -399,6 +399,12 @@ public class BattleManager : MonoBehaviour
 
     private bool TryGetBattleResult(out BattleResult result)
     {
+        if (CurrentBoss != null && CurrentBoss.State == UnitState.Dead)
+        {
+            result = BattleResult.Victory;
+            return true;
+        }
+
         if (CurrentPlayer.State == UnitState.Dead)
         {
             result = BattleResult.Defeat;

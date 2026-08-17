@@ -29,7 +29,7 @@ public class DialogueBubbleManager : MonoBehaviour
         }
     }
 
-    public void ShowBubble(Unit unit, string content, float duration = 3f)
+    public void ShowBubble(Unit unit, string content, float duration = 3.5f)
     {
         if (!dic.TryGetValue(unit, out DialogueBubbleView view))
         {

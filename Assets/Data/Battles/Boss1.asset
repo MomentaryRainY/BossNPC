@@ -15,7 +15,7 @@ MonoBehaviour:
   PlayerPrefab: {fileID: 6109471106817678834, guid: 83bc9632b54cdd14f90022ece32c9942, type: 3}
   PlayerStartPos: {x: 2, y: 5}
   PlayerMaxHealth: 120
-  PlayerMoveRange: 4
+  PlayerMoveRange: 3
   PlayerMoveSpeed: 5
   MaxStamina: 5
   MaxHandCount: 7

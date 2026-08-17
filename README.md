@@ -2,6 +2,18 @@
 
 BossNPC is a research prototype for NPC memory retrieval strategies in turn-based games. The officially released game version uses the `Experiment` mode by default, and participants do not need to select technical conditions within the game.
 
+## Prerequisites
+
+- `Scripted` does not need LLM or embedding service.
+- `Full Memory` requires dialogue generation proxy, but not require embedding interface.
+- `Experiment` requires both LLM and embedding.
+
+Project has an uniform entrance for two API, check 'Proxy' folder, open '.env' in text file.
+
+Before launching the game, please run Node.js service in game directory.
+
+Embedding service is prebuilt in game repository, while LLM API link has to be set by user.
+
 ## Release Versions
 
 1. Launch the game and complete the first three battles as normal. The system will build a long-term narrative memory based on the actual battles and post-battle choices.
@@ -37,14 +49,3 @@ When directly opening the `Boss`, `Boss1`, `Boss2`, or `Boss3` scene, set the `R
 
 `SingleGameManager` is only used for debugging independent scenes and does not execute in proper order.
 
-## Prerequisites
-
-- `Scripted` does not need LLM or embedding service.
-- `Full Memory` requires dialogue generation proxy, but not require embedding interface.
-- `Experiment` requires both LLM and embedding.
-
-Project has an uniform entrance for two API, check 'Proxy' folder, open '.env' in text file.
-
-Before launching the game, please run Node.js service in game directory.
-
-Embedding service is prebuilt in game repository, while LLM API link has to be set by user.

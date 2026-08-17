@@ -7,6 +7,8 @@ public class DialogueController : MonoBehaviour
     private Unit CurrentUnit;
 
     private DialogueGenerator Generator;
+    private int requestVersion;
+    private bool battleEndRequestStarted;
 
     private void Awake()
     {
@@ -21,22 +23,28 @@ public class DialogueController : MonoBehaviour
 
     public void SpeakFromMemory(string queryText)
     {
-        StartCoroutine(SpeakFromMemoryCoroutine(queryText, 3f, null));
+        StartOrdinaryRequest(queryText, 3f, null);
     }
 
     public void SpeakFromMemory(
         string queryText,
         IReadOnlyList<string> workingMemories)
     {
-        StartCoroutine(SpeakFromMemoryCoroutine(
+        StartOrdinaryRequest(
             queryText,
             3f,
-            CopyWorkingMemories(workingMemories)));
+            CopyWorkingMemories(workingMemories));
     }
 
     public IEnumerator SpeakFromMemoryAndWait(string queryText, float displayDuration = 3f)
     {
-        yield return SpeakFromMemoryCoroutine(queryText, displayDuration, null);
+        BeginBattleEndRequest();
+        yield return SpeakFromMemoryCoroutine(
+            queryText,
+            displayDuration,
+            null,
+            requestVersion,
+            isPriorityRequest: true);
         yield return new WaitForSecondsRealtime(displayDuration);
     }
 
@@ -45,17 +53,53 @@ public class DialogueController : MonoBehaviour
         IReadOnlyList<string> workingMemories,
         float displayDuration = 3f)
     {
+        BeginBattleEndRequest();
         yield return SpeakFromMemoryCoroutine(
             queryText,
             displayDuration,
-            CopyWorkingMemories(workingMemories));
+            CopyWorkingMemories(workingMemories),
+            requestVersion,
+            isPriorityRequest: true);
         yield return new WaitForSecondsRealtime(displayDuration);
+    }
+
+    private void StartOrdinaryRequest(
+        string queryText,
+        float displayDuration,
+        List<string> workingMemories)
+    {
+        if (battleEndRequestStarted)
+        {
+            return;
+        }
+
+        int version = requestVersion;
+        StartCoroutine(SpeakFromMemoryCoroutine(
+            queryText,
+            displayDuration,
+            workingMemories,
+            version,
+            isPriorityRequest: false));
+    }
+
+    private void BeginBattleEndRequest()
+    {
+        if (battleEndRequestStarted)
+        {
+            return;
+        }
+
+        battleEndRequestStarted = true;
+        requestVersion++;
+        Generator.CancelPendingRequests();
     }
 
     private IEnumerator SpeakFromMemoryCoroutine(
         string queryText,
         float displayDuration,
-        List<string> workingMemories)
+        List<string> workingMemories,
+        int version,
+        bool isPriorityRequest)
     {
         float responseStartedAt = Time.realtimeSinceStartup;
         string requestId = System.Guid.NewGuid().ToString("N");
@@ -98,6 +142,11 @@ public class DialogueController : MonoBehaviour
             result => memories = result,
             error => retrievalError = error,
             elapsed => retrievalMilliseconds = elapsed);
+
+        if (IsCancelled(version, isPriorityRequest))
+        {
+            yield break;
+        }
 
         if (!string.IsNullOrEmpty(retrievalError))
         {
@@ -144,6 +193,11 @@ public class DialogueController : MonoBehaviour
             error => generationError = error,
             elapsed => generationMilliseconds = elapsed);
 
+        if (IsCancelled(version, isPriorityRequest))
+        {
+            yield break;
+        }
+
         float endToEndMilliseconds =
             (Time.realtimeSinceStartup - responseStartedAt) * 1000f;
 
@@ -181,6 +235,18 @@ public class DialogueController : MonoBehaviour
         }
 
         Speak(generatedText, displayDuration);
+    }
+
+    private bool IsCancelled(int version, bool isPriorityRequest)
+    {
+        return !isPriorityRequest &&
+            (battleEndRequestStarted || version != requestVersion);
+    }
+
+    private void OnDestroy()
+    {
+        requestVersion++;
+        Generator?.CancelPendingRequests();
     }
 
     private static void RecordDialogueOutput(
