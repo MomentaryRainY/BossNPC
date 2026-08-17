@@ -9,9 +9,9 @@ ui.newcard,获得新卡牌！,Get a new card!
 ui.press,按下任意按键以继续…,Press Any key to continue…
 ui.tryagain,再试一次,Try Again
 ui.levelup,升级！,Level Up！
-ui.thanks,"如果您游玩的实验版本，游戏测试数据已经粘贴到您的剪切板，请粘贴到网页问卷！
+ui.thanks,"实验日志已保存在游戏目录中，请在网页问卷最后一页上传以 experiment_session 开头的 JSONL 文件。
 
-感谢游玩！","Game statistics has been pasted to your clipboard, please paste it to questionnaire.
+感谢游玩！","The experiment log has been saved in the game folder. Please upload the JSONL file beginning with experiment_session on the final questionnaire page.
 
 Thanks for playing!"
 ,,
@@ -49,7 +49,7 @@ tutorial.carddeck,您初始只有三种牌，每张携带了两张。教学关�
 tutorial.transition,在每场战斗结束后，您会获得数值提升以及新的卡牌！并且您可以编辑您的牌库！没有卡牌总数上限限制，每种卡牌限制最多携带两张。设计您的牌库进行挑战吧！,"After each battle, you'll receive stat boosts and new cards! You can also edit your deck! There's no limit to the total number of cards you can carry, but you can only bring a maximum of two copies of each type. Design your deck and take on the challenge!"
 tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
 tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>
-tutorial.continue,按下空格间以继续 -->,Press Space to Continue -->
+tutorial.continue,按下空格键以继续 -->,Press Space to Continue -->
 tutorial.preboss,接下来开始正式测试，请点击下方按钮打开问卷链接，并填写对应的随机码在下框中。在后续游玩时请勿关闭，每场Boss战结束后请切换应用，返回问卷页面回答该Boss的相关问题。接下来您将遇到四场Boss战，其中Boss的对话内容将有一定改变，请细心观察。,"The questionnaire will now begin. Please click the button below to open the questionnaire link and fill in the corresponding random code in the box below. Do not close the application during subsequent gameplay. After each boss battle, please switch applications and return to the questionnaire page to answer the relevant questions for that boss. You will then encounter four boss battles, during which the boss dialogue will be slightly different; please observe carefully."
 tutorial.postboss,请在完成该Boss的问卷内容后继续...,Please continue after completing this boss's questionnaire…
 tutorial.link,链接,Link

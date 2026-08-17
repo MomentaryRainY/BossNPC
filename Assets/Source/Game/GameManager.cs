@@ -186,6 +186,8 @@ public class GameManager : MonoBehaviour
 
         if (isLastBattle)
         {
+            ExperimentSessionLogLogger.CompleteSession();
+
             if (RunMode == GameRunMode.Experiment)
             {
                 experimentSession.Complete();
@@ -297,6 +299,8 @@ public class GameManager : MonoBehaviour
         BattleManager battleManager,
         bool waitForPreparation)
     {
+        RefreshExperimentBossDialogueCondition(battleManager);
+
         if (!waitForPreparation || MemorySystem.Instance == null)
         {
             battleManager.GameStart();
@@ -304,6 +308,26 @@ public class GameManager : MonoBehaviour
         }
 
         StartCoroutine(WaitForMemoryPreparationThenStart(battleManager));
+    }
+
+    private void RefreshExperimentBossDialogueCondition(BattleManager battleManager)
+    {
+        if (RunMode != GameRunMode.Experiment ||
+            RTBS == null ||
+            !RTBS.isBossFight)
+        {
+            return;
+        }
+
+        BossDialogueCondition condition = ResolveDialogueCondition(
+            BattleConfigs[CurrentSceneNum]);
+
+        RTBS.DialogueCondition = condition;
+        battleManager.ReconfigureBossDialogue(condition);
+
+        Debug.Log(
+            $"Boss dialogue condition refreshed before battle start: " +
+            $"mode={experimentSession.Mode}, condition={condition}.");
     }
 
     private IEnumerator WaitForMemoryPreparationThenStart(BattleManager battleManager)

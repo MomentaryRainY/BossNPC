@@ -15,7 +15,7 @@ public class ChoiceView : MonoBehaviour
 
     private string key1, key2, key3;
     private string characterKey;
-
+    private bool choicesConfigured;
     public void OnEnable()
     {
         BTN1.onClick.AddListener(OnChoice1Clicked);
@@ -47,11 +47,14 @@ public class ChoiceView : MonoBehaviour
         this.key2 = key2;
         this.key3 = key3;
         this.characterKey = key4;
+        choicesConfigured = true;
         SetTexts();
     }
 
     private void SetTexts()
     {
+        if (!choicesConfigured || LocalizationManager.Instance == null)
+            return;
         choice1.text = LocalizationManager.Instance.GetText(key1);
         choice2.text = LocalizationManager.Instance.GetText(key2);
         choice3.text = LocalizationManager.Instance.GetText(key3);

@@ -21,6 +21,8 @@ public class DialogueBubbleView : MonoBehaviour
 
     public void SetText(string content)
     {
+        PrewarmCharacters(content);
+
         text.enableWordWrapping = true;
         text.overflowMode = TextOverflowModes.Page;
 
@@ -50,6 +52,31 @@ public class DialogueBubbleView : MonoBehaviour
 
         pageCount = text.textInfo.pageCount;
         currentPage = 1;
+    }
+
+    private void PrewarmCharacters(string content)
+    {
+        if (LocalizationManager.Instance != null)
+        {
+            LocalizationManager.Instance.PrewarmChineseCharacters(content);
+            return;
+        }
+
+        TMP_FontAsset fontAsset = text.font;
+        if (fontAsset == null || string.IsNullOrEmpty(content))
+        {
+            return;
+        }
+
+        fontAsset.isMultiAtlasTexturesEnabled = true;
+
+        if (!fontAsset.TryAddCharacters(content, out string missingCharacters)
+            && !string.IsNullOrEmpty(missingCharacters))
+        {
+            Debug.LogWarning(
+                $"Dialogue font '{fontAsset.name}' could not provide these characters: " +
+                missingCharacters);
+        }
     }
 
     public bool HasNextPage()

@@ -129,6 +129,27 @@ public class BattleManager : MonoBehaviour
         }
     }
 
+    public void ReconfigureBossDialogue(BossDialogueCondition condition)
+    {
+        if (CurrentBattleState == null || !CurrentBattleState.isBossFight)
+        {
+            return;
+        }
+
+        CurrentBattleState.DialogueCondition = condition;
+
+        if (CurrentBossDialogueDirector == null)
+        {
+            Debug.LogWarning(
+                "Cannot refresh the boss dialogue condition because no director was found.");
+            return;
+        }
+
+        CurrentBossDialogueDirector.Configure(
+            CurrentBattleState.RunMode,
+            condition);
+    }
+
     private IEnumerator StartPlayerTurnCoroutine()
     {
         yield return CurrentUIManager.ShowTurnBanner(

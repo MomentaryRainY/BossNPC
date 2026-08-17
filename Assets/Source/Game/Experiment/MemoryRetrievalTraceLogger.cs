@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using UnityEngine;
 
 [Serializable]
@@ -45,9 +43,7 @@ public sealed class MemoryImportanceScoringRecord
 
 public static class MemoryImportanceScoringLogger
 {
-    private const string FileName = "memory_importance_scoring.jsonl";
-
-    public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
+    public static string FilePath => ExperimentSessionLogLogger.FilePath;
 
     public static void Record(MemoryImportanceScoringRecord record)
     {
@@ -61,37 +57,14 @@ public static class MemoryImportanceScoringLogger
         record.TimestampUtc = DateTime.UtcNow.ToString("O");
         record.Error = record.Error ?? string.Empty;
 
-        try
-        {
-            string directory = Path.GetDirectoryName(FilePath);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+        ExperimentSessionLogLogger.RecordImportanceScoring(record);
 
-            File.AppendAllText(
-                FilePath,
-                JsonUtility.ToJson(record) + Environment.NewLine,
-                Encoding.UTF8);
-
-            Debug.Log(
-                $"Memory importance scoring logged: batch={record.BatchId}, " +
-                $"origin={record.Origin}, requested={record.RequestedMemoryCount}, " +
-                $"scored={record.ScoredMemoryCount}, " +
-                $"elapsed={record.ScoringMilliseconds:F1}ms, " +
-                $"success={record.Success}");
-        }
-        catch (Exception exception)
-        {
-            Debug.LogError(
-                $"Failed to write memory importance scoring data: {exception.Message}");
-        }
-    }
-
-    private static string GetGameDirectory()
-    {
-        DirectoryInfo dataDirectory = Directory.GetParent(Application.dataPath);
-        return dataDirectory != null ? dataDirectory.FullName : Application.dataPath;
+        Debug.Log(
+            $"Memory importance scoring logged: batch={record.BatchId}, " +
+            $"origin={record.Origin}, requested={record.RequestedMemoryCount}, " +
+            $"scored={record.ScoredMemoryCount}, " +
+            $"elapsed={record.ScoringMilliseconds:F1}ms, " +
+            $"success={record.Success}, output={FilePath}");
     }
 }
 
@@ -120,9 +93,7 @@ public interface IRetrievalTraceProvider
 
 public static class MemoryRetrievalTraceLogger
 {
-    private const string FileName = "memory_retrieval_trace.jsonl";
-
-    public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
+    public static string FilePath => ExperimentSessionLogLogger.FilePath;
 
     public static void Record(MemoryRetrievalTrace trace)
     {
@@ -135,34 +106,12 @@ public static class MemoryRetrievalTraceLogger
         trace.SessionCode = DialoguePerformanceLogger.CurrentSessionCode;
         trace.ExperimentMode = DialoguePerformanceLogger.CurrentExperimentMode;
 
-        try
-        {
-            string directory = Path.GetDirectoryName(FilePath);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+        ExperimentSessionLogLogger.RecordRetrievalTrace(trace);
 
-            File.AppendAllText(
-                FilePath,
-                JsonUtility.ToJson(trace) + Environment.NewLine,
-                Encoding.UTF8);
-
-            Debug.Log(
-                $"Memory retrieval trace saved: request={trace.RequestId}, " +
-                $"strategy={trace.Strategy}, " +
-                $"candidates={trace.EligibleMemoryCount}, topK={trace.TopK}, " +
-                $"output={FilePath}");
-        }
-        catch (Exception exception)
-        {
-            Debug.LogError($"Failed to write memory retrieval trace: {exception.Message}");
-        }
-    }
-
-    private static string GetGameDirectory()
-    {
-        DirectoryInfo dataDirectory = Directory.GetParent(Application.dataPath);
-        return dataDirectory != null ? dataDirectory.FullName : Application.dataPath;
+        Debug.Log(
+            $"Memory retrieval trace saved: request={trace.RequestId}, " +
+            $"strategy={trace.Strategy}, " +
+            $"candidates={trace.EligibleMemoryCount}, topK={trace.TopK}, " +
+            $"output={FilePath}");
     }
 }

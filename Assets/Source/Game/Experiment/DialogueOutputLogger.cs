@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using UnityEngine;
 
 [Serializable]
@@ -21,9 +19,7 @@ public sealed class DialogueOutputRecord
 
 public static class DialogueOutputLogger
 {
-    private const string FileName = "dialogue_output.jsonl";
-
-    public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
+    public static string FilePath => ExperimentSessionLogLogger.FilePath;
 
     public static void Record(DialogueOutputRecord record)
     {
@@ -39,33 +35,11 @@ public static class DialogueOutputLogger
         record.ResponseText = record.ResponseText ?? string.Empty;
         record.TimestampUtc = DateTime.UtcNow.ToString("O");
 
-        try
-        {
-            string directory = Path.GetDirectoryName(FilePath);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+        ExperimentSessionLogLogger.RecordDialogueOutput(record);
 
-            File.AppendAllText(
-                FilePath,
-                JsonUtility.ToJson(record) + Environment.NewLine,
-                Encoding.UTF8);
-
-            Debug.Log(
-                $"Dialogue output saved: request={record.RequestId}, " +
-                $"strategy={record.Strategy}, trigger={record.Trigger}, " +
-                $"success={record.Success}, output={FilePath}");
-        }
-        catch (Exception exception)
-        {
-            Debug.LogError($"Failed to write dialogue output: {exception.Message}");
-        }
-    }
-
-    private static string GetGameDirectory()
-    {
-        DirectoryInfo dataDirectory = Directory.GetParent(Application.dataPath);
-        return dataDirectory != null ? dataDirectory.FullName : Application.dataPath;
+        Debug.Log(
+            $"Dialogue output saved: request={record.RequestId}, " +
+            $"strategy={record.Strategy}, trigger={record.Trigger}, " +
+            $"success={record.Success}, output={FilePath}");
     }
 }

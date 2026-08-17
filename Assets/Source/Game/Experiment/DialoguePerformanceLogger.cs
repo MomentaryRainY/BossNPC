@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -27,15 +26,13 @@ public sealed class DialoguePerformanceRecord
 
 public static class DialoguePerformanceLogger
 {
-    private const string FileName = "dialogue_performance.jsonl";
-
     private static readonly List<DialoguePerformanceRecord> currentSessionRecords =
         new List<DialoguePerformanceRecord>();
 
     private static string currentSessionCode = "standalone";
     private static string currentExperimentMode = "standalone";
 
-    public static string FilePath => Path.Combine(GetGameDirectory(), FileName);
+    public static string FilePath => ExperimentSessionLogLogger.FilePath;
     public static string CurrentSessionCode => currentSessionCode;
     public static string CurrentExperimentMode => currentExperimentMode;
     public static IReadOnlyList<DialoguePerformanceRecord> CurrentSessionRecords =>
@@ -50,6 +47,9 @@ public static class DialoguePerformanceLogger
             ? "standalone"
             : experimentMode;
         currentSessionRecords.Clear();
+        ExperimentSessionLogLogger.BeginSession(
+            currentSessionCode,
+            currentExperimentMode);
 
         Debug.Log($"Dialogue performance session started: {currentSessionCode}, " +
             $"mode={currentExperimentMode}, output={FilePath}");
@@ -60,6 +60,7 @@ public static class DialoguePerformanceLogger
         if (!string.IsNullOrWhiteSpace(experimentMode))
         {
             currentExperimentMode = experimentMode;
+            ExperimentSessionLogLogger.UpdateExperimentMode(experimentMode);
         }
     }
 
@@ -140,38 +141,15 @@ public static class DialoguePerformanceLogger
         record.Error = record.Error ?? string.Empty;
 
         currentSessionRecords.Add(record);
+        ExperimentSessionLogLogger.RecordDialoguePerformance(record);
 
-        try
-        {
-            string directory = Path.GetDirectoryName(FilePath);
-            if (!string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            File.AppendAllText(
-                FilePath,
-                JsonUtility.ToJson(record) + Environment.NewLine,
-                Encoding.UTF8);
-
-            Debug.Log(
-                $"Dialogue metrics: request={record.RequestId}, " +
-                $"session={record.SessionCode}, " +
-                $"condition={record.RetrievalStrategy}, trigger={record.Trigger}, " +
-                $"promptChars={record.PromptCharacters}, retrieved={record.RetrievedMemoryCount}, " +
-                $"retrieval={record.RetrievalMilliseconds:F1}ms, " +
-                $"generation={record.GenerationMilliseconds:F1}ms, " +
-                $"endToEnd={record.EndToEndMilliseconds:F1}ms");
-        }
-        catch (Exception exception)
-        {
-            Debug.LogError($"Failed to write dialogue performance data: {exception.Message}");
-        }
-    }
-
-    private static string GetGameDirectory()
-    {
-        DirectoryInfo dataDirectory = Directory.GetParent(Application.dataPath);
-        return dataDirectory != null ? dataDirectory.FullName : Application.dataPath;
+        Debug.Log(
+            $"Dialogue metrics: request={record.RequestId}, " +
+            $"session={record.SessionCode}, " +
+            $"condition={record.RetrievalStrategy}, trigger={record.Trigger}, " +
+            $"promptChars={record.PromptCharacters}, retrieved={record.RetrievedMemoryCount}, " +
+            $"retrieval={record.RetrievalMilliseconds:F1}ms, " +
+            $"generation={record.GenerationMilliseconds:F1}ms, " +
+            $"endToEnd={record.EndToEndMilliseconds:F1}ms");
     }
 }

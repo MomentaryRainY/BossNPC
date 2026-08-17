@@ -5657,6 +5657,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   strategy: 0
   embeddingProxyUrl: http://127.0.0.1:3000/embed
+  importanceScoringProxyUrl: http://127.0.0.1:3000/dialogue
+  retrievalConfig:
+    TopK: 3
+    SimilarityWeight: 0.7
+    ImportanceWeight: 0.3
+    ExceptionalFastTurnMaximum: 2
+    TypicalTurnMinimum: 3
+    TypicalTurnMaximum: 4
+    ExceptionalSlowTurnMinimum: 7
+    CriticalHealthThreshold: 0.25
+    WoundedHealthThreshold: 0.5
+    StrongFinishThreshold: 0.9
+    MeaningfulDamageThreshold: 0.25
+    ExceptionalDamageThreshold: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -660,7 +660,6 @@ GameObject:
   - component: {fileID: 2013762123}
   - component: {fileID: 2013762125}
   - component: {fileID: 2013762124}
-  - component: {fileID: 2013762127}
   - component: {fileID: 2013762128}
   m_Layer: 0
   m_Name: Text
@@ -708,8 +707,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Game statistics has been pasted to your clipboard, please paste it to
-    questionnaire.
+  m_text: 'The experiment log has been saved in the game folder. Please upload the
+    experiment_session file on the final questionnaire page.
 
 
     Thanks for playing!'
@@ -789,19 +788,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2013762122}
   m_CullTransparentMesh: 1
---- !u!114 &2013762127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2013762122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84909d0a228f4d46ad1826757c813da4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CopyOnShow: 1
 --- !u!114 &2013762128
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -29463,6 +29463,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1731389273}
   - component: {fileID: 1731389274}
+  - component: {fileID: 1731389275}
   m_Layer: 0
   m_Name: --BossGame--
   m_TagString: Untagged
@@ -29498,7 +29499,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e3e5027b740cb043be4606bcb56ae84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RunMode: 2
+  RunMode: 1
   ExperimentBattleConfig: {fileID: 11400000, guid: 46c0e0bfb5cfbdd4b9d406aa5d82a92a, type: 2}
   FullMemoryBattleConfig: {fileID: 11400000, guid: 46c0e0bfb5cfbdd4b9d406aa5d82a92a, type: 2}
   ScriptedBattleConfig: {fileID: 11400000, guid: 46c0e0bfb5cfbdd4b9d406aa5d82a92a, type: 2}
@@ -29512,6 +29513,34 @@ MonoBehaviour:
   RestartSceneOnDefeat: 1
   SeedRetrievalTestMemories: 1
   ClearMemoryPoolBeforeSeeding: 1
+--- !u!114 &1731389275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731389271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26611cf883d4cd441a87931fcb821fa8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  strategy: 3
+  embeddingProxyUrl: http://127.0.0.1:3000/embed
+  importanceScoringProxyUrl: http://127.0.0.1:3000/dialogue
+  retrievalConfig:
+    TopK: 3
+    SimilarityWeight: 0.7
+    ImportanceWeight: 0.3
+    ExceptionalFastTurnMaximum: 2
+    TypicalTurnMinimum: 3
+    TypicalTurnMaximum: 4
+    ExceptionalSlowTurnMinimum: 7
+    CriticalHealthThreshold: 0.25
+    WoundedHealthThreshold: 0.5
+    StrongFinishThreshold: 0.9
+    MeaningfulDamageThreshold: 0.25
+    ExceptionalDamageThreshold: 0.5
 --- !u!1001 &1733275348
 PrefabInstance:
   m_ObjectHideFlags: 0
