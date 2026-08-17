@@ -79,3 +79,4 @@ model_cache/
 *.onnx
 .env
 experiment_session_*.jsonl
+LLMProxy/

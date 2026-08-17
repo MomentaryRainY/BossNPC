@@ -5,14 +5,19 @@ BossNPC is a research prototype for NPC memory retrieval strategies in turn-base
 ## Prerequisites
 
 - `Scripted` does not need LLM or embedding service.
-- `Full Memory` requires dialogue generation proxy, but not require embedding interface.
+- `Full Memory` requires the dialogue generation proxy, but does not require the embedding interface.
 - `Experiment` requires both LLM and embedding.
 
-Project has an uniform entrance for two API, check 'Proxy' folder, open '.env' in text file.
+## Local LLM Proxy
 
-Before launching the game, please run Node.js service in game directory.
+`LLMProxy` is the companion local Node.js service for BossNPC. It provides the
+`/dialogue` endpoint for remote LLM generation and the `/embed` endpoint for
+local memory-similarity embeddings. The embedding model is bundled with the
+proxy, while users must provide their own compatible LLM API configuration.
 
-Embedding service is prebuilt in game repository, while LLM API link has to be set by user.
+Configure and start the proxy before launching the game. See the
+[LLMProxy README](LLMProxy/README.md) for requirements, API configuration,
+startup instructions, and troubleshooting checks.
 
 ## Release Versions
 
