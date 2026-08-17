@@ -104,7 +104,7 @@ public class LocalizationManager : MonoBehaviour
             characters,
             out string missingCharacters);
 
-        if (!allCharactersAdded && !string.IsNullOrEmpty(missingCharacters))
+        if (!allCharactersAdded && !string.IsNullOrEmpty(missingCharacters) && CurrentLanguage == Language.Zh)
         {
             Debug.LogWarning(
                 $"Chinese font '{fontAsset.name}' could not provide these characters: " +
