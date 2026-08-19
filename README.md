@@ -15,9 +15,27 @@ BossNPC is a research prototype for NPC memory retrieval strategies in turn-base
 local memory-similarity embeddings. The embedding model is bundled with the
 proxy, while users must provide their own compatible LLM API configuration.
 
-Configure and start the proxy before launching the game. See the
-[LLMProxy README](LLMProxy/README.md) for requirements, API configuration,
-startup instructions, and troubleshooting checks.
+Configure and start the proxy before launching the game:
+1. Double-click `start.bat` in LLMProxy folder once. It creates `.env` and then stops.
+2. Open `.env` and replace these values with details from your API provider:
+
+   ```env
+   LLM_API_URL=https://provider.example/v1/chat/completions
+   LLM_API_KEY=your_api_key
+   LLM_MODEL=deepseek-v4-pro
+   PORT=3000
+   ```
+
+3. Double-click `start.bat` again. On the first run it installs the locked npm
+   dependencies and loads the bundled embedding model.
+4. Keep the terminal window open while playing BossNPC.
+
+The service is ready when the terminal prints:
+
+```text
+Embedding model ready.
+LLM proxy running on http://127.0.0.1:3000
+```
 
 ## Release Versions
 

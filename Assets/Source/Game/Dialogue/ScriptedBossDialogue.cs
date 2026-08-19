@@ -12,7 +12,7 @@ public sealed class ScriptedBossDialogue : MonoBehaviour
         unit = GetComponentInParent<Unit>();
     }
 
-    public void Speak(string intent, float duration = 3f)
+    public void Speak(string intent, float duration = 4.5f)
     {
         if (unit == null || DialogueBubbleManager.Instance == null)
         {
@@ -33,7 +33,7 @@ public sealed class ScriptedBossDialogue : MonoBehaviour
         DialogueBubbleManager.Instance.ShowBubble(unit, content, duration);
     }
 
-    public IEnumerator SpeakAndWait(string intent, float displayDuration = 3f)
+    public IEnumerator SpeakAndWait(string intent, float displayDuration = 4.5f)
     {
         Speak(intent, displayDuration);
         yield return new WaitForSecondsRealtime(displayDuration);

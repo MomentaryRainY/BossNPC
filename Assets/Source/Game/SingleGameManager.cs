@@ -44,6 +44,8 @@ public class SingleGameManager : MonoBehaviour
             return;
         }
 
+        EnsureStandaloneAudioListener();
+
         ActiveBattleConfig = ResolveBattleConfig();
         if (ActiveBattleConfig == null)
         {
@@ -58,6 +60,24 @@ public class SingleGameManager : MonoBehaviour
         {
             StartSingleBattle();
         }
+    }
+
+    private static void EnsureStandaloneAudioListener()
+    {
+        if (FindFirstObjectByType<AudioListener>() != null)
+        {
+            return;
+        }
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            Debug.LogWarning(
+                "SingleGameManager could not add an AudioListener because the MainCamera is missing.");
+            return;
+        }
+
+        mainCamera.gameObject.AddComponent<AudioListener>();
     }
 
     private void ConfigureRetrievalTest()
@@ -103,58 +123,7 @@ public class SingleGameManager : MonoBehaviour
 
     private static List<MemoryEventData> CreateRetrievalTestMemories()
     {
-        return new List<MemoryEventData>
-        {
-            MemoryEventFactory.CreateTurnEvent("Battle1", 1, 33f, 0.33f, false, 0.95f),
-            MemoryEventFactory.CreateTurnEvent("Battle1", 2, 67f, 0.67f, false, 0.90f),
-            MemoryEventFactory.CreateEncounterDuration("Battle1", 2),
-            MemoryEventFactory.CreateFinalHealth("Battle1", 0.90f),
-            CreateTestChoice(
-                "Battle1",
-                2,
-                "Execute him",
-                NarrativeConsequence.Irreversible),
-
-            MemoryEventFactory.CreateTurnEvent("Battle2", 1, 28f, 0.40f, false, 0.91f),
-            MemoryEventFactory.CreateTurnEvent("Battle2", 2, 70f, 1f, false, 0.88f),
-            MemoryEventFactory.CreateEncounterDuration("Battle2", 2),
-            MemoryEventFactory.CreateFinalHealth("Battle2", 0.88f),
-            CreateTestChoice(
-                "Battle2",
-                1,
-                "Ignore his situation and keep going.",
-                NarrativeConsequence.Indirect),
-
-            MemoryEventFactory.CreateTurnEvent("Battle3", 1, 40f, 0.27f, false, 0.93f),
-            MemoryEventFactory.CreateTurnEvent("Battle3", 2, 55.5f, 0.37f, true, 0.90f),
-            MemoryEventFactory.CreateTurnEvent("Battle3", 3, 45f, 0.30f, true, 0.87f),
-            MemoryEventFactory.CreateEncounterDuration("Battle3", 3),
-            MemoryEventFactory.CreateFinalHealth("Battle3", 0.87f),
-            CreateTestChoice(
-                "Battle3",
-                3,
-                "Execute him",
-                NarrativeConsequence.Irreversible)
-        };
-    }
-
-    private static MemoryEventData CreateTestChoice(
-        string battleId,
-        int choiceIndex,
-        string choiceText,
-        NarrativeConsequence narrativeConsequence)
-    {
-        return new MemoryEventData
-        {
-            BattleId = battleId,
-            Category = MemoryCategory.NarrativeChoice,
-            Text = $"The player selected: {choiceText}.",
-            Metrics = new MemoryEventMetrics
-            {
-                ChoiceIndex = choiceIndex,
-                NarrativeConsequence = narrativeConsequence
-            }
-        };
+        return OfflineRetrievalBenchmarkDataset.CreateMemories();
     }
 
     public void StartSingleBattle()

@@ -1772,7 +1772,7 @@ MonoBehaviour:
   - Boss
   RandomizeExperimentMode: 0
   ConfiguredExperimentMode: 0
-  SurveyUrl: www.bilibili.com
+  SurveyUrl: https://warwick.co1.qualtrics.com/jfe/form/SV_0dojD6cAIH5rami
 --- !u!224 &790968154
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3104,7 +3104,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1323156227
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4515,6 +4515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LocalizationCsv: {fileID: 4900000, guid: 3d749794d868ba74f94f7b1292fb917f, type: 3}
+  ChineseFontAsset: {fileID: 0}
 --- !u!4 &1768339410
 Transform:
   m_ObjectHideFlags: 0

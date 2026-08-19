@@ -39,7 +39,7 @@ public class DialogueGenerator
         "Battle3 - Rowan's Kinsman and Subordinate: This guard shared Rowan's background, " +
         "accepted Rowan's goals, and willingly assisted Rowan.";
 
-    private string proxyUrl = "http://localhost:3000/dialogue";
+    private string proxyUrl = "http://127.0.0.1:3000/dialogue";
     private readonly List<UnityWebRequest> activeRequests = new List<UnityWebRequest>();
 
     public void CancelPendingRequests()

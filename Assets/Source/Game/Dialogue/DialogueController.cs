@@ -16,14 +16,14 @@ public class DialogueController : MonoBehaviour
         Generator = new DialogueGenerator();
     }
 
-    public void Speak(string text, float duration = 3f)
+    public void Speak(string text, float duration = 4.5f)
     {
         DialogueBubbleManager.Instance.ShowBubble(CurrentUnit, text, duration);
     }
 
     public void SpeakFromMemory(string queryText)
     {
-        StartOrdinaryRequest(queryText, 3f, null);
+        StartOrdinaryRequest(queryText, 4.5f, null);
     }
 
     public void SpeakFromMemory(
@@ -32,11 +32,11 @@ public class DialogueController : MonoBehaviour
     {
         StartOrdinaryRequest(
             queryText,
-            3f,
+            4.5f,
             CopyWorkingMemories(workingMemories));
     }
 
-    public IEnumerator SpeakFromMemoryAndWait(string queryText, float displayDuration = 3f)
+    public IEnumerator SpeakFromMemoryAndWait(string queryText, float displayDuration = 4.5f)
     {
         BeginBattleEndRequest();
         yield return SpeakFromMemoryCoroutine(
@@ -51,7 +51,7 @@ public class DialogueController : MonoBehaviour
     public IEnumerator SpeakFromMemoryAndWait(
         string queryText,
         IReadOnlyList<string> workingMemories,
-        float displayDuration = 3f)
+        float displayDuration = 4.5f)
     {
         BeginBattleEndRequest();
         yield return SpeakFromMemoryCoroutine(

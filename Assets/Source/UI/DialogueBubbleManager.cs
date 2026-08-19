@@ -11,6 +11,9 @@ public class DialogueBubbleManager : MonoBehaviour
     [SerializeField] private int sortingOrder = 10;
 
     private Dictionary<Unit, DialogueBubbleView> dic = new();
+
+    private readonly Dictionary<Unit, Coroutine> bubbleCoroutines = new();
+
     private void Awake()
     {
         if (Instance != null)
@@ -29,7 +32,7 @@ public class DialogueBubbleManager : MonoBehaviour
         }
     }
 
-    public void ShowBubble(Unit unit, string content, float duration = 3.5f)
+    public void ShowBubble(Unit unit, string content, float duration = 4.5f)
     {
         if (!dic.TryGetValue(unit, out DialogueBubbleView view))
         {
@@ -37,11 +40,18 @@ public class DialogueBubbleManager : MonoBehaviour
             dic.Add(unit, view);
         }
 
+        if (bubbleCoroutines.TryGetValue(unit, out Coroutine oldCoroutine))
+        {
+            StopCoroutine(oldCoroutine);
+        }
+
         view.SetText(content);
         view.show();
         UpdatePosition(unit, view);
 
-        StartCoroutine(ShowPagedBubble(unit, view, duration));
+        Coroutine newCoroutine = StartCoroutine(ShowPagedBubble(unit, view, duration));
+
+        bubbleCoroutines[unit] = newCoroutine;
     }
 
     private IEnumerator ShowPagedBubble(Unit unit, DialogueBubbleView view, float pageDuration)
@@ -53,6 +63,7 @@ public class DialogueBubbleManager : MonoBehaviour
             if (!view.HasNextPage())
             {
                 SetHidden(unit);
+                bubbleCoroutines.Remove(unit);
                 yield break;
             }
 
@@ -107,6 +118,12 @@ public class DialogueBubbleManager : MonoBehaviour
 
     public void RemoveBubble(Unit unit)
     {
+        if (bubbleCoroutines.TryGetValue(unit, out Coroutine coroutine))
+        {
+            StopCoroutine(coroutine);
+            bubbleCoroutines.Remove(unit);
+        }
+
         if (!dic.TryGetValue(unit, out DialogueBubbleView view))
         {
             return;

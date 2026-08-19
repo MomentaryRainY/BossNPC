@@ -9,9 +9,9 @@ ui.newcard,获得新卡牌！,Get a new card!
 ui.press,按下任意按键以继续…,Press Any key to continue…
 ui.tryagain,再试一次,Try Again
 ui.levelup,升级！,Level Up！
-ui.thanks,"实验日志已保存在游戏目录中，请在网页问卷最后一页上传以 experiment_session 开头的 JSONL 文件。
+ui.thanks,"如果您游玩的实验版本，游戏测试数据已经粘贴到您的剪切板，请粘贴到网页问卷！
 
-感谢游玩！","The experiment log has been saved in the game folder. Please upload the JSONL file beginning with experiment_session on the final questionnaire page.
+感谢游玩！","Game statistics has been pasted to your clipboard, please paste it to questionnaire.
 
 Thanks for playing!"
 ,,
@@ -40,7 +40,7 @@ card.hammer.desc,"前方矩形范围, 对范围内所有人造成{damage}点伤�
 card.magic.name,魔法,Magic
 card.magic.desc,"间隔{range}, 方形范围，对范围内所有人造成{damage}点伤害。","Interval {range}, Square range 1, deal {damage} damage to all enemies in range."
 ,,
-tutorial.esc,您可以随时按下 ESC 键打开设置面板，其中包含背景音乐音量调节滑块、中英文语言切换按钮以及一击必杀开关（可让您一击必杀）。当您觉得游戏太难时，不妨试试这个功能 :),"You can press ESC to invoke setting panel at any moment, where contains BGM volumn slider, Language switch from chinese and english, and a One hit toggle allow you kill in One-hit. Trigger this when you find the game too difficult :)"
+tutorial.esc,您可以随时按下 ESC 键打开设置面板，其中包含背景音乐音量调节滑块、中英文语言切换按钮。,"You can press ESC to invoke setting panel at any moment, where contains BGM volumn slider, Language switch from chinese and english."
 tutorial.space,按下空格键以切换教程页,Press the spacebar to switch tutorial pages.
 tutorial.move,每场战斗都有一个棋盘，您在每回合都有一次移动的机会，可移动范围用黄色显示，移动结束后，可以用鼠标右键/退格键来撤销移动，也可选择不移动,"Each battle features a chessboard. You have one move opportunity per turn, indicated by a yellow movement area. After making a move, you can undo it using the right mouse button or the backspace key, or choose not to move."
 tutorial.playcard,每回合会抽取两张牌，您可以在您的回合鼠标点击卡牌拖动到目标身上以释放。每张卡牌有自身的释放位置限制，当您拖动卡牌后，卡牌会使用红色标记支持释放的棋盘格子。尝试用每张牌的红色格子覆盖您想要打到的敌人吧！,"Each turn, you draw two cards. You can click and drag the cards to your target to release them. Each card has its own release position restriction; after you drag a card, it will be marked with red squares on the board that it can be released on. Try covering the enemy you want to attack with the red squares of each card!"
@@ -50,7 +50,7 @@ tutorial.transition,在每场战斗结束后，您会获得数值提升以及新
 tutorial.target,游戏一共三个关卡，失败会返回游戏开始界面，带领主角爬到雪山之巅吧！提示：尝试单卡尽量多造成伤害，同时规避敌人的靠近吧！,The game has three levels. Failing will return you to the start screen. Lead the main hero to the summit of the ice-peak! Tip: Try to deal as much damage as possible with single cards while avoiding enemy attacks!
 tutorial.start,按下空格键开始挑战！ >>>,Press Space to Start!  >>>
 tutorial.continue,按下空格键以继续 -->,Press Space to Continue -->
-tutorial.preboss,接下来开始正式测试，请点击下方按钮打开问卷链接，并填写对应的随机码在下框中。在后续游玩时请勿关闭，每场Boss战结束后请切换应用，返回问卷页面回答该Boss的相关问题。接下来您将遇到四场Boss战，其中Boss的对话内容将有一定改变，请细心观察。,"The questionnaire will now begin. Please click the button below to open the questionnaire link and fill in the corresponding random code in the box below. Do not close the application during subsequent gameplay. After each boss battle, please switch applications and return to the questionnaire page to answer the relevant questions for that boss. You will then encounter four boss battles, during which the boss dialogue will be slightly different; please observe carefully."
+tutorial.preboss,接下来开始正式测试，请点击下方按钮打开问卷链接，并填写对应的随机码在下框中。在后续游玩时请勿关闭，每场Boss战结束后请切换应用，返回问卷页面回答该Boss的相关问题。接下来您将遇到三场Boss战，其中Boss的对话内容将有一定改变，请细心观察。,"The questionnaire will now begin. Please click the button below to open the questionnaire link and fill in the corresponding random code in the box below. Do not close the application during subsequent gameplay. After each boss battle, please switch applications and return to the questionnaire page to answer the relevant questions for that boss. You will then encounter three boss battles, during which the boss dialogue will be slightly different; please observe carefully."
 tutorial.postboss,请在完成该Boss的问卷内容后继续...,Please continue after completing this boss's questionnaire…
 tutorial.link,链接,Link
 ,,

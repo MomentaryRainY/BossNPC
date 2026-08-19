@@ -255,17 +255,8 @@ public abstract class Unit : MonoBehaviour
 
     public IEnumerator FaceCell(Vector2Int targetCell)
     {
-        Vector2Int delta = targetCell - GridPos;
-
-        if (delta == Vector2Int.zero)
-        {
+        if (!TryGetFacingRotation(targetCell, out Quaternion targetRotation))
             yield break;
-        }
-
-        Vector3 dir = new Vector3(delta.x, 0f, delta.y).normalized;
-
-        Quaternion targetRotation = Quaternion.LookRotation(dir, Vector3.up);
-        targetRotation *= Quaternion.Euler(0f, FacingYawOffset, 0f);
 
         while (Quaternion.Angle(transform.rotation, targetRotation) > 1f)
         {
@@ -279,6 +270,27 @@ public abstract class Unit : MonoBehaviour
         }
 
         transform.rotation = targetRotation;
+    }
+
+    public void FaceCellImmediate(Vector2Int targetCell)
+    {
+        if (TryGetFacingRotation(targetCell, out Quaternion targetRotation))
+            transform.rotation = targetRotation;
+    }
+
+    private bool TryGetFacingRotation(Vector2Int targetCell, out Quaternion targetRotation)
+    {
+        Vector2Int delta = targetCell - GridPos;
+        if (delta == Vector2Int.zero)
+        {
+            targetRotation = transform.rotation;
+            return false;
+        }
+
+        Vector3 dir = new Vector3(delta.x, 0f, delta.y).normalized;
+        targetRotation = Quaternion.LookRotation(dir, Vector3.up);
+        targetRotation *= Quaternion.Euler(0f, FacingYawOffset, 0f);
+        return true;
     }
 
     private IEnumerator WaitForAnimatorStateEnter(string stateName, int layer = 0)

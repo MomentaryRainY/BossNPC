@@ -29613,7 +29613,7 @@ MonoBehaviour:
   PlayPreBattleSequence: 0
   PlayPostBattleSequence: 0
   RestartSceneOnDefeat: 1
-  SeedRetrievalTestMemories: 0
+  SeedRetrievalTestMemories: 1
   ClearMemoryPoolBeforeSeeding: 1
 --- !u!114 &1731389275
 MonoBehaviour:

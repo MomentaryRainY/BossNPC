@@ -88,6 +88,7 @@ public class BattleManager : MonoBehaviour
         {
             Unit enemyUnit = Instantiate(enemy.Prefab);
             enemyUnit.Init(Board, enemy);
+            enemyUnit.FaceCellImmediate(CurrentPlayer.CurrentPos);
             HPBarView hpBarE = CurrentUIManager.CreateHPBar(enemyUnit);
             enemyUnit.BindHealthBar(hpBarE);
             CurrentEnemies.Add(enemyUnit);
