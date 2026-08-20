@@ -10,14 +10,23 @@ BossNPC is a research prototype for NPC memory retrieval strategies in turn-base
 
 ## Local LLM Proxy
 
-`LLMProxy` is the companion local Node.js service for BossNPC. It provides the
+`LLMProxy` is the companion local service for BossNPC. It provides the
 `/dialogue` endpoint for remote LLM generation and the `/embed` endpoint for
 local memory-similarity embeddings. The embedding model is bundled with the
-proxy, while users must provide their own compatible LLM API configuration.
+proxy. The release also includes a portable Windows x64 Node.js runtime and
+preinstalled dependencies, so players do not need to install Node.js or run
+`npm install`. Users must still provide their own compatible LLM API
+configuration.
+
+The formal experiment uses the `DeepSeek-V4-Pro-0813` model version. The exact
+value accepted by `LLM_MODEL` is provider-specific; the included configuration
+uses `deepseek-v4-pro`.
 
 Configure and start the proxy before launching the game:
-1. Double-click `start.bat` in LLMProxy folder once. It creates `.env` and then stops.
-2. Open `.env` and replace these values with details from your API provider:
+1. Extract the complete release archive; do not run files from inside the ZIP.
+2. Double-click `LLMProxy/start.bat`. On the first launch, it creates `.env`
+   and opens the file in Notepad.
+3. Replace the placeholder values with details from your API provider:
 
    ```env
    LLM_API_URL=https://provider.example/v1/chat/completions
@@ -26,9 +35,10 @@ Configure and start the proxy before launching the game:
    PORT=3000
    ```
 
-3. Double-click `start.bat` again. On the first run it installs the locked npm
-   dependencies and loads the bundled embedding model.
-4. Keep the terminal window open while playing BossNPC.
+4. Save and close Notepad. The same terminal loads the bundled embedding model
+   and starts the proxy.
+5. Keep the terminal window open while playing BossNPC. Later sessions only
+   require double-clicking `start.bat`.
 
 The service is ready when the terminal prints:
 
@@ -36,6 +46,10 @@ The service is ready when the terminal prints:
 Embedding model ready.
 LLM proxy running on http://127.0.0.1:3000
 ```
+
+Do not publish a completed `.env` or a real API key. For the proxy's folder
+layout, health check, and troubleshooting guidance, see
+[`LLMProxy/README.md`](LLMProxy/README.md).
 
 ## Release Versions
 
