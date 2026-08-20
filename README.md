@@ -1,6 +1,12 @@
-# Game Instructions
+# About
 
 BossNPC is a research prototype for NPC memory retrieval strategies in turn-based games. The officially released game version uses the `Experiment` mode by default, and participants do not need to select technical conditions within the game.
+
+## Source Code and Runable Game
+
+If you intend to play the experiment game directly, please download the `NPCBossGame.zip` in release page.
+
+If you intend to run and edit game in Unity, please git clone or download `source code.zip` and open in Unity 2022.3.62f2.
 
 ## Prerequisites
 
